@@ -1,290 +1,247 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
+import '../constants/app_constants.dart';
+import '../widgets/vector_shapes.dart';
+
 class LogInScreen extends StatefulWidget {
-	const LogInScreen({super.key});
+  const LogInScreen({super.key, this.onSignIn, this.onForgotPassword, this.onSignUp});
 
-	@override
-	State<LogInScreen> createState() => _LogInScreenState();
+  final Future<void> Function(String email, String password)? onSignIn;
+  final VoidCallback? onForgotPassword;
+  final VoidCallback? onSignUp;
+
+  @override
+  State<LogInScreen> createState() => _LogInScreenState();
 }
 
-class _LogInScreenState extends State<LogInScreen> {
-	final _formKey = GlobalKey<FormState>();
-	final _emailController = TextEditingController();
-	final _passwordController = TextEditingController();
-	bool _obscurePassword = true;
-	bool _rememberMe = true;
+class _LogInScreenState extends State<LogInScreen> with TickerProviderStateMixin {
+  final _formKey = GlobalKey<FormState>();
+  final _email = TextEditingController();
+  final _password = TextEditingController();
+  late final AnimationController _entrance;
+  late final AnimationController _floating;
+  late final Animation<double> _fade;
+  bool _started = false;
+  bool _obscure = true;
+  bool _loading = false;
 
-	static const brand = Color(0xFF493252);
-	static const accent = Color(0xFFF2B880);
-	static const background = Color(0xFFF7F4F8);
-	static const muted = Color(0xFF8E8792);
+  @override
+  void initState() {
+    super.initState();
+    _entrance = AnimationController(vsync: this, duration: const Duration(milliseconds: 900));
+    _floating = AnimationController(vsync: this, duration: const Duration(seconds: 24));
+    _fade = CurvedAnimation(parent: _entrance, curve: Curves.easeOutCubic);
+  }
 
-	@override
-	void dispose() {
-		_emailController.dispose();
-		_passwordController.dispose();
-		super.dispose();
-	}
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (MediaQuery.of(context).disableAnimations) {
+      _entrance.value = 1;
+      _floating.stop();
+      _started = true;
+    } else {
+      if (!_started) {
+        _started = true;
+        _entrance.forward();
+      }
+      if (!_floating.isAnimating) _floating.repeat();
+    }
+  }
 
-	void _submit() {
-		if (!(_formKey.currentState?.validate() ?? false)) return;
-		ScaffoldMessenger.of(context).showSnackBar(
-			const SnackBar(
-				content: Text('تم التحقق من البيانات بنجاح'),
-				backgroundColor: brand,
-			),
-		);
-	}
+  @override
+  void dispose() {
+    _entrance.dispose();
+    _floating.dispose();
+    _email.dispose();
+    _password.dispose();
+    super.dispose();
+  }
 
-	@override
-	Widget build(BuildContext context) {
-		return Directionality(
-			textDirection: TextDirection.rtl,
-			child: Scaffold(
-				backgroundColor: background,
-				body: SafeArea(
-					child: LayoutBuilder(
-						builder: (context, constraints) => SingleChildScrollView(
-							child: ConstrainedBox(
-								constraints: BoxConstraints(minHeight: constraints.maxHeight),
-								child: Column(
-									children: [
-										_WelcomeHeader(compact: constraints.maxHeight < 720),
-										_LoginForm(
-											formKey: _formKey,
-											emailController: _emailController,
-											passwordController: _passwordController,
-											obscurePassword: _obscurePassword,
-											rememberMe: _rememberMe,
-											onTogglePassword: () => setState(() {
-												_obscurePassword = !_obscurePassword;
-											}),
-											onRememberChanged: (value) => setState(() {
-												_rememberMe = value ?? false;
-											}),
-											onSubmit: _submit,
-										),
-									],
-								),
-							),
-						),
-					),
-				),
-			),
-		);
-	}
-}
+  Future<void> _submit() async {
+    if (_loading || !_formKey.currentState!.validate()) return;
+    FocusScope.of(context).unfocus();
+    if (widget.onSignIn == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Connect your authentication to onSignIn.')));
+      return;
+    }
+    setState(() => _loading = true);
+    try {
+      await widget.onSignIn!(_email.text.trim(), _password.text);
+    } catch (_) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Unable to sign in. Please try again.')));
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
 
-class _WelcomeHeader extends StatelessWidget {
-	const _WelcomeHeader({required this.compact});
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      resizeToAvoidBottomInset: true,
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final width = math.min(constraints.maxWidth, 460.0);
+            final height = width * 680 / 390;
+            return SingleChildScrollView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: SizedBox(
+                    width: width,
+                    height: height,
+                    child: FittedBox(
+                      fit: BoxFit.contain,
+                      alignment: Alignment.topCenter,
+                      child: SizedBox(
+                        width: 390,
+                        height: 680,
+                        child: FadeTransition(opacity: _fade, child: _screen()),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
 
-	final bool compact;
+  Widget _screen() {
+    return Form(
+      key: _formKey,
+      child: Stack(
+        clipBehavior: Clip.hardEdge,
+        children: [
+          Positioned.fill(child: RepaintBoundary(child: CustomPaint(painter: VectorBackground(animation: _floating)))),
+          Positioned(
+            left: 34,
+            top: 46,
+            child: Semantics(
+              label: 'Vector',
+              image: true,
+              child: ExcludeSemantics(
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 29,
+                      height: 31,
+                      child: ClipRect(
+                        child: OverflowBox(
+                          alignment: Alignment.center,
+                          minWidth: 52,
+                          maxWidth: 52,
+                          minHeight: 52,
+                          maxHeight: 52,
+                          child: Image.asset('assets/logo/vector-mark-dark-1024-removebg-preview.png', width: 52, height: 52),
+                        ),
+                      ),
+                    ),
+                    Text('ector', style: AppTypography.sans(size: 31, color: AppColors.background, weight: FontWeight.w500, spacing: -1.4, height: 1)),
+                  ],
+                ),
+              ),
+            ),
+          ),
+              Positioned(left: 35, top: 266, child: Text('WELCOME BACK', style: AppTypography.sans(size: 10, color: AppColors.muted, weight: FontWeight.w600, spacing: 3.1))),
+          Positioned(
+            left: 33,
+                top: 304,
+            width: 330,
+            child: Text('Make room\nfor possibility.', style: AppTypography.display()),
+          ),
+              Positioned(left: 35, top: 420, child: Text('Sign in to find your people.', style: AppTypography.sans(size: 13.6, color: AppColors.muted, spacing: -0.35))),
+              Positioned(left: 35, right: 35, top: 458, height: 47, child: _input(controller: _email, label: 'EMAIL', hint: 'you@example.com', keyboardType: TextInputType.emailAddress, action: TextInputAction.next, validator: (value) => RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch((value ?? '').trim()) ? null : 'Enter a valid email.')),
+              Positioned(left: 35, right: 35, top: 520, height: 47, child: _input(controller: _password, label: 'PASSWORD', hint: '••••••••', password: true, action: TextInputAction.done, validator: (value) => value == null || value.isEmpty ? 'Enter your password.' : null)),
+              Positioned(
+                right: 30,
+                top: 568,
+            child: TextButton(
+              onPressed: _loading ? null : widget.onForgotPassword,
+              style: TextButton.styleFrom(foregroundColor: AppColors.purple, padding: const EdgeInsets.symmetric(horizontal: 5), minimumSize: const Size(48, 30)),
+              child: Text('Forgot password?', style: AppTypography.sans(size: 10.8, weight: FontWeight.w500, spacing: -0.25)),
+            ),
+          ),
+              Positioned(
+                left: 35,
+                right: 35,
+                top: 608,
+            height: 44,
+            child: DecoratedBox(
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(9), gradient: const LinearGradient(colors: [AppColors.apricotButtonStart, AppColors.apricotButtonEnd])),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: _loading ? null : _submit,
+                  child: Center(
+                    child: _loading
+                        ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 1.8, color: AppColors.purple))
+                        : Row(mainAxisSize: MainAxisSize.min, children: [Text('Sign in', style: AppTypography.sans(size: 15, weight: FontWeight.w500, spacing: -0.5)), const SizedBox(width: 9), const SizedBox(width: 12, height: 14, child: CustomPaint(painter: ButtonTrianglePainter()))]),
+                  ),
+                ),
+              ),
+            ),
+          ),
+              Positioned(
+                left: 20,
+                right: 20,
+                top: 660,
+            height: 30,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('Don’t have an account?', style: AppTypography.sans(size: 10.8, color: AppColors.muted, spacing: -0.2)),
+                TextButton(onPressed: _loading ? null : widget.onSignUp, style: TextButton.styleFrom(foregroundColor: AppColors.secondary, padding: const EdgeInsets.only(left: 4, right: 2), minimumSize: const Size(0, 30), tapTargetSize: MaterialTapTargetSize.shrinkWrap), child: Text('Sign up', style: AppTypography.sans(size: 10.8, color: AppColors.secondary, weight: FontWeight.w500, spacing: -0.2))),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-	@override
-	Widget build(BuildContext context) {
-		return Container(
-			width: double.infinity,
-			padding: EdgeInsets.fromLTRB(28, compact ? 22 : 34, 28, compact ? 74 : 94),
-			decoration: const BoxDecoration(
-				color: _LogInScreenState.brand,
-				borderRadius: BorderRadius.vertical(bottom: Radius.circular(44)),
-			),
-			child: Stack(
-				children: [
-					Positioned(
-						top: -55,
-						left: -55,
-						child: Transform.rotate(
-							angle: -0.25,
-							child: Container(width: 210, height: 270, color: Color(0xFF604663)),
-						),
-					),
-					Column(
-						crossAxisAlignment: CrossAxisAlignment.end,
-						children: [
-							Row(
-								mainAxisAlignment: MainAxisAlignment.spaceBetween,
-								children: [
-									const Text(
-										'⋮⋮⋮',
-										textDirection: TextDirection.ltr,
-										style: TextStyle(color: Colors.white, fontSize: 21, fontWeight: FontWeight.bold),
-									),
-									Row(
-										children: [
-											const Text(
-												'Vector',
-												textDirection: TextDirection.ltr,
-												style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w700),
-											),
-											const SizedBox(width: 12),
-											Container(
-												width: 62,
-												height: 62,
-												padding: const EdgeInsets.all(10),
-												decoration: BoxDecoration(color: _LogInScreenState.accent, borderRadius: BorderRadius.circular(17)),
-												child: Image.asset('assets/logo/vector-app-icon-1024.png'),
-											),
-										],
-									),
-								],
-							),
-							const SizedBox(height: 38),
-							const Text('أهلًا بعودتك', style: TextStyle(color: Colors.white, fontSize: 35, fontWeight: FontWeight.w700)),
-							const SizedBox(height: 10),
-							const Text('سجّل دخولك وشوف الفُرق اللي تنتظر مهاراتك.', style: TextStyle(color: Color(0xFFD5CBD7), fontSize: 16)),
-							const SizedBox(height: 28),
-							Container(
-								padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-								decoration: BoxDecoration(
-									color: Colors.white.withValues(alpha: 0.1),
-									borderRadius: BorderRadius.circular(30),
-									border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
-								),
-								child: const Row(
-									mainAxisSize: MainAxisSize.min,
-									children: [
-										Text('▲', style: TextStyle(color: _LogInScreenState.accent, fontSize: 13)),
-										SizedBox(width: 9),
-										Text('٣ دعوات جديدة تنتظرك', style: TextStyle(color: Color(0xFFE0D7E2), fontSize: 15)),
-									],
-								),
-							),
-						],
-					),
-				],
-			),
-		);
-	}
-}
+  Widget _input({required TextEditingController controller, required String label, required String hint, required TextInputAction action, required String? Function(String?) validator, TextInputType? keyboardType, bool password = false}) {
+    return TextFormField(
+      controller: controller,
+      enabled: !_loading,
+      obscureText: password && _obscure,
+      obscuringCharacter: '•',
+      keyboardType: keyboardType,
+      textInputAction: action,
+      autocorrect: false,
+      enableSuggestions: !password,
+      cursorColor: AppColors.purple,
+      style: AppTypography.sans(size: 13.3, color: AppColors.muted, spacing: password && _obscure ? 2.5 : -0.3),
+      onFieldSubmitted: (_) { if (password) _submit(); },
+      validator: validator,
+      decoration: InputDecoration(
+        labelText: label,
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        labelStyle: AppTypography.sans(size: 10.5, weight: FontWeight.w600, spacing: 2.3),
+        floatingLabelStyle: AppTypography.sans(size: 10.5, weight: FontWeight.w600, spacing: 2.3),
+        hintText: hint,
+        hintStyle: AppTypography.sans(size: 13.3, color: AppColors.muted, spacing: password ? 2.5 : -0.3),
+        filled: true,
+        fillColor: Colors.white.withValues(alpha: 0.13),
+        isDense: true,
+        contentPadding: const EdgeInsets.fromLTRB(13, 16, 12, 8),
+        errorStyle: const TextStyle(fontSize: 0, height: 0),
+        border: _fieldBorder(AppColors.fieldBorder),
+        enabledBorder: _fieldBorder(AppColors.fieldBorder),
+        focusedBorder: _fieldBorder(AppColors.fieldFocused, width: 1.2),
+        errorBorder: _fieldBorder(AppColors.fieldError),
+        suffixIcon: password ? IconButton(tooltip: _obscure ? 'Show password' : 'Hide password', onPressed: _loading ? null : () => setState(() => _obscure = !_obscure), icon: Icon(_obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined, color: AppColors.mutedDeep, size: 20)) : null,
+      ),
+    );
+  }
 
-class _LoginForm extends StatelessWidget {
-	const _LoginForm({
-		required this.formKey,
-		required this.emailController,
-		required this.passwordController,
-		required this.obscurePassword,
-		required this.rememberMe,
-		required this.onTogglePassword,
-		required this.onRememberChanged,
-		required this.onSubmit,
-	});
-
-	final GlobalKey<FormState> formKey;
-	final TextEditingController emailController;
-	final TextEditingController passwordController;
-	final bool obscurePassword;
-	final bool rememberMe;
-	final VoidCallback onTogglePassword;
-	final ValueChanged<bool?> onRememberChanged;
-	final VoidCallback onSubmit;
-
-	InputDecoration _decoration(String label) => InputDecoration(
-				labelText: label,
-				labelStyle: const TextStyle(color: _LogInScreenState.muted, fontSize: 14),
-				filled: true,
-				fillColor: Colors.white,
-				contentPadding: const EdgeInsets.symmetric(horizontal: 22, vertical: 18),
-				border: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: BorderSide.none),
-				enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: BorderSide.none),
-				focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: const BorderSide(color: _LogInScreenState.brand, width: 1.5)),
-				errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: const BorderSide(color: Colors.redAccent)),
-			);
-
-	@override
-	Widget build(BuildContext context) {
-		return Transform.translate(
-			offset: const Offset(0, -38),
-			child: Container(
-				width: double.infinity,
-				padding: const EdgeInsets.fromLTRB(28, 42, 28, 20),
-				decoration: const BoxDecoration(
-					color: _LogInScreenState.background,
-					borderRadius: BorderRadius.vertical(top: Radius.circular(46)),
-				),
-				child: Form(
-					key: formKey,
-					child: Column(
-						children: [
-							TextFormField(
-								controller: emailController,
-								keyboardType: TextInputType.emailAddress,
-								textDirection: TextDirection.ltr,
-								textAlign: TextAlign.right,
-								decoration: _decoration('البريد الإلكتروني'),
-								validator: (value) {
-									if (value == null || value.trim().isEmpty) return 'أدخل بريدك الإلكتروني';
-									if (!value.contains('@')) return 'أدخل بريدًا إلكترونيًا صحيحًا';
-									return null;
-								},
-							),
-							const SizedBox(height: 18),
-							TextFormField(
-								controller: passwordController,
-								obscureText: obscurePassword,
-								textAlign: TextAlign.right,
-								decoration: _decoration('كلمة المرور').copyWith(
-									suffixIcon: TextButton(
-										onPressed: onTogglePassword,
-										child: const Text('إظهار', style: TextStyle(color: _LogInScreenState.brand)),
-									),
-								),
-								validator: (value) => value == null || value.length < 6 ? 'كلمة المرور قصيرة جدًا' : null,
-							),
-							const SizedBox(height: 10),
-							Row(
-								mainAxisAlignment: MainAxisAlignment.spaceBetween,
-								children: [
-									TextButton(onPressed: () {}, child: const Text('نسيت كلمة المرور؟', style: TextStyle(color: _LogInScreenState.brand, fontSize: 14))),
-									Row(
-										children: [
-											const Text('تذكّرني', style: TextStyle(color: _LogInScreenState.muted, fontSize: 14)),
-											Checkbox(value: rememberMe, onChanged: onRememberChanged, activeColor: _LogInScreenState.brand),
-										],
-									),
-								],
-							),
-							const SizedBox(height: 12),
-							SizedBox(
-								width: double.infinity,
-								height: 62,
-								child: ElevatedButton.icon(
-									onPressed: onSubmit,
-									icon: const Text('◀', style: TextStyle(color: _LogInScreenState.accent, fontSize: 17)),
-									label: const Text('تسجيل الدخول', style: TextStyle(fontSize: 23, fontWeight: FontWeight.w700)),
-									style: ElevatedButton.styleFrom(
-										backgroundColor: _LogInScreenState.brand,
-										foregroundColor: Colors.white,
-										shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-									),
-								),
-							),
-							const SizedBox(height: 32),
-							Row(
-								children: [
-									const Expanded(child: Divider(color: Color(0xFFE3DEE4))),
-									const Padding(
-										padding: EdgeInsets.symmetric(horizontal: 16),
-										child: Text('أو المتابعة عبر', style: TextStyle(color: _LogInScreenState.muted, fontSize: 14)),
-									),
-									const Expanded(child: Divider(color: Color(0xFFE3DEE4))),
-								],
-							),
-							const SizedBox(height: 30),
-							const Text('الدخول متاح عبر البريد الإلكتروني فقط', style: TextStyle(color: _LogInScreenState.muted, fontSize: 14)),
-							const SizedBox(height: 42),
-							Row(
-								mainAxisAlignment: MainAxisAlignment.center,
-								children: [
-									TextButton(onPressed: () {}, child: const Text('سجّل الآن', style: TextStyle(color: _LogInScreenState.brand, fontWeight: FontWeight.w700))),
-									const Text('ما عندك حساب؟ ', style: TextStyle(color: _LogInScreenState.muted, fontSize: 15)),
-								],
-							),
-							Container(width: 220, height: 5, decoration: BoxDecoration(color: const Color(0xFFC8C4C9), borderRadius: BorderRadius.circular(4))),
-						],
-					),
-				),
-			),
-		);
-	}
+  OutlineInputBorder _fieldBorder(Color color, {double width = 0.65}) => OutlineInputBorder(borderRadius: BorderRadius.circular(9), borderSide: BorderSide(color: color, width: width), gapPadding: 0);
 }

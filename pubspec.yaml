@@ -9,6 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  google_fonts: ^8.2.1
 
 dev_dependencies:
   flutter_test:
@@ -19,3 +20,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/logo/vector-app-icon-1024.png
+    - assets/logo/vector-mark-dark-1024-removebg-preview.png

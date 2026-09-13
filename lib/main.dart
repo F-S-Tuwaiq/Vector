@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'constants/app_constants.dart';
 import 'screens/log_in_screen.dart';
 
 void main() {
@@ -12,13 +13,12 @@ class VectorApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      title: 'Vector',
       theme: ThemeData(
-        brightness: Brightness.light,
-        scaffoldBackgroundColor: const Color(0xFFF7F4F8),
-        fontFamily: 'Arial',
+        useMaterial3: true,
+        scaffoldBackgroundColor: AppColors.background,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF493252),
-          brightness: Brightness.light,
+          seedColor: AppColors.purple,
         ),
       ),
       home: const LogInScreen(),
