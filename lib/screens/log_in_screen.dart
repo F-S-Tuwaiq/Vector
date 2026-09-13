@@ -30,7 +30,7 @@ class _LogInScreenState extends State<LogInScreen> with TickerProviderStateMixin
   @override
   void initState() {
     super.initState();
-    _entrance = AnimationController(vsync: this, duration: const Duration(milliseconds: 900));
+    _entrance = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200));
     _floating = AnimationController(vsync: this, duration: const Duration(seconds: 24));
     _fade = CurvedAnimation(parent: _entrance, curve: Curves.easeOutCubic);
   }
@@ -151,21 +151,42 @@ class _LogInScreenState extends State<LogInScreen> with TickerProviderStateMixin
               ),
             ),
           ),
-              Positioned(left: 35, top: 266, child: Text('WELCOME BACK', style: AppTypography.sans(size: 10, color: AppColors.muted, weight: FontWeight.w600, spacing: 3.1))),
-          Positioned(
-            left: 33,
-                top: 304,
-            width: 330,
-            child: Text('Make room\nfor possibility.', style: AppTypography.display()),
-          ),
-              Positioned(left: 35, top: 420, child: Text('Sign in to find your people.', style: AppTypography.sans(size: 13.6, color: AppColors.muted, spacing: -0.35))),
-              Positioned(left: 35, right: 35, top: 458, height: 47, child: _input(controller: _email, label: 'EMAIL', hint: 'you@example.com', keyboardType: TextInputType.emailAddress, action: TextInputAction.next, validator: (value) => RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch((value ?? '').trim()) ? null : 'Enter a valid email.')),
-              Positioned(left: 35, right: 35, top: 520, height: 47, child: _input(controller: _password, label: 'PASSWORD', hint: '••••••••', password: true, action: TextInputAction.done, validator: (value) => value == null || value.isEmpty ? 'Enter your password.' : null)),
+              Positioned(
+                left: 35,
+                right: 35,
+                top: 234,
+                height: 232,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        height: 14,
+                        child: Text('WELCOME BACK', style: AppTypography.sans(size: 10, color: AppColors.muted, weight: FontWeight.w600, spacing: 3.1)),
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        height: 104,
+                        child: Text('Make room\nfor possibility.', style: AppTypography.display()),
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        height: 18,
+                        child: Text('Sign in to find your people.', style: AppTypography.sans(size: 13.6, color: AppColors.muted, spacing: -0.35)),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Positioned(left: 35, right: 35, top: 466, height: 47, child: _input(controller: _email, label: 'EMAIL', hint: 'you@example.com', keyboardType: TextInputType.emailAddress, action: TextInputAction.next, validator: (value) => RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch((value ?? '').trim()) ? null : 'Enter a valid email.')),
+              Positioned(left: 35, right: 35, top: 528, height: 47, child: _input(controller: _password, label: 'PASSWORD', hint: '••••••••', password: true, action: TextInputAction.done, validator: (value) => value == null || value.isEmpty ? 'Enter your password.' : null)),
               Positioned(
                 right: 30,
-                top: 568,
+                top: 562,
             child: TextButton(
-              onPressed: _loading ? null : widget.onForgotPassword,
+              onPressed: _loading ? null : () {},
               style: TextButton.styleFrom(foregroundColor: AppColors.purple, padding: const EdgeInsets.symmetric(horizontal: 5), minimumSize: const Size(48, 30)),
               child: Text('Forgot password?', style: AppTypography.sans(size: 10.8, weight: FontWeight.w500, spacing: -0.25)),
             ),
@@ -173,7 +194,7 @@ class _LogInScreenState extends State<LogInScreen> with TickerProviderStateMixin
               Positioned(
                 left: 35,
                 right: 35,
-                top: 608,
+                top: 616,
             height: 44,
             child: DecoratedBox(
               decoration: BoxDecoration(borderRadius: BorderRadius.circular(9), gradient: const LinearGradient(colors: [AppColors.apricotButtonStart, AppColors.apricotButtonEnd])),
@@ -199,7 +220,7 @@ class _LogInScreenState extends State<LogInScreen> with TickerProviderStateMixin
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text('Don’t have an account?', style: AppTypography.sans(size: 10.8, color: AppColors.muted, spacing: -0.2)),
-                TextButton(onPressed: _loading ? null : widget.onSignUp, style: TextButton.styleFrom(foregroundColor: AppColors.secondary, padding: const EdgeInsets.only(left: 4, right: 2), minimumSize: const Size(0, 30), tapTargetSize: MaterialTapTargetSize.shrinkWrap), child: Text('Sign up', style: AppTypography.sans(size: 10.8, color: AppColors.secondary, weight: FontWeight.w500, spacing: -0.2))),
+                TextButton(onPressed: _loading ? null : () {}, style: TextButton.styleFrom(foregroundColor: AppColors.secondary, padding: const EdgeInsets.only(left: 4, right: 2), minimumSize: const Size(0, 30), tapTargetSize: MaterialTapTargetSize.shrinkWrap), child: Text('Sign up', style: AppTypography.sans(size: 10.8, color: AppColors.secondary, weight: FontWeight.w500, spacing: -0.2))),
               ],
             ),
           ),

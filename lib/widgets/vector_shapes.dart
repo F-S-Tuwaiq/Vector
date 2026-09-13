@@ -12,11 +12,11 @@ class VectorBackground extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final scaleX = size.width / 390;
-    final scaleY = size.height / 644;
+    final scaleY = size.height / 680;
     canvas.save();
     canvas.scale(scaleX, scaleY);
 
-    const bounds = Rect.fromLTWH(0, 0, 390, 644);
+    const bounds = Rect.fromLTWH(0, 0, 390, 680);
     canvas.drawRect(
       bounds,
       Paint()
