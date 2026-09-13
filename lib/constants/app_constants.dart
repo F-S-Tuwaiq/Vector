@@ -26,6 +26,7 @@ abstract final class AppColors {
   static const fieldBorder = Color(0xFFD0BDE2);
   static const fieldFocused = Color(0xFF826891);
   static const fieldError = Color(0xFFAC5747);
+  static const textPrimary = Color(0xFF3F2449);
 }
 
 abstract final class AppTypography {
