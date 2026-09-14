@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../theme/vector_colors.dart';
+
 class VectorSplash extends StatefulWidget {
   const VectorSplash({
     required this.onComplete,
@@ -112,14 +114,14 @@ class _VectorSplashState extends State<VectorSplash>
           );
         },
         child: ColoredBox(
-          color: const Color(0xFF493252),
+          color: VectorColors.purpleBrand,
           child: LayoutBuilder(
             builder: (context, constraints) {
               final markWidth = constraints.maxWidth * 0.164;
               final markHeight = markWidth * (58 / 64);
               final fontSize = markWidth * 1.0625;
               final wordmarkStyle = TextStyle(
-                color: const Color(0xFFF7F4F8),
+                color: VectorColors.textOnPurple,
                 fontFamily: 'IBM Plex Sans Arabic',
                 fontSize: fontSize,
                 fontWeight: FontWeight.w600,
@@ -209,15 +211,15 @@ class _VectorSplashState extends State<VectorSplash>
                           child: Container(
                             width: glowDiameter,
                             height: glowDiameter,
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               gradient: RadialGradient(
                                 colors: [
-                                  Color(0x33F2B880),
-                                  Color(0x00F2B880),
-                                  Color(0x00F2B880),
+                                  VectorColors.apricot.withValues(alpha: 0.2),
+                                  VectorColors.apricot.withValues(alpha: 0),
+                                  VectorColors.apricot.withValues(alpha: 0),
                                 ],
-                                stops: [0, 0.65, 1],
+                                stops: const [0, 0.65, 1],
                               ),
                             ),
                           ),
@@ -277,12 +279,12 @@ class _VectorSplashState extends State<VectorSplash>
                               onPressed: _complete,
                               icon: const Icon(
                                 Icons.arrow_drop_up,
-                                color: Color(0xFFF2B880),
+                                color: VectorColors.apricot,
                                 size: 24,
                               ),
                               style: FilledButton.styleFrom(
-                                backgroundColor: const Color(0xFF493252),
-                                foregroundColor: const Color(0xFFF7F4F8),
+                                backgroundColor: VectorColors.purpleBrand,
+                                foregroundColor: VectorColors.textOnPurple,
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 32,
                                   vertical: 14,
@@ -291,6 +293,7 @@ class _VectorSplashState extends State<VectorSplash>
                               label: const Text(
                                 'Continue',
                                 style: TextStyle(
+                                  fontFamily: 'IBM Plex Sans Arabic',
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -337,17 +340,17 @@ class _VectorMarkPainter extends CustomPainter {
       canvas,
       leftPath,
       leftProgress,
-      const Color(0xFFF7F4F8),
+      VectorColors.textOnPurple,
     );
     _drawProgressivePath(
       canvas,
       rightPath,
       rightProgress,
-      const Color(0xFFF2B880),
+      VectorColors.apricot,
     );
 
     final dotPaint = Paint()
-      ..color = const Color(0xFFF7F4F8)
+      ..color = VectorColors.textOnPurple
           .withValues(alpha: dotScale.clamp(0.0, 1.0));
     canvas.drawCircle(const Offset(32, 50), 4 * dotScale, dotPaint);
     canvas.restore();
