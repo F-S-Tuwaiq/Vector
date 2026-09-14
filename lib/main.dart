@@ -1,13 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'constants/app_constants.dart';
-import 'screens/home_page.dart';
-import 'screens/log_in_screen.dart';
-import 'screens/splash_screen.dart';
+import 'config/env.dart';
+import 'screens/home_screen.dart';
+import 'theme/vector_theme.dart';
 
-final navigatorKey = GlobalKey<NavigatorState>();
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load();
 
-void main() {
+  if (Env.isConfigured) {
+    try {
+      await Supabase.initialize(
+        url: Env.supabaseUrl,
+        publishableKey: Env.supabaseAnonKey,
+      );
+    } catch (_) {
+      // Never let a bad/unreachable Supabase config crash the app —
+      // HackathonRepository falls back to mock data on its own anyway.
+    }
+  }
+
   runApp(const VectorApp());
 }
 
@@ -19,39 +33,8 @@ class VectorApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Vector',
-      navigatorKey: navigatorKey,
-      theme: ThemeData(
-        useMaterial3: true,
-        scaffoldBackgroundColor: AppColors.background,
-        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.purple),
-      ),
-      home: VectorSplash(
-        speedFactor: 0.92,
-        onComplete: () {
-          navigatorKey.currentState?.pushReplacement(
-            PageRouteBuilder<void>(
-              pageBuilder: (context, animation, secondaryAnimation) =>
-                  LogInScreen(
-                    onSignIn: (email, password) async {
-                      navigatorKey.currentState?.pushReplacement(
-                        MaterialPageRoute<void>(
-                          builder: (context) => const HomeScreen(),
-                        ),
-                      );
-                    },
-                  ),
-              transitionDuration: Duration.zero,
-              reverseTransitionDuration: Duration.zero,
-              transitionsBuilder: (
-                context,
-                animation,
-                secondaryAnimation,
-                child,
-              ) => FadeTransition(opacity: animation, child: child),
-            ),
-          );
-        },
-      ),
+      theme: VectorTheme.light,
+      home: const HomeScreen(),
     );
   }
 }
