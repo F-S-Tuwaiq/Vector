@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
+import 'constants/app_constants.dart';
+import 'screens/home_page.dart';
 import 'screens/log_in_screen.dart';
 import 'screens/splash_screen.dart';
-import 'theme/vector_colors.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -17,15 +18,12 @@ class VectorApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      title: 'Vector',
       navigatorKey: navigatorKey,
       theme: ThemeData(
-        brightness: Brightness.light,
-        scaffoldBackgroundColor: VectorColors.background,
-        fontFamily: 'IBM Plex Sans Arabic',
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: VectorColors.purpleBrand,
-          brightness: Brightness.light,
-        ),
+        useMaterial3: true,
+        scaffoldBackgroundColor: AppColors.background,
+        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.purple),
       ),
       home: VectorSplash(
         speedFactor: 0.92,
@@ -33,7 +31,15 @@ class VectorApp extends StatelessWidget {
           navigatorKey.currentState?.pushReplacement(
             PageRouteBuilder<void>(
               pageBuilder: (context, animation, secondaryAnimation) =>
-                  const LogInScreen(),
+                  LogInScreen(
+                    onSignIn: (email, password) async {
+                      navigatorKey.currentState?.pushReplacement(
+                        MaterialPageRoute<void>(
+                          builder: (context) => const HomeScreen(),
+                        ),
+                      );
+                    },
+                  ),
               transitionDuration: Duration.zero,
               reverseTransitionDuration: Duration.zero,
               transitionsBuilder: (
