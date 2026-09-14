@@ -1,3 +1,5 @@
+import 'member.dart';
+
 /// A team looking for members within a given hackathon.
 class Team {
   final String id;
@@ -7,6 +9,7 @@ class Team {
   final int maxMembers;
   final List<String> memberInitials;
   final List<String> missingRoles;
+  final List<Member> membersInfo;
 
   const Team({
     required this.id,
@@ -16,6 +19,7 @@ class Team {
     required this.maxMembers,
     this.memberInitials = const [],
     this.missingRoles = const [],
+    this.membersInfo = const [],
   });
 
   /// Parses a Supabase row (snake_case columns) into a [Team].
@@ -35,6 +39,10 @@ class Team {
           const [],
       missingRoles: (map['missing_roles'] as List?)
               ?.map((e) => e.toString())
+              .toList() ??
+          const [],
+      membersInfo: (map['members_info'] as List?)
+              ?.map((e) => Member.fromMap(e as Map<String, dynamic>))
               .toList() ??
           const [],
     );

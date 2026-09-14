@@ -6,14 +6,14 @@ import '../theme/vector_text.dart';
 
 /// Shows the "request sent" confirmation dialog for [team].
 ///
-/// Entrance is fade + scale (0.92 -> 1.0) over 300ms, unless
-/// [MediaQuery.disableAnimationsOf] is true, in which case the dialog
-/// appears instantly at its final state.
+/// Entrance is fade + an overshoot scale (0.85 -> 1.0, `Cubic(0.22, 1,
+/// 0.36, 1)`) over 350ms, unless [MediaQuery.disableAnimationsOf] is
+/// true, in which case the dialog appears instantly at its final state.
 Future<void> showRequestSentDialog(BuildContext context, Team team) {
   final disableAnimations = MediaQuery.disableAnimationsOf(context);
   final duration = disableAnimations
       ? Duration.zero
-      : const Duration(milliseconds: 300);
+      : const Duration(milliseconds: 350);
 
   return showGeneralDialog<void>(
     context: context,
@@ -25,11 +25,14 @@ Future<void> showRequestSentDialog(BuildContext context, Team team) {
       return _RequestSentDialogContent(team: team);
     },
     transitionBuilder: (context, animation, secondaryAnimation, child) {
-      final curved = CurvedAnimation(parent: animation, curve: Curves.easeOut);
+      final curved = CurvedAnimation(
+        parent: animation,
+        curve: const Cubic(0.22, 1, 0.36, 1),
+      );
       return FadeTransition(
-        opacity: curved,
+        opacity: animation,
         child: ScaleTransition(
-          scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
+          scale: Tween<double>(begin: 0.85, end: 1.0).animate(curved),
           child: child,
         ),
       );
@@ -57,30 +60,39 @@ class _RequestSentDialogContent extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                color: VectorColors.apricot,
-                borderRadius: BorderRadius.circular(13),
-              ),
-              alignment: Alignment.center,
-              child: Icon(
-                Icons.check,
-                color: VectorColors.textNeutral,
-              ),
-            ),
+            const _CelebrationIcon(),
             const SizedBox(height: 20),
             Text(
-              'Request sent',
-              style: VectorText.headlineMedium,
+              'Request sent!',
+              style: VectorText.headlineMedium.copyWith(
+                color: VectorColors.textPrimary,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
-            Text(
-              "Your request to join ${team.name} has been sent.\nWaiting for the team's response.",
-              style: VectorText.bodyMedium.copyWith(
-                color: VectorColors.textSecondary,
+            Text.rich(
+              TextSpan(
+                style: VectorText.bodyMedium.copyWith(
+                  color: VectorColors.textSecondary,
+                  height: 1.5,
+                ),
+                children: [
+                  const TextSpan(
+                    text:
+                        "You're one step closer — your request to join ",
+                  ),
+                  TextSpan(
+                    text: team.name,
+                    style: const TextStyle(
+                      color: VectorColors.buttonEnd,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const TextSpan(
+                    text:
+                        ' is on its way. Great teams move fast, so keep an eye out!',
+                  ),
+                ],
               ),
               textAlign: TextAlign.center,
             ),
@@ -99,7 +111,7 @@ class _RequestSentDialogContent extends StatelessWidget {
                   ),
                 ),
                 child: Text(
-                  'Done',
+                  "Let's go",
                   style: VectorText.labelLarge.copyWith(
                     color: VectorColors.textOnPurple,
                   ),
@@ -111,4 +123,91 @@ class _RequestSentDialogContent extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The apricot check tile with a scatter of small flat "confetti"
+/// triangles behind/around it — brand-consistent celebration, no motion
+/// beyond the dialog's own entrance.
+class _CelebrationIcon extends StatelessWidget {
+  const _CelebrationIcon();
+
+  // Hand-picked scatter: (dx, dy) offset from center, size, rotation
+  // (radians), and whether it uses apricot or surfaceLavender.
+  static const List<_ConfettiSpec> _confetti = [
+    _ConfettiSpec(Offset(-46, -30), 10, -0.4, true),
+    _ConfettiSpec(Offset(44, -34), 8, 0.6, false),
+    _ConfettiSpec(Offset(-52, 14), 7, 1.1, false),
+    _ConfettiSpec(Offset(50, 18), 12, -0.9, true),
+    _ConfettiSpec(Offset(-18, -46), 6, 0.2, false),
+    _ConfettiSpec(Offset(20, -48), 9, -1.3, true),
+    _ConfettiSpec(Offset(0, 44), 8, 0.8, true),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 140,
+      height: 120,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          for (final spec in _confetti)
+            Positioned(
+              left: 70 + spec.offset.dx - spec.size / 2,
+              top: 60 + spec.offset.dy - spec.size / 2,
+              child: Transform.rotate(
+                angle: spec.rotation,
+                child: CustomPaint(
+                  size: Size.square(spec.size),
+                  painter: _TrianglePainter(
+                    color: spec.apricot
+                        ? VectorColors.apricot
+                        : VectorColors.surfaceLavender,
+                  ),
+                ),
+              ),
+            ),
+          Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              color: VectorColors.apricot,
+              borderRadius: BorderRadius.circular(13),
+            ),
+            alignment: Alignment.center,
+            child: const Icon(Icons.check, color: VectorColors.textNeutral),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ConfettiSpec {
+  const _ConfettiSpec(this.offset, this.size, this.rotation, this.apricot);
+
+  final Offset offset;
+  final double size;
+  final double rotation;
+  final bool apricot;
+}
+
+class _TrianglePainter extends CustomPainter {
+  const _TrianglePainter({required this.color});
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final path = Path()
+      ..moveTo(size.width / 2, 0)
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height)
+      ..close();
+    canvas.drawPath(path, Paint()..color = color);
+  }
+
+  @override
+  bool shouldRepaint(covariant _TrianglePainter oldDelegate) =>
+      oldDelegate.color != color;
 }

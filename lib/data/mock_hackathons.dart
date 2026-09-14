@@ -1,4 +1,5 @@
 import '../models/hackathon.dart';
+import '../models/member.dart';
 import '../models/team.dart';
 
 /// Fixed mock hackathon ids, kept stable so they can be cross-referenced
@@ -123,6 +124,33 @@ List<Team> _standardTeams(String hackathonId) => [
         maxMembers: 5,
         memberInitials: const ['SA', 'MK', 'NH'],
         missingRoles: const ['UI/UX Designer', 'Flutter Developer'],
+        membersInfo: const [
+          Member(
+            initials: 'SA',
+            name: 'Sara Alqahtani',
+            role: 'Backend Developer',
+            skills: ['Python', 'PostgreSQL'],
+            city: 'Riyadh',
+            hackathons: 3,
+            lead: true,
+          ),
+          Member(
+            initials: 'MK',
+            name: 'Mohammed Alkhalaf',
+            role: 'Data Analyst',
+            skills: ['SQL', 'Tableau'],
+            city: 'Jeddah',
+            hackathons: 2,
+          ),
+          Member(
+            initials: 'NH',
+            name: 'Nora Alharbi',
+            role: 'Product Manager',
+            skills: ['Figma', 'Notion'],
+            city: 'Riyadh',
+            hackathons: 4,
+          ),
+        ],
       ),
       Team(
         id: '$hackathonId-pioneers',
@@ -132,6 +160,41 @@ List<Team> _standardTeams(String hackathonId) => [
         maxMembers: 5,
         memberInitials: const ['AR', 'LT', 'JS', 'FA'],
         missingRoles: const ['Data Analyst'],
+        membersInfo: const [
+          Member(
+            initials: 'AR',
+            name: 'Abdullah Alrashid',
+            role: 'Backend Developer',
+            skills: ['Node.js', 'AWS'],
+            city: 'Riyadh',
+            hackathons: 5,
+            lead: true,
+          ),
+          Member(
+            initials: 'LT',
+            name: 'Layla Tamimi',
+            role: 'UI/UX Designer',
+            skills: ['Figma', 'Illustrator'],
+            city: 'Dammam',
+            hackathons: 2,
+          ),
+          Member(
+            initials: 'JS',
+            name: 'Jana Alsulaiman',
+            role: 'Flutter Developer',
+            skills: ['Dart', 'Flutter'],
+            city: 'Riyadh',
+            hackathons: 3,
+          ),
+          Member(
+            initials: 'FA',
+            name: 'Faisal Alamri',
+            role: 'Marketer',
+            skills: ['SEO', 'Content'],
+            city: 'Jeddah',
+            hackathons: 1,
+          ),
+        ],
       ),
       Team(
         id: '$hackathonId-crushers',
@@ -141,6 +204,25 @@ List<Team> _standardTeams(String hackathonId) => [
         maxMembers: 5,
         memberInitials: const ['OM', 'RK'],
         missingRoles: const ['Backend Developer', 'Designer', 'Marketer'],
+        membersInfo: const [
+          Member(
+            initials: 'OM',
+            name: 'Omar Alghamdi',
+            role: 'Flutter Developer',
+            skills: ['Dart', 'Firebase'],
+            city: 'Riyadh',
+            hackathons: 6,
+            lead: true,
+          ),
+          Member(
+            initials: 'RK',
+            name: 'Reem Alkhattab',
+            role: 'UI/UX Designer',
+            skills: ['Figma', 'Sketch'],
+            city: 'Khobar',
+            hackathons: 2,
+          ),
+        ],
       ),
     ];
 
@@ -159,4 +241,13 @@ final Map<String, List<Team>> _mockTeamsByHackathon = {
 /// Returns the mock teams for [hackathonId], or an empty list if unknown.
 List<Team> mockTeamsFor(String hackathonId) {
   return _mockTeamsByHackathon[hackathonId] ?? const [];
+}
+
+/// Appends a locally-created team so the create-team flow still demos
+/// end to end when Supabase isn't configured.
+void addMockTeam(Team team) {
+  _mockTeamsByHackathon[team.hackathonId] = [
+    ...mockTeamsFor(team.hackathonId),
+    team,
+  ];
 }

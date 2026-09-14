@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../constants/app_constants.dart';
+import '../theme/vector_colors.dart';
 
 class VectorSplash extends StatefulWidget {
   const VectorSplash({
@@ -108,24 +108,30 @@ class _VectorSplashState extends State<VectorSplash>
       child: AnimatedBuilder(
         animation: _exitController,
         builder: (context, child) {
+          final double t = const Cubic(
+            0.22,
+            1,
+            0.36,
+            1,
+          ).transform(_exitController.value);
           return FractionalTranslation(
-            translation: Offset(0, -_exitController.value),
-            child: Opacity(opacity: 1 - _exitController.value, child: child),
+            translation: Offset(0, -t),
+            child: Opacity(opacity: 1 - t, child: child),
           );
         },
         child: ColoredBox(
-          color: AppColors.purple,
+          color: VectorColors.purpleBrand,
           child: LayoutBuilder(
             builder: (context, constraints) {
               final markWidth = constraints.maxWidth * 0.164;
               final markHeight = markWidth * (58 / 64);
               final fontSize = markWidth * 1.0625;
-              final wordmarkStyle = AppTypography.sans(
-                size: fontSize,
-                color: AppColors.background,
-                weight: FontWeight.w500,
-                spacing: fontSize * -0.02,
-                height: 1,
+              final wordmarkStyle = TextStyle(
+                color: VectorColors.textOnPurple,
+                fontFamily: 'IBM Plex Sans Arabic',
+                fontSize: fontSize,
+                fontWeight: FontWeight.w600,
+                letterSpacing: fontSize * -0.02,
               );
               final textPainter = TextPainter(
                 text: TextSpan(text: 'ector', style: wordmarkStyle),
@@ -215,9 +221,9 @@ class _VectorSplashState extends State<VectorSplash>
                               shape: BoxShape.circle,
                               gradient: RadialGradient(
                                 colors: [
-                                  AppColors.apricot.withValues(alpha: 0.2),
-                                  AppColors.apricot.withValues(alpha: 0),
-                                  AppColors.apricot.withValues(alpha: 0),
+                                  VectorColors.apricot.withValues(alpha: 0.2),
+                                  VectorColors.apricot.withValues(alpha: 0),
+                                  VectorColors.apricot.withValues(alpha: 0),
                                 ],
                                 stops: const [0, 0.65, 1],
                               ),
@@ -279,23 +285,22 @@ class _VectorSplashState extends State<VectorSplash>
                               onPressed: _complete,
                               icon: const Icon(
                                 Icons.arrow_drop_up,
-                                color: AppColors.apricot,
+                                color: Color(0xFFF2B880),
                                 size: 24,
                               ),
                               style: FilledButton.styleFrom(
-                                backgroundColor: AppColors.purple,
-                                foregroundColor: AppColors.background,
+                                backgroundColor: const Color(0xFF493252),
+                                foregroundColor: const Color(0xFFF7F4F8),
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 32,
                                   vertical: 14,
                                 ),
                               ),
-                              label: Text(
+                              label: const Text(
                                 'Continue',
-                                style: AppTypography.sans(
-                                  size: 16,
-                                  color: AppColors.background,
-                                  weight: FontWeight.w600,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ),
@@ -336,11 +341,22 @@ class _VectorMarkPainter extends CustomPainter {
     final rightPath = Path()
       ..moveTo(58, 6)
       ..lineTo(32, 50);
-    _drawProgressivePath(canvas, leftPath, leftProgress, AppColors.background);
-    _drawProgressivePath(canvas, rightPath, rightProgress, AppColors.apricot);
+    _drawProgressivePath(
+      canvas,
+      leftPath,
+      leftProgress,
+      const Color(0xFFF7F4F8),
+    );
+    _drawProgressivePath(
+      canvas,
+      rightPath,
+      rightProgress,
+      const Color(0xFFF2B880),
+    );
 
     final dotPaint = Paint()
-      ..color = AppColors.background.withValues(alpha: dotScale.clamp(0.0, 1.0));
+      ..color = const Color(0xFFF7F4F8)
+          .withValues(alpha: dotScale.clamp(0.0, 1.0));
     canvas.drawCircle(const Offset(32, 50), 4 * dotScale, dotPaint);
     canvas.restore();
   }

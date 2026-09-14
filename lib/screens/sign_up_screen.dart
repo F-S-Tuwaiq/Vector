@@ -4,8 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/services.dart';
 
+import 'home_screen.dart';
 import '../constants/app_constants.dart';
 import '../legal/vector_legal.dart';
+import '../services/supabase_service.dart';
+import '../widgets/signup_code_dialog.dart';
 import '../widgets/vector_shapes.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -18,6 +21,7 @@ class SignUpScreen extends StatefulWidget {
     String? github,
     String? linkedin,
     required List<String> skills,
+    required Map<String, List<XFile>> certificates,
   })?
   onCreateAccount;
 
@@ -47,6 +51,7 @@ class _SignUpScreenState extends State<SignUpScreen>
   bool _started = false;
   bool _obscure = true;
   bool _loading = false;
+  bool _awaitingVerification = false;
 
   bool _acceptedTerms = false;
   bool _acceptedPrivacy = false;
@@ -370,6 +375,12 @@ class _SignUpScreenState extends State<SignUpScreen>
               ? null
               : _linkedin.text.trim(),
           skills: List<String>.from(_selectedSkills),
+          certificates: Map<String, List<XFile>>.from(_skillCertificates),
+        );
+        if (!mounted) return;
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+          (route) => false,
         );
       } else {
         if (!mounted) {
@@ -378,12 +389,27 @@ class _SignUpScreenState extends State<SignUpScreen>
 
         _showMessage('Connect your authentication backend to onCreateAccount.');
       }
-    } catch (_) {
+    } on EmailVerificationRequired {
+      if (!mounted) return;
+      setState(() => _awaitingVerification = true);
+      final verified = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => SignupCodeDialog(email: _email.text.trim()),
+      );
+      if (verified == true && mounted) {
+        setState(() => _loading = false);
+        await _createAccount();
+      }
+    } catch (e, stackTrace) {
+      debugPrint('CREATE ACCOUNT ERROR: $e');
+      debugPrint('$stackTrace');
+
       if (!mounted) {
         return;
       }
 
-      _showMessage('Unable to create account. Please try again.');
+      _showMessage(e.toString());
     } finally {
       if (mounted) {
         setState(() {
@@ -809,7 +835,7 @@ class _SignUpScreenState extends State<SignUpScreen>
 
               // CREATE ACCOUNT
               _gradientButton(
-                text: 'Create account',
+                text: _awaitingVerification ? 'Complete sign-up' : 'Create account',
                 loading: _loading,
                 onTap: _loading ? null : _createAccount,
               ),

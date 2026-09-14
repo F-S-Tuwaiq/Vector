@@ -7,33 +7,23 @@ environment:
   sdk: ^3.13.1
 
 dependencies:
+  crypto: ^3.0.7
   flutter:
     sdk: flutter
+  file_selector: ^1.1.0
   flutter_dotenv: ^6.0.1
+  google_fonts: ^8.2.1
   supabase_flutter: ^2.17.2
+
 dev_dependencies:
+  http: ^1.6.0
   flutter_test:
     sdk: flutter
-  file_selector: ^1.1.0
   flutter_lints: ^6.0.0
 
 flutter:
   uses-material-design: true
   assets:
+    - .env
     - assets/logo/vector-app-icon-1024.png
     - assets/logo/vector-mark-dark-1024-removebg-preview.png
-    - .env
-  fonts:
-    - family: IBM Plex Sans Arabic
-      fonts:
-        # TODO: only the 600 (SemiBold) weight ships today. Add the 400
-        # (Regular), 500 (Medium) and 700 (Bold) .ttf files to
-        # assets/fonts/ and uncomment below once available.
-        - asset: assets/fonts/IBMPlexSansArabic-SemiBold.ttf
-          weight: 600
-        # - asset: assets/fonts/IBMPlexSansArabic-Regular.ttf
-        #   weight: 400
-        # - asset: assets/fonts/IBMPlexSansArabic-Medium.ttf
-        #   weight: 500
-        # - asset: assets/fonts/IBMPlexSansArabic-Bold.ttf
-        #   weight: 700

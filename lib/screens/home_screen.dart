@@ -3,10 +3,11 @@ import 'package:flutter/services.dart';
 
 import '../data/hackathon_repository.dart';
 import '../models/hackathon.dart';
+import '../models/team.dart';
 import '../theme/vector_colors.dart';
 import '../theme/vector_text.dart';
 import '../widgets/hackathon_cards.dart';
-import '../widgets/vector_wordmark.dart';
+import '../widgets/vector_header.dart';
 import 'teams_screen.dart';
 
 /// Chip filter order, per the design spec. "All" applies no filter.
@@ -33,10 +34,25 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Hackathon> _hackathons = const [];
   String _selectedField = 'All';
 
+  /// Which card is expanded, if any. A [ValueNotifier] (rather than
+  /// `setState`) so toggling it only notifies the per-card
+  /// `ValueListenableBuilder`s below — the list, chips, and header never
+  /// rebuild on expand/collapse.
+  final ValueNotifier<String?> _expandedId = ValueNotifier<String?>(null);
+  final Map<String, GlobalKey> _cardKeys = {};
+
+  GlobalKey _keyFor(String id) => _cardKeys.putIfAbsent(id, () => GlobalKey());
+
   @override
   void initState() {
     super.initState();
     _load();
+  }
+
+  @override
+  void dispose() {
+    _expandedId.dispose();
+    super.dispose();
   }
 
   Future<void> _load() async {
@@ -53,7 +69,37 @@ class _HomeScreenState extends State<HomeScreen> {
     return _hackathons.where((h) => h.field == _selectedField).toList();
   }
 
-  void _openFeatured(Hackathon hackathon) {
+  void _toggleExpanded(Hackathon hackathon) {
+    final bool nowExpanding = _expandedId.value != hackathon.id;
+    _expandedId.value = nowExpanding ? hackathon.id : null;
+    if (!nowExpanding) return;
+
+    final bool disableAnimations = MediaQuery.disableAnimationsOf(context);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final ctx = _keyFor(hackathon.id).currentContext;
+      if (ctx == null) return;
+      Scrollable.ensureVisible(
+        ctx,
+        duration: disableAnimations
+            ? Duration.zero
+            : const Duration(milliseconds: 350),
+        curve: const Cubic(0.22, 1, 0.36, 1),
+        alignment: 0.1,
+      );
+    });
+  }
+
+  Future<void> _handleArrowTap(Hackathon hackathon) async {
+    final List<Team> teams = await _repo.fetchTeams(hackathon.id);
+    if (!mounted) return;
+    if (teams.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Teams are open soon on this hackathon'),
+        ),
+      );
+      return;
+    }
     Navigator.of(context).push(
       PageRouteBuilder<void>(
         transitionDuration: const Duration(milliseconds: 425),
@@ -81,14 +127,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showCompactSnackBar() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Teams are open on featured hackathons'),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -97,7 +135,7 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: VectorColors.background,
         body: Column(
           children: [
-            _Header(),
+            const VectorHeader.home(),
             _FieldChipBar(
               selected: _selectedField,
               onSelected: (field) => setState(() => _selectedField = field),
@@ -118,9 +156,9 @@ class _HomeScreenState extends State<HomeScreen> {
         children: const [
           HackathonCardSkeleton(),
           SizedBox(height: 12),
-          CompactHackathonCardSkeleton(),
+          HackathonCardSkeleton(),
           SizedBox(height: 12),
-          CompactHackathonCardSkeleton(),
+          HackathonCardSkeleton(),
         ],
       );
     }
@@ -133,15 +171,19 @@ class _HomeScreenState extends State<HomeScreen> {
       separatorBuilder: (context, index) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final Hackathon h = items[index];
-        if (h.isFeatured) {
-          return FeaturedHackathonCard(
-            hackathon: h,
-            onTap: () => _openFeatured(h),
-          );
-        }
-        return CompactHackathonCard(
-          hackathon: h,
-          onTap: _showCompactSnackBar,
+        return KeyedSubtree(
+          key: _keyFor(h.id),
+          child: ValueListenableBuilder<String?>(
+            valueListenable: _expandedId,
+            builder: (context, expandedId, _) {
+              return HackathonCard(
+                hackathon: h,
+                isExpanded: expandedId == h.id,
+                onTap: () => _toggleExpanded(h),
+                onArrowTap: () => _handleArrowTap(h),
+              );
+            },
+          ),
         );
       },
     );
@@ -166,95 +208,6 @@ class _HomeScreenState extends State<HomeScreen> {
       },
       child: list,
     );
-  }
-}
-
-class _Header extends StatelessWidget {
-  const _Header();
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: const BorderRadius.only(
-        bottomLeft: Radius.circular(26),
-        bottomRight: Radius.circular(26),
-      ),
-      child: Container(
-        color: VectorColors.purpleBrand,
-        child: Stack(
-          children: [
-            // Large low-opacity triangle bleeding off the top-right
-            // corner, behind all header text.
-            Positioned(
-              top: -20,
-              right: -40,
-              width: 220,
-              height: 220,
-              child: IgnorePointer(
-                child: CustomPaint(
-                  painter: _HeaderTrianglePainter(
-                    color: VectorColors.apricot.withValues(alpha: 0.10),
-                  ),
-                ),
-              ),
-            ),
-            SafeArea(
-              bottom: false,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    VectorWordmark(
-                      style: VectorText.headlineMedium.copyWith(
-                        color: VectorColors.textOnPurple,
-                      ),
-                    ),
-                    const SizedBox(height: 18),
-                    Text(
-                      'Hackathons',
-                      style: VectorText.headlineLarge.copyWith(
-                        color: VectorColors.textOnPurple,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      'Find your field. Join a team.',
-                      style: VectorText.bodyMedium.copyWith(
-                        color: VectorColors.textOnPurple.withValues(
-                          alpha: 0.7,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _HeaderTrianglePainter extends CustomPainter {
-  const _HeaderTrianglePainter({required this.color});
-
-  final Color color;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final Path path = Path()
-      ..moveTo(size.width * 0.15, 0)
-      ..lineTo(size.width, 0)
-      ..lineTo(size.width, size.height * 0.85)
-      ..close();
-    canvas.drawPath(path, Paint()..color = color);
-  }
-
-  @override
-  bool shouldRepaint(covariant _HeaderTrianglePainter oldDelegate) {
-    return oldDelegate.color != color;
   }
 }
 
