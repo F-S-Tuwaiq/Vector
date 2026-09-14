@@ -3,7 +3,9 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../theme/vector_colors.dart';
+import '../constants/app_constants.dart';
+
+final _hairline = AppColors.purple.withValues(alpha: 0.08);
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -15,11 +17,11 @@ class HomeScreen extends StatelessWidget {
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.light,
         statusBarBrightness: Brightness.dark,
-        systemNavigationBarColor: VectorColors.surfaceWhite,
+        systemNavigationBarColor: AppColors.surfaceWhite,
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
       child: Scaffold(
-        backgroundColor: VectorColors.background,
+        backgroundColor: AppColors.background,
         body: Column(
           children: [
             const _HomeHeader(),
@@ -71,8 +73,18 @@ class _HomeHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(bottom: Radius.circular(26)),
-      child: ColoredBox(
-        color: VectorColors.purpleBrand,
+      child: DecoratedBox(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppColors.purpleMid,
+              AppColors.purple,
+              AppColors.purpleLight,
+            ],
+          ),
+        ),
         child: Stack(
           children: [
             Positioned(
@@ -83,7 +95,7 @@ class _HomeHeader extends StatelessWidget {
                 child: CustomPaint(
                   size: const Size(230, 230),
                   painter: _TrianglePainter(
-                    color: VectorColors.apricot.withValues(alpha: 0.14),
+                    color: AppColors.apricot.withValues(alpha: 0.14),
                   ),
                 ),
               ),
@@ -103,20 +115,23 @@ class _HomeHeader extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Good evening,',
-                                style: TextStyle(
-                                  color: VectorColors.textOnPurple
-                                      .withValues(alpha: 0.7),
-                                  fontSize: 13,
+                                'GOOD EVENING',
+                                style: AppTypography.sans(
+                                  size: 10,
+                                  color: AppColors.background.withValues(
+                                    alpha: 0.7,
+                                  ),
+                                  weight: FontWeight.w600,
+                                  spacing: 2.4,
                                 ),
                               ),
-                              const SizedBox(height: 4),
-                              const Text(
+                              const SizedBox(height: 6),
+                              Text(
                                 'Salem Alotaibi',
-                                style: TextStyle(
-                                  color: VectorColors.textOnPurple,
-                                  fontSize: 23,
-                                  fontWeight: FontWeight.w600,
+                                style: AppTypography.display(
+                                  size: 26,
+                                  color: AppColors.background,
+                                  weight: FontWeight.w600,
                                 ),
                               ),
                             ],
@@ -154,15 +169,15 @@ class _AvatarWithBadge extends StatelessWidget {
             height: 48,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: VectorColors.apricot,
+              color: AppColors.apricot,
               borderRadius: BorderRadius.circular(14),
             ),
-            child: const Text(
+            child: Text(
               'SA',
-              style: TextStyle(
-                color: VectorColors.purpleDeep,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
+              style: AppTypography.sans(
+                size: 16,
+                color: AppColors.purple,
+                weight: FontWeight.w700,
               ),
             ),
           ),
@@ -174,16 +189,16 @@ class _AvatarWithBadge extends StatelessWidget {
               height: 20,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: VectorColors.error,
+                color: AppColors.fieldError,
                 shape: BoxShape.circle,
-                border: Border.all(color: VectorColors.purpleBrand, width: 2),
+                border: Border.all(color: AppColors.purple, width: 2),
               ),
-              child: const Text(
+              child: Text(
                 '3',
-                style: TextStyle(
-                  color: VectorColors.textOnPurple,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
+                style: AppTypography.sans(
+                  size: 11,
+                  color: AppColors.background,
+                  weight: FontWeight.w700,
                 ),
               ),
             ),
@@ -214,16 +229,16 @@ class _SearchRow extends StatelessWidget {
                 Icon(
                   Icons.search_rounded,
                   size: 20,
-                  color: VectorColors.textOnPurple.withValues(alpha: 0.65),
+                  color: AppColors.background.withValues(alpha: 0.65),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     'Search hackathons or fields…',
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: VectorColors.textOnPurple.withValues(alpha: 0.6),
-                      fontSize: 14,
+                    style: AppTypography.sans(
+                      size: 14,
+                      color: AppColors.background.withValues(alpha: 0.6),
                     ),
                   ),
                 ),
@@ -237,7 +252,7 @@ class _SearchRow extends StatelessWidget {
           height: 48,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: VectorColors.apricot,
+            color: AppColors.apricot,
             borderRadius: BorderRadius.circular(14),
           ),
           child: const _OpposedTrianglesIcon(),
@@ -263,7 +278,7 @@ class _OpposedTrianglesIcon extends StatelessWidget {
             child: CustomPaint(
               size: const Size(14, 7),
               painter: const _TrianglePainter(
-                color: VectorColors.purpleDeep,
+                color: AppColors.purple,
                 pointing: _TrianglePoint.down,
               ),
             ),
@@ -273,7 +288,7 @@ class _OpposedTrianglesIcon extends StatelessWidget {
             child: CustomPaint(
               size: const Size(14, 7),
               painter: const _TrianglePainter(
-                color: VectorColors.purpleDeep,
+                color: AppColors.purple,
                 pointing: _TrianglePoint.up,
               ),
             ),
@@ -297,9 +312,9 @@ class _ProfileReadinessCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: VectorColors.surfaceWhite,
+        color: AppColors.surfaceWhite,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: VectorColors.hairline),
+        border: Border.all(color: _hairline),
       ),
       child: Row(
         children: [
@@ -309,12 +324,12 @@ class _ProfileReadinessCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Your profile is match-ready',
-                  style: TextStyle(
-                    color: VectorColors.textNeutral,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                  style: AppTypography.sans(
+                    size: 14,
+                    color: AppColors.textPrimary,
+                    weight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -322,9 +337,9 @@ class _ProfileReadinessCard extends StatelessWidget {
                   '3 verified skills · 9 teams looking for a designer',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: VectorColors.textSecondary,
-                    fontSize: 12,
+                  style: AppTypography.sans(
+                    size: 12,
+                    color: AppColors.muted,
                     height: 1.3,
                   ),
                 ),
@@ -335,15 +350,15 @@ class _ProfileReadinessCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: VectorColors.purpleDeep,
+              color: AppColors.purple,
               borderRadius: BorderRadius.circular(20),
             ),
-            child: const Text(
+            child: Text(
               'View teams',
-              style: TextStyle(
-                color: VectorColors.textOnPurple,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
+              style: AppTypography.sans(
+                size: 12,
+                color: AppColors.background,
+                weight: FontWeight.w600,
               ),
             ),
           ),
@@ -371,16 +386,16 @@ class _ProgressRing extends StatelessWidget {
             size: Size(size, size),
             painter: _RingPainter(
               progress: progress,
-              color: VectorColors.purpleDeep,
-              background: VectorColors.surfaceLavender,
+              color: AppColors.purple,
+              background: AppColors.lavender,
             ),
           ),
           Text(
             '${(progress * 100).round()}%',
-            style: const TextStyle(
-              color: VectorColors.purpleDeep,
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
+            style: AppTypography.sans(
+              size: 13,
+              color: AppColors.purple,
+              weight: FontWeight.w700,
             ),
           ),
         ],
@@ -408,25 +423,25 @@ class _SectionHeader extends StatelessWidget {
           children: [
             CustomPaint(
               size: const Size(10, 10),
-              painter: const _TrianglePainter(color: VectorColors.purpleDeep),
+              painter: const _TrianglePainter(color: AppColors.purple),
             ),
             const SizedBox(width: 8),
             Text(
               title,
-              style: const TextStyle(
-                color: VectorColors.textNeutral,
-                fontSize: 17,
-                fontWeight: FontWeight.w600,
+              style: AppTypography.sans(
+                size: 17,
+                color: AppColors.textPrimary,
+                weight: FontWeight.w600,
               ),
             ),
           ],
         ),
         Text(
           trailing,
-          style: const TextStyle(
-            color: VectorColors.linkWarm,
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
+          style: AppTypography.sans(
+            size: 13,
+            color: AppColors.secondary,
+            weight: FontWeight.w600,
           ),
         ),
       ],
@@ -445,9 +460,9 @@ class _FeaturedHackathonCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: VectorColors.surfaceWhite,
+        color: AppColors.surfaceWhite,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: VectorColors.hairline),
+        border: Border.all(color: _hairline),
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -458,16 +473,13 @@ class _FeaturedHackathonCard extends StatelessWidget {
             width: double.infinity,
             child: Stack(
               children: [
-                Positioned.fill(
+                const Positioned.fill(
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: [
-                          VectorColors.purpleBrand,
-                          VectorColors.purpleSurfaceEnd,
-                        ],
+                        colors: [AppColors.purpleMid, AppColors.purpleLight],
                       ),
                     ),
                   ),
@@ -475,7 +487,7 @@ class _FeaturedHackathonCard extends StatelessWidget {
                 Positioned.fill(
                   child: CustomPaint(
                     painter: _TrianglePatternPainter(
-                      color: VectorColors.textOnPurple.withValues(alpha: 0.05),
+                      color: AppColors.background.withValues(alpha: 0.05),
                     ),
                   ),
                 ),
@@ -484,8 +496,8 @@ class _FeaturedHackathonCard extends StatelessWidget {
                   left: 10,
                   child: _Badge(
                     label: 'Matches your skills',
-                    background: VectorColors.apricot,
-                    textColor: VectorColors.purpleDeep,
+                    background: AppColors.apricot,
+                    textColor: AppColors.purple,
                   ),
                 ),
                 Positioned(
@@ -494,7 +506,7 @@ class _FeaturedHackathonCard extends StatelessWidget {
                   child: _Badge(
                     label: 'Registration closes in 3 days',
                     background: Colors.black.withValues(alpha: 0.28),
-                    textColor: VectorColors.textOnPurple,
+                    textColor: AppColors.background,
                     maxWidth: 160,
                     maxLines: 2,
                   ),
@@ -509,18 +521,18 @@ class _FeaturedHackathonCard extends StatelessWidget {
                     children: [
                       Text(
                         'Tuwaiq Academy · Riyadh',
-                        style: TextStyle(
-                          color: VectorColors.textOnPurple.withValues(alpha: 0.85),
-                          fontSize: 11,
+                        style: AppTypography.sans(
+                          size: 11,
+                          color: AppColors.background.withValues(alpha: 0.85),
                         ),
                       ),
                       const SizedBox(height: 2),
-                      const Text(
+                      Text(
                         'Tuwaiq AI Hackathon',
-                        style: TextStyle(
-                          color: VectorColors.textOnPurple,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
+                        style: AppTypography.display(
+                          size: 19,
+                          color: AppColors.background,
+                          weight: FontWeight.w600,
                         ),
                       ),
                     ],
@@ -534,17 +546,17 @@ class _FeaturedHackathonCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Row(
+                Row(
                   children: [
                     Text('Oct 12–14', style: _metaStyle),
-                    _MetaDivider(),
+                    const _MetaDivider(),
                     Text('In-person', style: _metaStyle),
-                    _MetaDivider(),
+                    const _MetaDivider(),
                     Text('Teams of 3–5', style: _metaStyle),
                   ],
                 ),
                 const SizedBox(height: 14),
-                Divider(height: 1, color: VectorColors.hairline),
+                Divider(height: 1, color: _hairline),
                 const SizedBox(height: 14),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -554,18 +566,18 @@ class _FeaturedHackathonCard extends StatelessWidget {
                       children: [
                         Text(
                           'Total prizes',
-                          style: TextStyle(
-                            color: VectorColors.textMuted,
-                            fontSize: 11,
+                          style: AppTypography.sans(
+                            size: 11,
+                            color: AppColors.muted,
                           ),
                         ),
                         const SizedBox(height: 2),
-                        const Text(
+                        Text(
                           'SAR 300,000',
-                          style: TextStyle(
-                            color: VectorColors.textNeutral,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
+                          style: AppTypography.sans(
+                            size: 15,
+                            color: AppColors.textPrimary,
+                            weight: FontWeight.w700,
                           ),
                         ),
                       ],
@@ -576,9 +588,9 @@ class _FeaturedHackathonCard extends StatelessWidget {
                         const SizedBox(width: 8),
                         Text(
                           '428 participants',
-                          style: TextStyle(
-                            color: VectorColors.textSecondary,
-                            fontSize: 12,
+                          style: AppTypography.sans(
+                            size: 12,
+                            color: AppColors.muted,
                           ),
                         ),
                       ],
@@ -594,7 +606,7 @@ class _FeaturedHackathonCard extends StatelessWidget {
   }
 }
 
-const _metaStyle = TextStyle(color: VectorColors.textSecondary, fontSize: 12);
+final _metaStyle = AppTypography.sans(size: 12, color: AppColors.muted);
 
 class _MetaDivider extends StatelessWidget {
   const _MetaDivider();
@@ -605,7 +617,7 @@ class _MetaDivider extends StatelessWidget {
       width: 1,
       height: 12,
       margin: const EdgeInsets.symmetric(horizontal: 8),
-      color: VectorColors.hairline,
+      color: _hairline,
     );
   }
 }
@@ -638,10 +650,10 @@ class _Badge extends StatelessWidget {
         label,
         maxLines: maxLines,
         overflow: TextOverflow.ellipsis,
-        style: TextStyle(
+        style: AppTypography.sans(
+          size: 9.5,
           color: textColor,
-          fontSize: 9.5,
-          fontWeight: FontWeight.w700,
+          weight: FontWeight.w700,
           height: 1.2,
         ),
       ),
@@ -655,9 +667,9 @@ class _OverlappingAvatars extends StatelessWidget {
   final int count;
 
   static const _colors = [
-    VectorColors.purpleSurfaceLight,
-    VectorColors.textSecondaryPurple,
-    VectorColors.purpleBrand,
+    AppColors.purpleMid,
+    AppColors.muted,
+    AppColors.purple,
   ];
 
   @override
@@ -679,7 +691,7 @@ class _OverlappingAvatars extends StatelessWidget {
                   shape: BoxShape.circle,
                   color: _colors[i % _colors.length],
                   border: Border.all(
-                    color: VectorColors.surfaceWhite,
+                    color: AppColors.surfaceWhite,
                     width: 2,
                   ),
                 ),
@@ -713,9 +725,9 @@ class _CompactHackathonCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: VectorColors.surfaceWhite,
+        color: AppColors.surfaceWhite,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: VectorColors.hairline),
+        border: Border.all(color: _hairline),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -725,12 +737,12 @@ class _CompactHackathonCard extends StatelessWidget {
             height: 50,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: VectorColors.surfaceLavender,
+              color: AppColors.lavender,
               borderRadius: BorderRadius.circular(14),
             ),
             child: CustomPaint(
               size: const Size(20, 20),
-              painter: const _TrianglePainter(color: VectorColors.purpleDeep),
+              painter: const _TrianglePainter(color: AppColors.purple),
             ),
           ),
           const SizedBox(width: 12),
@@ -740,10 +752,10 @@ class _CompactHackathonCard extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    color: VectorColors.textNeutral,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
+                  style: AppTypography.display(
+                    size: 17,
+                    color: AppColors.textPrimary,
+                    weight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -751,20 +763,17 @@ class _CompactHackathonCard extends StatelessWidget {
                   meta,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: VectorColors.textSecondary,
-                    fontSize: 12,
-                  ),
+                  style: AppTypography.sans(size: 12, color: AppColors.muted),
                 ),
                 const SizedBox(height: 8),
                 Row(
                   children: [
                     Text(
                       prize,
-                      style: const TextStyle(
-                        color: VectorColors.textNeutral,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
+                      style: AppTypography.sans(
+                        size: 13,
+                        color: AppColors.textPrimary,
+                        weight: FontWeight.w700,
                       ),
                     ),
                     const _MetaDivider(),
@@ -773,9 +782,9 @@ class _CompactHackathonCard extends StatelessWidget {
                         participants,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: VectorColors.textSecondary,
-                          fontSize: 12,
+                        style: AppTypography.sans(
+                          size: 12,
+                          color: AppColors.muted,
                         ),
                       ),
                     ),
@@ -801,8 +810,8 @@ class _BottomNav extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: VectorColors.surfaceWhite,
-        border: Border(top: BorderSide(color: VectorColors.hairline)),
+        color: AppColors.surfaceWhite,
+        border: Border(top: BorderSide(color: _hairline)),
       ),
       child: SafeArea(
         top: false,
@@ -861,7 +870,7 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = active ? VectorColors.purpleDeep : VectorColors.textMuted;
+    final color = active ? AppColors.purple : AppColors.muted;
     return Column(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -875,10 +884,10 @@ class _NavItem extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           label,
-          style: TextStyle(
+          style: AppTypography.sans(
+            size: 11,
             color: color,
-            fontSize: 11,
-            fontWeight: active ? FontWeight.w600 : FontWeight.w400,
+            weight: active ? FontWeight.w600 : FontWeight.w400,
           ),
         ),
       ],

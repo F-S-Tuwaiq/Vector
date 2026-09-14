@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../theme/vector_colors.dart';
+import '../constants/app_constants.dart';
 
 class VectorSplash extends StatefulWidget {
   const VectorSplash({
@@ -114,18 +114,18 @@ class _VectorSplashState extends State<VectorSplash>
           );
         },
         child: ColoredBox(
-          color: VectorColors.purpleBrand,
+          color: AppColors.purple,
           child: LayoutBuilder(
             builder: (context, constraints) {
               final markWidth = constraints.maxWidth * 0.164;
               final markHeight = markWidth * (58 / 64);
               final fontSize = markWidth * 1.0625;
-              final wordmarkStyle = TextStyle(
-                color: VectorColors.textOnPurple,
-                fontFamily: 'IBM Plex Sans Arabic',
-                fontSize: fontSize,
-                fontWeight: FontWeight.w600,
-                letterSpacing: fontSize * -0.02,
+              final wordmarkStyle = AppTypography.sans(
+                size: fontSize,
+                color: AppColors.background,
+                weight: FontWeight.w500,
+                spacing: fontSize * -0.02,
+                height: 1,
               );
               final textPainter = TextPainter(
                 text: TextSpan(text: 'ector', style: wordmarkStyle),
@@ -215,9 +215,9 @@ class _VectorSplashState extends State<VectorSplash>
                               shape: BoxShape.circle,
                               gradient: RadialGradient(
                                 colors: [
-                                  VectorColors.apricot.withValues(alpha: 0.2),
-                                  VectorColors.apricot.withValues(alpha: 0),
-                                  VectorColors.apricot.withValues(alpha: 0),
+                                  AppColors.apricot.withValues(alpha: 0.2),
+                                  AppColors.apricot.withValues(alpha: 0),
+                                  AppColors.apricot.withValues(alpha: 0),
                                 ],
                                 stops: const [0, 0.65, 1],
                               ),
@@ -279,23 +279,23 @@ class _VectorSplashState extends State<VectorSplash>
                               onPressed: _complete,
                               icon: const Icon(
                                 Icons.arrow_drop_up,
-                                color: VectorColors.apricot,
+                                color: AppColors.apricot,
                                 size: 24,
                               ),
                               style: FilledButton.styleFrom(
-                                backgroundColor: VectorColors.purpleBrand,
-                                foregroundColor: VectorColors.textOnPurple,
+                                backgroundColor: AppColors.purple,
+                                foregroundColor: AppColors.background,
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 32,
                                   vertical: 14,
                                 ),
                               ),
-                              label: const Text(
+                              label: Text(
                                 'Continue',
-                                style: TextStyle(
-                                  fontFamily: 'IBM Plex Sans Arabic',
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
+                                style: AppTypography.sans(
+                                  size: 16,
+                                  color: AppColors.background,
+                                  weight: FontWeight.w600,
                                 ),
                               ),
                             ),
@@ -336,22 +336,11 @@ class _VectorMarkPainter extends CustomPainter {
     final rightPath = Path()
       ..moveTo(58, 6)
       ..lineTo(32, 50);
-    _drawProgressivePath(
-      canvas,
-      leftPath,
-      leftProgress,
-      VectorColors.textOnPurple,
-    );
-    _drawProgressivePath(
-      canvas,
-      rightPath,
-      rightProgress,
-      VectorColors.apricot,
-    );
+    _drawProgressivePath(canvas, leftPath, leftProgress, AppColors.background);
+    _drawProgressivePath(canvas, rightPath, rightProgress, AppColors.apricot);
 
     final dotPaint = Paint()
-      ..color = VectorColors.textOnPurple
-          .withValues(alpha: dotScale.clamp(0.0, 1.0));
+      ..color = AppColors.background.withValues(alpha: dotScale.clamp(0.0, 1.0));
     canvas.drawCircle(const Offset(32, 50), 4 * dotScale, dotPaint);
     canvas.restore();
   }
