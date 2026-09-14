@@ -1,8 +1,12 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vector/screens/sign_up_screen.dart';
 
+import 'home_screen.dart';
+import '../widgets/signup_code_dialog.dart';
+import '../services/supabase_service.dart';
 import '../constants/app_constants.dart';
 import '../widgets/vector_shapes.dart';
 
@@ -86,12 +90,45 @@ class _LogInScreenState extends State<LogInScreen>
     }
     setState(() => _loading = true);
     try {
-      await widget.onSignIn!(_email.text.trim(), _password.text);
-    } catch (_) {
-      if (mounted)
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Unable to sign in. Please try again.')),
+      try {
+        await widget.onSignIn!(_email.text.trim(), _password.text);
+      } on EmailVerificationRequired {
+        if (!mounted) return;
+        final verified = await showDialog<bool>(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => SignupCodeDialog(email: _email.text.trim()),
         );
+        if (verified != true) return;
+      }
+      if (!mounted) return;
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+        (route) => false,
+      );
+    } on AuthException catch (error) {
+      if (mounted) {
+        final message = switch (error.code) {
+          'invalid_credentials' => 'The email or password is incorrect.',
+          'over_request_rate_limit' || 'over_email_send_rate_limit' =>
+            'Too many attempts. Please wait a minute and try again.',
+          'user_banned' => 'This account is currently disabled.',
+          _ => error.message,
+        };
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(message)));
+      }
+    } catch (error) {
+      debugPrint('Login failed (${error.runtimeType}).');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Could not connect to sign in. Check your internet connection and try again.',
+            ),
+          ),
+        );
+      }
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -368,7 +405,9 @@ class _LogInScreenState extends State<LogInScreen>
                       : () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (_) => const SignUpScreen(),
+                              builder: (_) => SignUpScreen(
+                                onCreateAccount: SupabaseService.createAccount,
+                              ),
                             ),
                           );
                         },

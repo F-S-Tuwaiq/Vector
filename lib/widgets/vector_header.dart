@@ -16,42 +16,58 @@ import 'vector_wordmark.dart';
 /// - [VectorHeader.home] — wordmark, "Hackathons" headline, subtitle.
 /// - [VectorHeader.slim] — a single row: back chevron + hackathon name.
 class VectorHeader extends StatelessWidget {
-  const VectorHeader.home({super.key}) : slim = false, title = null, onBack = null;
+  const VectorHeader.home({super.key})
+    : slim = false,
+      title = null,
+      onBack = null,
+      showBackButton = true;
 
-  const VectorHeader.slim({super.key, required this.title, this.onBack}) : slim = true;
+  const VectorHeader.slim({
+    super.key,
+    required this.title,
+    this.onBack,
+    this.showBackButton = true,
+  }) : slim = true;
 
   final bool slim;
   final String? title;
   final VoidCallback? onBack;
 
+  /// Root tabs in the bottom-nav shell have nothing to go back to —
+  /// pass false to hide the chevron on those.
+  final bool showBackButton;
+
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: const BorderRadius.vertical(bottom: Radius.circular(26)),
-      child: DecoratedBox(
-        decoration: const BoxDecoration(color: VectorColors.purpleBrand),
-        child: Stack(
-          children: [
-            // Large low-opacity triangle bleeding off the top-right
-            // corner, always behind content.
-            Positioned(
-              top: -20,
-              right: -40,
-              width: 220,
-              height: 220,
-              child: IgnorePointer(
-                child: CustomPaint(
-                  painter: _HeaderTrianglePainter(
-                    color: VectorColors.apricot.withValues(alpha: 0.10),
+    return SizedBox(
+      width: double.infinity,
+      child: ClipRRect(
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(26)),
+        child: DecoratedBox(
+          decoration: const BoxDecoration(color: VectorColors.purpleBrand),
+          child: Stack(
+            children: [
+              // Large low-opacity triangle bleeding off the top-right
+              // corner, always behind content.
+              Positioned(
+                top: -20,
+                right: -40,
+                width: 220,
+                height: 220,
+                child: IgnorePointer(
+                  child: CustomPaint(
+                    painter: _HeaderTrianglePainter(
+                      color: VectorColors.apricot.withValues(alpha: 0.10),
+                    ),
                   ),
                 ),
               ),
-            ),
-            SafeArea(
-              bottom: false,
-              child: slim ? _buildSlim(context) : _buildHome(context),
-            ),
-          ],
+              SafeArea(
+                bottom: false,
+                child: slim ? _buildSlim(context) : _buildHome(context),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -88,28 +104,38 @@ class VectorHeader extends StatelessWidget {
   }
 
   Widget _buildSlim(BuildContext context) {
+    const double sideWidth = 48;
+    // Row (not a fixed-height Stack) so a long hackathon name can wrap to a
+    // second line and still be shown in full instead of being clipped.
     return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 8, 20, 16),
+      padding: const EdgeInsets.fromLTRB(4, 10, 4, 18),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          IconButton(
-            onPressed: onBack ?? () => Navigator.of(context).maybePop(),
-            icon: const Icon(Icons.chevron_left_rounded),
-            color: VectorColors.textOnPurple,
-            iconSize: 26,
-            splashRadius: 22,
+          SizedBox(
+            width: sideWidth,
+            child: showBackButton
+                ? IconButton(
+                    onPressed: onBack ?? () => Navigator.of(context).maybePop(),
+                    icon: const Icon(Icons.chevron_left_rounded),
+                    color: VectorColors.textOnPurple,
+                    iconSize: 28,
+                    splashRadius: 24,
+                  )
+                : null,
           ),
-          const SizedBox(width: 4),
           Expanded(
             child: Text(
               title ?? '',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: VectorText.titleMedium.copyWith(
+              textAlign: TextAlign.center,
+              style: VectorText.titleLarge.copyWith(
+                fontSize: 23,
+                fontWeight: FontWeight.w700,
                 color: VectorColors.textOnPurple,
               ),
             ),
           ),
+          SizedBox(width: sideWidth),
         ],
       ),
     );

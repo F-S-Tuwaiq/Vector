@@ -1,4 +1,5 @@
 # Miscellaneous
+.env
 *.class
 *.log
 *.pyc
@@ -46,6 +47,3 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
-
-# Secrets
-.env

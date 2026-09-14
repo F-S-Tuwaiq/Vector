@@ -2,7 +2,7 @@ include: package:flutter_lints/flutter.yaml
 
 analyzer:
   exclude:
-    - legacy/**
+    - Vector-new/**
     - build/**
     - android/**
     - ios/**

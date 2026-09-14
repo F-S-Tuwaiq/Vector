@@ -2,6 +2,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../config/env.dart';
 import '../models/hackathon.dart';
+import '../models/member.dart';
 import '../models/team.dart';
 import 'mock_hackathons.dart';
 
@@ -52,6 +53,59 @@ class HackathonRepository {
       return data.map(Team.fromMap).toList();
     } catch (_) {
       return mockTeamsFor(hackathonId);
+    }
+  }
+
+  /// Creates a new team as the current user (always "Team lead"), with
+  /// [hackathonId]/[name]/[maxMembers]/[missingRoles] from the create-team
+  /// form. Returns the created [Team], or `null` on failure. In mock mode
+  /// the team is appended locally so the flow still demos end to end.
+  Future<Team?> createTeam({
+    required String hackathonId,
+    required String name,
+    required int maxMembers,
+    required List<String> missingRoles,
+  }) async {
+    const lead = Member(
+      initials: 'ME',
+      name: 'You',
+      role: 'Team lead',
+      lead: true,
+    );
+
+    if (!Env.isConfigured) {
+      final team = Team(
+        id: 'local-${DateTime.now().microsecondsSinceEpoch}',
+        hackathonId: hackathonId,
+        name: name,
+        members: 1,
+        maxMembers: maxMembers,
+        memberInitials: const ['ME'],
+        missingRoles: missingRoles,
+        membersInfo: const [lead],
+      );
+      addMockTeam(team);
+      return team;
+    }
+
+    try {
+      final row = await Supabase.instance.client
+          .from('teams')
+          .insert({
+            'hackathon_id': hackathonId,
+            'name': name,
+            'members': 1,
+            'max_members': maxMembers,
+            'member_initials': const ['ME'],
+            'missing_roles': missingRoles,
+            'members_info': [lead.toMap()],
+          })
+          .select()
+          .single()
+          .timeout(_timeout);
+      return Team.fromMap(row);
+    } catch (_) {
+      return null;
     }
   }
 

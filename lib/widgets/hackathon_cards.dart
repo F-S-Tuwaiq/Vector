@@ -119,11 +119,10 @@ class _StatusBadge extends StatelessWidget {
         label = 'Open';
         break;
       case 'closing_soon':
-        // Judgment call: no dedicated token exists for a translucent
-        // dark-over-imagery pill, so a black scrim at reduced opacity is
-        // used instead (see report).
-        background = Colors.black.withValues(alpha: 0.55);
-        textColor = VectorColors.textOnPurple;
+        // Urgency reads as the theme's soft red — the only status that
+        // isn't apricot (open) or the dark neutral pill (tba).
+        background = VectorColors.error.withValues(alpha: 0.14);
+        textColor = VectorColors.error;
         label = 'Closing soon';
         break;
       case 'tba':
@@ -424,86 +423,125 @@ class _ExpandedContent extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              if (h.organizer != null) ...[
-                const SizedBox(height: 4),
-                Text(
-                  h.organizer!,
-                  style: VectorText.bodyMedium.copyWith(
-                    color: VectorColors.textOnPurple.withValues(alpha: 0.65),
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-              if (isPrize) ...[
-                const SizedBox(height: 14),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
+              _StaggeredIn(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      h.heroValue,
-                      style: const TextStyle(
-                        fontFamily: 'IBM Plex Sans Arabic',
-                        fontSize: 40,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -1.0,
-                        color: VectorColors.apricot,
-                        height: 1.0,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Flexible(
-                      child: Text(
-                        h.heroCaption,
+                    if (h.organizer != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        h.organizer!,
                         style: VectorText.bodyMedium.copyWith(
                           color: VectorColors.textOnPurple.withValues(
-                            alpha: 0.7,
+                            alpha: 0.65,
                           ),
                         ),
-                        maxLines: 2,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
+                    ],
+                    if (isPrize) ...[
+                      const SizedBox(height: 14),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          Text(
+                            h.heroValue,
+                            style: const TextStyle(
+                              fontFamily: 'IBM Plex Sans Arabic',
+                              fontSize: 40,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: -1.0,
+                              color: VectorColors.apricot,
+                              height: 1.0,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Flexible(
+                            child: Text(
+                              h.heroCaption,
+                              style: VectorText.bodyMedium.copyWith(
+                                color: VectorColors.textOnPurple.withValues(
+                                  alpha: 0.7,
+                                ),
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                    const SizedBox(height: 18),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Wrap(
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: metaChildren,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(13),
+                            onTap: onArrowTap,
+                            child: Container(
+                              width: 38,
+                              height: 38,
+                              decoration: BoxDecoration(
+                                color: VectorColors.apricot,
+                                borderRadius: BorderRadius.circular(13),
+                              ),
+                              child: const Icon(
+                                Icons.arrow_forward_outlined,
+                                color: VectorColors.textNeutral,
+                                size: 20,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-              const SizedBox(height: 18),
-              Row(
-                children: [
-                  Expanded(
-                    child: Wrap(
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: metaChildren,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(13),
-                      onTap: onArrowTap,
-                      child: Container(
-                        width: 38,
-                        height: 38,
-                        decoration: BoxDecoration(
-                          color: VectorColors.apricot,
-                          borderRadius: BorderRadius.circular(13),
-                        ),
-                        child: const Icon(
-                          Icons.arrow_forward_outlined,
-                          color: VectorColors.textNeutral,
-                          size: 20,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
               ),
             ],
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Fades + slides its child in AFTER the enclosing card's container has
+/// already started growing (the last 65% of the morph), so expanded-only
+/// content never appears squashed mid-grow.
+class _StaggeredIn extends StatelessWidget {
+  const _StaggeredIn({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    if (MediaQuery.disableAnimationsOf(context)) return child;
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(begin: 0, end: 1),
+      duration: const Duration(milliseconds: 320),
+      curve: const Interval(0.35, 1.0, curve: Cubic(0.22, 1, 0.36, 1)),
+      builder: (context, t, child) {
+        return Opacity(
+          opacity: t,
+          child: Transform.translate(
+            offset: Offset(0, (1 - t) * 4),
+            child: child,
+          ),
+        );
+      },
+      child: child,
     );
   }
 }
