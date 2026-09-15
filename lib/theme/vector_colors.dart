@@ -38,6 +38,8 @@ class VectorColors {
   static const Color inputBorder = Color(0xFFD0BDE2);
   static const Color inputFocus = Color(0xFF826891);
 
+  static const Color saudiGreen = Color(0xFF236B50);
+
   // Misc ------------------------------------------------------------------
   static const Color linkWarm = Color(0xFF963C1A);
   static const Color error = Color(0xFFAC5747);
@@ -48,7 +50,8 @@ class VectorColors {
   static final Color hairline = const Color(0xFF29232E).withValues(alpha: 0.08);
 
   /// Scrim behind dialogs / bottom sheets.
-  static final Color dialogBarrier = const Color(0xFF29232E).withValues(alpha: 0.55);
+  static final Color dialogBarrier = const Color(0xFF29232E)
+      .withValues(alpha: 0.55);
 
   /// Primary accent-button fill: gradient from [buttonStart] to [buttonEnd].
   /// Used for the app's main call-to-action buttons (see Section 2.4).

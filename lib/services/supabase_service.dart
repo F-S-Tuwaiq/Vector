@@ -9,7 +9,8 @@ class EmailVerificationRequired implements Exception {
   const EmailVerificationRequired();
 
   @override
-  String toString() => 'Enter the verification code sent to your email.';
+  String toString() =>
+      'Open the confirmation link sent to your email, then return to Vector.';
 }
 
 class SupabaseService {
@@ -48,6 +49,10 @@ class SupabaseService {
     await Supabase.initialize(
       url: supabaseUrl,
       publishableKey: supabasePublishableKey,
+      authOptions: const FlutterAuthClientOptions(
+        persistSession: true,
+        autoRefreshToken: true,
+      ),
     );
     isConfigured = true;
   }
@@ -58,8 +63,7 @@ class SupabaseService {
 
   static SupabaseClient get client => Supabase.instance.client;
 
-  static User? get currentUser =>
-      isConfigured ? client.auth.currentUser : null;
+  static User? get currentUser => isConfigured ? client.auth.currentUser : null;
 
   static bool get isLoggedIn => currentUser != null;
 
@@ -92,8 +96,15 @@ class SupabaseService {
     }
   }
 
+  static const confirmationRedirectUrl =
+      'https://vector-email-confirmation.shammalbinni.chatgpt.site';
+
   static Future<void> resendSignupCode(String email) async {
-    await client.auth.resend(type: OtpType.signup, email: email.trim());
+    await client.auth.resend(
+      type: OtpType.signup,
+      email: email.trim(),
+      emailRedirectTo: confirmationRedirectUrl,
+    );
   }
 
   // ============================================================
@@ -126,6 +137,7 @@ class SupabaseService {
       }
       if (error.code != 'invalid_credentials') rethrow;
       authResponse = await client.auth.signUp(
+        emailRedirectTo: confirmationRedirectUrl,
         email: email.trim(),
         password: password,
         data: {'full_name': fullName.trim()},
@@ -244,6 +256,196 @@ class SupabaseService {
     });
   }
 
+  static String get _profileUserId {
+    final user = currentUser;
+    if (user == null) throw StateError('Sign in to edit your profile.');
+    return user.id;
+  }
+
+  static Future<Map<String, dynamic>> loadProfile() async {
+    final id = _profileUserId;
+    final results = await Future.wait([
+      client.from('profiles').select().eq('id', id).maybeSingle(),
+      client
+          .from('user_skills')
+          .select('id,skill')
+          .eq('user_id', id)
+          .order('id'),
+      client
+          .from('skill_certificates')
+          .select('id,skill_id,file_name,storage_path')
+          .eq('user_id', id)
+          .order('id'),
+    ]);
+    return {
+      'profile': results[0] ?? <String, dynamic>{},
+      'skills': results[1],
+      'certificates': results[2],
+    };
+  }
+
+  static Future<void> saveProfile({
+    required String fullName,
+    String? github,
+    String? linkedin,
+    String? headline,
+    String? about,
+    String? availability,
+  }) async {
+    if (fullName.trim().isEmpty) throw ArgumentError('Enter your name.');
+    await client.from('profiles').upsert({
+      'id': _profileUserId,
+      'full_name': fullName.trim(),
+      'github': _optionalString(github),
+      'linkedin': _optionalString(linkedin),
+    });
+    // These optional presentation fields use auth metadata; no assumed DB columns.
+    if (headline != null || about != null || availability != null) {
+      await client.auth.updateUser(
+        UserAttributes(
+          data: {
+            if (headline != null) 'headline': headline.trim(),
+            if (about != null) 'about': about.trim(),
+            if (availability != null) 'availability': availability.trim(),
+          },
+        ),
+      );
+    }
+  }
+
+  static Future<void> saveProfileAbout(String about) async {
+    final id = _profileUserId;
+    final profile = await client
+        .from('profiles')
+        .select()
+        .eq('id', id)
+        .maybeSingle();
+    if (profile?.containsKey('about') == true) {
+      await client
+          .from('profiles')
+          .update({'about': about.trim()})
+          .eq('id', id);
+    } else {
+      await client.auth.updateUser(
+        UserAttributes(data: {'about': about.trim()}),
+      );
+    }
+  }
+
+  static Future<void> addProfileSkill(String skill) async {
+    final clean = skill.trim();
+    if (clean.isEmpty) throw ArgumentError('Enter a skill.');
+    await client.from('user_skills').upsert({
+      'user_id': _profileUserId,
+      'skill': clean,
+    }, onConflict: 'user_id,skill');
+  }
+
+  static Future<void> attachProfileCertificate({
+    required int skillId,
+    required XFile file,
+    int maxBytes = 10 * 1024 * 1024,
+  }) async {
+    final extension = file.name.split('.').last.toLowerCase();
+    if (!['pdf', 'png', 'jpg', 'jpeg'].contains(extension)) {
+      throw ArgumentError('Choose a PDF, PNG or JPG file.');
+    }
+    if (await file.length() > maxBytes) {
+      throw ArgumentError(
+        'Choose a file smaller than ${maxBytes ~/ (1024 * 1024)} MB.',
+      );
+    }
+    final id = _profileUserId;
+    await client
+        .from('user_skills')
+        .select('id')
+        .eq('user_id', id)
+        .eq('id', skillId)
+        .single();
+    final existing = await client
+        .from('skill_certificates')
+        .select('id')
+        .eq('user_id', id)
+        .eq('skill_id', skillId);
+    if (existing.length >= 3) {
+      throw StateError('Each skill can have up to 3 certificates.');
+    }
+    await _uploadCertificate(userId: id, skillId: skillId, file: file);
+  }
+
+  static Future<void> removeProfileSkill(
+    Map<String, dynamic> skill,
+    List<Map<String, dynamic>> attachments,
+  ) async {
+    final userId = _profileUserId;
+    final skillId = skill['id'] as int;
+    await client
+        .from('skill_certificates')
+        .delete()
+        .eq('user_id', userId)
+        .eq('skill_id', skillId);
+    try {
+      await client
+          .from('user_skills')
+          .delete()
+          .eq('user_id', userId)
+          .eq('id', skillId);
+    } catch (_) {
+      // Compensate if the parent deletion is rejected. Never delete file bytes.
+      await restoreProfileAttachments(attachments, skillId: skillId);
+      rethrow;
+    }
+  }
+
+  static Future<void> restoreProfileAttachments(
+    List<Map<String, dynamic>> attachments, {
+    required int skillId,
+  }) async {
+    final userId = _profileUserId;
+    if (attachments.isEmpty) return;
+    await client
+        .from('skill_certificates')
+        .upsert(
+          attachments
+              .map(
+                (attachment) => {
+                  'id': attachment['id'],
+                  'user_id': userId,
+                  'skill_id': skillId,
+                  'file_name': attachment['file_name'],
+                  'storage_path': attachment['storage_path'],
+                },
+              )
+              .toList(),
+          onConflict: 'id',
+        );
+  }
+
+  static Future<void> restoreProfileSkill(
+    Map<String, dynamic> skill,
+    List<Map<String, dynamic>> attachments,
+  ) async {
+    await client.from('user_skills').upsert({
+      'id': skill['id'],
+      'user_id': _profileUserId,
+      'skill': skill['skill'],
+    }, onConflict: 'id');
+    await restoreProfileAttachments(attachments, skillId: skill['id'] as int);
+  }
+
+  static Future<String> profileAttachmentUrl(int certificateId) async {
+    // Resolve the path from an authorized association, never from caller input.
+    final record = await client
+        .from('skill_certificates')
+        .select('storage_path')
+        .eq('user_id', _profileUserId)
+        .eq('id', certificateId)
+        .single();
+    return client.storage
+        .from('certificates')
+        .createSignedUrl(record['storage_path'] as String, 60);
+  }
+
   // ============================================================
   // SIGN OUT
   // ============================================================
@@ -261,9 +463,13 @@ class SupabaseService {
     required int certificateId,
     required String storagePath,
   }) async {
-    await client.storage.from('certificates').remove([storagePath]);
-
-    await client.from('skill_certificates').delete().eq('id', certificateId);
+    // Unlink only. Storage may be shared, and Undo needs the original bytes.
+    await client
+        .from('skill_certificates')
+        .delete()
+        .eq('user_id', _profileUserId)
+        .eq('id', certificateId)
+        .eq('storage_path', storagePath);
   }
 
   // ============================================================
