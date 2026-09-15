@@ -587,7 +587,7 @@ class _SignUpScreenState extends State<SignUpScreen>
                 onTap: _loading ? null : _nextStep,
               ),
 
-              const SizedBox(height: 14),
+              const SizedBox(height: 20),
 
               Center(
                 child: Wrap(
@@ -597,20 +597,26 @@ class _SignUpScreenState extends State<SignUpScreen>
                     Text(
                       'Already have an account? ',
                       style: AppTypography.sans(
-                        size: 12,
+                        size: 14,
                         color: AppColors.muted,
                       ),
                     ),
-                    GestureDetector(
-                      onTap: _loading
+                    TextButton(
+                      onPressed: _loading
                           ? null
                           : () {
                               Navigator.maybePop(context);
                             },
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.secondary,
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        minimumSize: const Size(76, 48),
+                        tapTargetSize: MaterialTapTargetSize.padded,
+                      ),
                       child: Text(
                         'Sign in',
                         style: AppTypography.sans(
-                          size: 12,
+                          size: 14,
                           color: AppColors.secondary,
                           weight: FontWeight.w500,
                         ),

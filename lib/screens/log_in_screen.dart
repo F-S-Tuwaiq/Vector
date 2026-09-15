@@ -143,7 +143,7 @@ class _LogInScreenState extends State<LogInScreen>
         child: LayoutBuilder(
           builder: (context, constraints) {
             final width = math.min(constraints.maxWidth, 460.0);
-            final height = width * 680 / 390;
+            final height = width * 736 / 390;
             return SingleChildScrollView(
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               child: ConstrainedBox(
@@ -158,7 +158,7 @@ class _LogInScreenState extends State<LogInScreen>
                       alignment: Alignment.topCenter,
                       child: SizedBox(
                         width: 390,
-                        height: 680,
+                        height: 736,
                         child: FadeTransition(opacity: _fade, child: _screen()),
                       ),
                     ),
@@ -386,15 +386,15 @@ class _LogInScreenState extends State<LogInScreen>
           Positioned(
             left: 20,
             right: 20,
-            top: 660,
-            height: 30,
+            top: 680,
+            height: 48,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   'Don’t have an account?',
                   style: AppTypography.sans(
-                    size: 10.8,
+                    size: 14,
                     color: AppColors.muted,
                     spacing: -0.2,
                   ),
@@ -413,14 +413,14 @@ class _LogInScreenState extends State<LogInScreen>
                         },
                   style: TextButton.styleFrom(
                     foregroundColor: AppColors.secondary,
-                    padding: const EdgeInsets.only(left: 4, right: 2),
-                    minimumSize: const Size(0, 30),
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    minimumSize: const Size(76, 48),
+                    tapTargetSize: MaterialTapTargetSize.padded,
                   ),
                   child: Text(
                     'Sign up',
                     style: AppTypography.sans(
-                      size: 10.8,
+                      size: 14,
                       color: AppColors.secondary,
                       weight: FontWeight.w500,
                       spacing: -0.2,
