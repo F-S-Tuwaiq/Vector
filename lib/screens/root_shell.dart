@@ -24,6 +24,10 @@ class _RootShellState extends State<RootShell>
     value: 1,
   );
 
+  final GlobalKey<HomeScreenState> _homeKey = GlobalKey<HomeScreenState>();
+  final GlobalKey<InvitesScreenState> _invitesKey =
+      GlobalKey<InvitesScreenState>();
+
   void _onChanged(int i) {
     if (i == _index) return;
     setState(() => _index = i);
@@ -32,6 +36,16 @@ class _RootShellState extends State<RootShell>
     } else {
       _fade.forward(from: 0);
     }
+    if (i == 1) _invitesKey.currentState?.refreshOnFocus();
+  }
+
+  /// The Invites hackathon-strip deep link: switch to Home, then expand
+  /// and center that hackathon's card.
+  void _openHackathonFromInvite(String hackathonId) {
+    _onChanged(0);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _homeKey.currentState?.openHackathonExpanded(hackathonId);
+    });
   }
 
   @override
@@ -47,7 +61,14 @@ class _RootShellState extends State<RootShell>
         opacity: _fade,
         child: IndexedStack(
           index: _index,
-          children: const [HomeScreen(), InvitesScreen(), ProfileScreen()],
+          children: [
+            HomeScreen(key: _homeKey),
+            InvitesScreen(
+              key: _invitesKey,
+              onOpenHackathon: _openHackathonFromInvite,
+            ),
+            const ProfileScreen(),
+          ],
         ),
       ),
       bottomNavigationBar: VectorBottomBar(

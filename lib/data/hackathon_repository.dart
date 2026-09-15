@@ -2,7 +2,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../config/env.dart';
 import '../models/hackathon.dart';
+import '../models/invitation.dart';
 import '../models/member.dart';
+import '../models/sent_request.dart';
 import '../models/team.dart';
 import 'mock_hackathons.dart';
 
@@ -120,6 +122,20 @@ class HackathonRepository {
   Future<bool> sendJoinRequest(String teamId) async {
     if (!Env.isConfigured) {
       await Future.delayed(const Duration(milliseconds: 400));
+      final team = findMockTeamById(teamId);
+      if (team != null) {
+        addMockSentRequest(
+          SentRequest(
+            id: 'local-request-${DateTime.now().microsecondsSinceEpoch}',
+            teamId: team.id,
+            teamName: team.name,
+            hackathonId: team.hackathonId,
+            hackathonName: mockHackathonNameFor(team.hackathonId),
+            status: 'pending',
+            createdAt: DateTime.now(),
+          ),
+        );
+      }
       return true;
     }
 
@@ -127,6 +143,90 @@ class HackathonRepository {
       await Supabase.instance.client
           .from('join_requests')
           .insert({'team_id': teamId});
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  // ============================================================
+  // INVITES TAB — invitations + sent requests
+  // ============================================================
+
+  /// Pending invitations for the current user, newest first.
+  Future<List<Invitation>> fetchInvitations() async {
+    if (!Env.isConfigured) {
+      return mockInvitations();
+    }
+
+    try {
+      final rows = await Supabase.instance.client
+          .from('invitations')
+          .select(
+            '*, teams(id, name, hackathon_id, '
+            'hackathons(id, name, hero_value, hero_caption, event_dates, city))',
+          )
+          .eq('status', 'pending')
+          .order('created_at', ascending: false)
+          .timeout(_timeout);
+      final data = (rows as List).cast<Map<String, dynamic>>();
+      return data.map(Invitation.fromMap).toList();
+    } catch (_) {
+      return mockInvitations();
+    }
+  }
+
+  /// Accepts or declines invitation [id]. Returns success.
+  Future<bool> respondToInvitation(String id, String status) async {
+    if (!Env.isConfigured) {
+      respondToMockInvitation(id, status);
+      return true;
+    }
+
+    try {
+      await Supabase.instance.client
+          .from('invitations')
+          .update({'status': status})
+          .eq('id', id)
+          .timeout(_timeout);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// All join requests the current user has sent, newest first.
+  Future<List<SentRequest>> fetchSentRequests() async {
+    if (!Env.isConfigured) {
+      return mockSentRequests();
+    }
+
+    try {
+      final rows = await Supabase.instance.client
+          .from('join_requests')
+          .select('*, teams(id, name, hackathon_id, hackathons(id, name))')
+          .order('created_at', ascending: false)
+          .timeout(_timeout);
+      final data = (rows as List).cast<Map<String, dynamic>>();
+      return data.map(SentRequest.fromMap).toList();
+    } catch (_) {
+      return mockSentRequests();
+    }
+  }
+
+  /// Withdraws a pending sent request. Returns success.
+  Future<bool> withdrawRequest(String id) async {
+    if (!Env.isConfigured) {
+      removeMockSentRequest(id);
+      return true;
+    }
+
+    try {
+      await Supabase.instance.client
+          .from('join_requests')
+          .delete()
+          .eq('id', id)
+          .timeout(_timeout);
       return true;
     } catch (_) {
       return false;

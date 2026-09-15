@@ -24,10 +24,12 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HomeScreen> createState() => HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+/// Public so [RootShell] can hold a `GlobalKey<HomeScreenState>` and call
+/// [openHackathonExpanded] from the Invites tab's deep link.
+class HomeScreenState extends State<HomeScreen> {
   final HackathonRepository _repo = HackathonRepository();
 
   bool _loading = true;
@@ -77,6 +79,27 @@ class _HomeScreenState extends State<HomeScreen> {
     final bool disableAnimations = MediaQuery.disableAnimationsOf(context);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final ctx = _keyFor(hackathon.id).currentContext;
+      if (ctx == null) return;
+      Scrollable.ensureVisible(
+        ctx,
+        duration: disableAnimations
+            ? Duration.zero
+            : const Duration(milliseconds: 350),
+        curve: const Cubic(0.22, 1, 0.36, 1),
+        alignment: 0.1,
+      );
+    });
+  }
+
+  /// Expands hackathon [hackathonId]'s card and scrolls it into view —
+  /// the Invites tab's hackathon-strip deep link calls this after
+  /// switching the shell to the Home tab.
+  void openHackathonExpanded(String hackathonId) {
+    setState(() => _selectedField = 'All');
+    _expandedId.value = hackathonId;
+    final bool disableAnimations = MediaQuery.disableAnimationsOf(context);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final ctx = _keyFor(hackathonId).currentContext;
       if (ctx == null) return;
       Scrollable.ensureVisible(
         ctx,
