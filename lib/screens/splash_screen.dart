@@ -18,12 +18,14 @@ class VectorSplash extends StatefulWidget {
 }
 
 class _VectorSplashState extends State<VectorSplash>
-  with TickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late final AnimationController _controller;
   late final AnimationController _exitController;
+  late final AnimationController _bobController;
   bool _completed = false;
   bool _animationFinished = false;
   bool _isExiting = false;
+  bool _buttonPressed = false;
 
   static const _totalDuration = 3000;
 
@@ -47,7 +49,11 @@ class _VectorSplashState extends State<VectorSplash>
     )..addStatusListener(_handleStatus);
     _exitController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 450),
+      duration: const Duration(milliseconds: 1100),
+    );
+    _bobController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
     );
   }
 
@@ -57,8 +63,14 @@ class _VectorSplashState extends State<VectorSplash>
     if (MediaQuery.disableAnimationsOf(context)) {
       _controller.value = 1;
       _animationFinished = true;
-    } else if (!_controller.isAnimating && _controller.value == 0) {
-      _controller.forward();
+      _bobController.stop();
+    } else {
+      if (!_controller.isAnimating && _controller.value == 0) {
+        _controller.forward();
+      }
+      if (!_bobController.isAnimating) {
+        _bobController.repeat(reverse: true);
+      }
     }
   }
 
@@ -93,6 +105,7 @@ class _VectorSplashState extends State<VectorSplash>
   void dispose() {
     _controller.dispose();
     _exitController.dispose();
+    _bobController.dispose();
     super.dispose();
   }
 
@@ -108,15 +121,35 @@ class _VectorSplashState extends State<VectorSplash>
       child: AnimatedBuilder(
         animation: _exitController,
         builder: (context, child) {
-          final double t = const Cubic(
-            0.22,
+          final double t = Curves.easeInOutCubic.transform(
+            _exitController.value,
+          );
+          // The bottom edge morphs into a V tip (the logo's apex) during
+          // the first part of the exit, then the whole sheet lifts away.
+          // Fade only starts once the lift is under way and eases in and
+          // out, so the sheet dissolves gradually instead of snapping away
+          // right at the end.
+          final double fade = const Interval(
+            0.35,
             1,
-            0.36,
-            1,
+            curve: Curves.easeInOut,
           ).transform(_exitController.value);
+          final double notch = 0.14 *
+              const Interval(
+                0,
+                0.6,
+                curve: Curves.easeInOutCubic,
+              ).transform(_exitController.value);
           return FractionalTranslation(
-            translation: Offset(0, -t),
-            child: Opacity(opacity: 1 - t, child: child),
+            // Extra travel so the trailing triangle tip fully clears.
+            translation: Offset(0, -(1 + notch) * t),
+            child: Opacity(
+              opacity: 1 - fade,
+              child: ClipPath(
+                clipper: _TriangleExitClipper(notchFactor: notch),
+                child: child,
+              ),
+            ),
           );
         },
         child: ColoredBox(
@@ -277,31 +310,22 @@ class _VectorSplashState extends State<VectorSplash>
                         bottom: 64,
                         child: IgnorePointer(
                           ignoring: !_animationFinished || _isExiting,
-                          child: AnimatedOpacity(
-                            opacity: _animationFinished ? 1 : 0,
-                            duration: const Duration(milliseconds: 450),
-                            curve: Curves.easeOut,
-                            child: FilledButton.icon(
-                              onPressed: _complete,
-                              icon: const Icon(
-                                Icons.arrow_drop_up,
-                                color: Color(0xFFF2B880),
-                                size: 24,
-                              ),
-                              style: FilledButton.styleFrom(
-                                backgroundColor: const Color(0xFF493252),
-                                foregroundColor: const Color(0xFFF7F4F8),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 32,
-                                  vertical: 14,
-                                ),
-                              ),
-                              label: const Text(
-                                'Continue',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                          child: AnimatedSlide(
+                            offset: _animationFinished
+                                ? Offset.zero
+                                : const Offset(0, 0.35),
+                            duration: const Duration(milliseconds: 500),
+                            curve: const Cubic(0.22, 1, 0.36, 1),
+                            child: AnimatedOpacity(
+                              opacity: _animationFinished ? 1 : 0,
+                              duration: const Duration(milliseconds: 450),
+                              curve: Curves.easeOut,
+                              child: _ContinueButton(
+                                pressed: _buttonPressed,
+                                bob: _bobController,
+                                onPressChanged: (v) =>
+                                    setState(() => _buttonPressed = v),
+                                onTap: _complete,
                               ),
                             ),
                           ),
@@ -317,6 +341,133 @@ class _VectorSplashState extends State<VectorSplash>
       ),
     );
   }
+}
+
+/// Branded continue affordance: an outlined square tile (radius 13) with a
+/// bobbing apricot triangle inside, and a letterspaced CONTINUE below —
+/// quiet, editorial, and it hints at the upward exit.
+class _ContinueButton extends StatelessWidget {
+  const _ContinueButton({
+    required this.pressed,
+    required this.bob,
+    required this.onPressChanged,
+    required this.onTap,
+  });
+
+  final bool pressed;
+  final AnimationController bob;
+  final ValueChanged<bool> onPressChanged;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: 'Continue',
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTapDown: (_) => onPressChanged(true),
+        onTapCancel: () => onPressChanged(false),
+        onTapUp: (_) {
+          onPressChanged(false);
+          onTap();
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AnimatedScale(
+                scale: pressed ? 0.94 : 1.0,
+                duration: const Duration(milliseconds: 120),
+                curve: const Cubic(0.22, 1, 0.36, 1),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  width: 54,
+                  height: 54,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(13),
+                    color: pressed
+                        ? VectorColors.apricot.withValues(alpha: 0.15)
+                        : Colors.transparent,
+                    border: Border.all(
+                      color: VectorColors.textOnPurple
+                          .withValues(alpha: 0.35),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Center(
+                    child: AnimatedBuilder(
+                      animation: bob,
+                      builder: (context, child) {
+                        final dy =
+                            -3.0 * Curves.easeInOut.transform(bob.value);
+                        return Transform.translate(
+                          offset: Offset(0, dy),
+                          child: child,
+                        );
+                      },
+                      child: const CustomPaint(
+                        size: Size(14, 12),
+                        painter: _TriangleGlyphPainter(
+                          color: VectorColors.apricot,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Small solid upward triangle — the brand glyph.
+class _TriangleGlyphPainter extends CustomPainter {
+  const _TriangleGlyphPainter({required this.color});
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final path = Path()
+      ..moveTo(size.width / 2, 0)
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height)
+      ..close();
+    canvas.drawPath(path, Paint()..color = color);
+  }
+
+  @override
+  bool shouldRepaint(covariant _TriangleGlyphPainter oldDelegate) =>
+      oldDelegate.color != color;
+}
+
+/// Clips the splash so its bottom edge forms a downward V tip (the logo's
+/// apex) while the sheet lifts away. notchFactor 0 = flat edge.
+class _TriangleExitClipper extends CustomClipper<Path> {
+  const _TriangleExitClipper({required this.notchFactor});
+
+  final double notchFactor;
+
+  @override
+  Path getClip(Size size) {
+    final d = size.height * notchFactor;
+    return Path()
+      ..moveTo(0, 0)
+      ..lineTo(size.width, 0)
+      ..lineTo(size.width, size.height - d)
+      ..lineTo(size.width / 2, size.height)
+      ..lineTo(0, size.height - d)
+      ..close();
+  }
+
+  @override
+  bool shouldReclip(covariant _TriangleExitClipper oldDelegate) =>
+      oldDelegate.notchFactor != notchFactor;
 }
 
 class _VectorMarkPainter extends CustomPainter {
@@ -345,17 +496,17 @@ class _VectorMarkPainter extends CustomPainter {
       canvas,
       leftPath,
       leftProgress,
-      const Color(0xFFF7F4F8),
+      VectorColors.textOnPurple,
     );
     _drawProgressivePath(
       canvas,
       rightPath,
       rightProgress,
-      const Color(0xFFF2B880),
+      VectorColors.apricot,
     );
 
     final dotPaint = Paint()
-      ..color = const Color(0xFFF7F4F8)
+      ..color = VectorColors.textOnPurple
           .withValues(alpha: dotScale.clamp(0.0, 1.0));
     canvas.drawCircle(const Offset(32, 50), 4 * dotScale, dotPaint);
     canvas.restore();
@@ -400,4 +551,55 @@ class _WordmarkPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _WordmarkPainter oldDelegate) => true;
+}
+
+/// Hosts the splash as an OVERLAY above the next screen (not as a route).
+/// The next screen is built and laid out beneath the splash from the very
+/// first frame, so when the purple sheet lifts away with its V tip, the
+/// screen underneath is simply revealed — no navigation during the exit,
+/// no black frame, ever.
+///
+/// Usage in main.dart:
+///   home: const AppLauncher(next: LogInScreen()),
+/// (swap LogInScreen for whatever should come after the splash)
+class AppLauncher extends StatefulWidget {
+  const AppLauncher({required this.next, super.key});
+
+  final Widget next;
+
+  @override
+  State<AppLauncher> createState() => _AppLauncherState();
+}
+
+class _AppLauncherState extends State<AppLauncher> {
+  bool _splashDone = false;
+
+  void _onSplashComplete() {
+    if (!mounted) return;
+    setState(() => _splashDone = true);
+    // The splash forced light status-bar icons for the purple background;
+    // flip them for the light screen now underneath.
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarIconBrightness: Brightness.dark,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // Always present beneath the splash — this is what the V-tip
+        // exit reveals.
+        widget.next,
+        if (!_splashDone) VectorSplash(onComplete: _onSplashComplete),
+      ],
+    );
+  }
 }

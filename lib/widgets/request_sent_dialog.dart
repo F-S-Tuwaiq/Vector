@@ -74,13 +74,9 @@ class _RequestSentDialogContent extends StatelessWidget {
               TextSpan(
                 style: VectorText.bodyMedium.copyWith(
                   color: VectorColors.textSecondary,
-                  height: 1.5,
+                  height: 1.55,
                 ),
                 children: [
-                  const TextSpan(
-                    text:
-                        "You're one step closer — your request to join ",
-                  ),
                   TextSpan(
                     text: team.name,
                     style: const TextStyle(
@@ -89,8 +85,7 @@ class _RequestSentDialogContent extends StatelessWidget {
                     ),
                   ),
                   const TextSpan(
-                    text:
-                        ' is on its way. Great teams move fast, so keep an eye out!',
+                    text: ' got your request.\nStay close — teams move fast.',
                   ),
                 ],
               ),

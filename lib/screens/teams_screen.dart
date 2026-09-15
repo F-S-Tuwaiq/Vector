@@ -15,9 +15,13 @@ import '../widgets/vector_header.dart';
 import 'create_team_screen.dart';
 
 class TeamsScreen extends StatefulWidget {
-  const TeamsScreen({super.key, required this.hackathon});
+  const TeamsScreen({super.key, required this.hackathon, this.initialTeamId});
 
   final Hackathon hackathon;
+
+  /// When set, the carousel opens directly at this team's card instead of
+  /// the first one (e.g. the "Meet the team" deep link from Invites).
+  final String? initialTeamId;
 
   @override
   State<TeamsScreen> createState() => _TeamsScreenState();
@@ -29,6 +33,7 @@ class _TeamsScreenState extends State<TeamsScreen> {
 
   List<Team>? _teams;
   int _currentIndex = 0;
+  bool _initialTeamHandled = false;
 
   /// Team ids with an in-flight join request.
   final Set<String> _sendingTeamIds = {};
@@ -49,16 +54,33 @@ class _TeamsScreenState extends State<TeamsScreen> {
   Future<void> _loadTeams({int? jumpToIndex}) async {
     final teams = await _repo.fetchTeams(widget.hackathon.id);
     if (!mounted) return;
+
+    int? resolvedJump = jumpToIndex;
+    if (resolvedJump == null &&
+        !_initialTeamHandled &&
+        widget.initialTeamId != null) {
+      final index = teams.indexWhere((t) => t.id == widget.initialTeamId);
+      if (index != -1) resolvedJump = index;
+    }
+    _initialTeamHandled = true;
+
     setState(() {
       _teams = teams;
-      _currentIndex = jumpToIndex ?? 0;
+      _currentIndex = resolvedJump ?? 0;
     });
-    if (jumpToIndex != null && _pageController.hasClients) {
+    if (resolvedJump == null) return;
+    if (_pageController.hasClients) {
       _pageController.animateToPage(
-        jumpToIndex,
+        resolvedJump,
         duration: const Duration(milliseconds: 420),
         curve: const Cubic(0.22, 1, 0.36, 1),
       );
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _pageController.hasClients) {
+          _pageController.jumpToPage(resolvedJump!);
+        }
+      });
     }
   }
 

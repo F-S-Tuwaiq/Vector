@@ -1,5 +1,7 @@
 import '../models/hackathon.dart';
+import '../models/invitation.dart';
 import '../models/member.dart';
+import '../models/sent_request.dart';
 import '../models/team.dart';
 
 /// Fixed mock hackathon ids, kept stable so they can be cross-referenced
@@ -250,4 +252,122 @@ void addMockTeam(Team team) {
     ...mockTeamsFor(team.hackathonId),
     team,
   ];
+}
+
+/// Finds a mock team by id across every hackathon, or `null`.
+Team? findMockTeamById(String teamId) {
+  for (final teams in _mockTeamsByHackathon.values) {
+    for (final team in teams) {
+      if (team.id == teamId) return team;
+    }
+  }
+  return null;
+}
+
+/// The mock hackathon's name for [hackathonId], or the first hackathon's
+/// name if unknown (defensive fallback — never surfaces empty text).
+String mockHackathonNameFor(String hackathonId) {
+  return mockHackathons
+      .firstWhere(
+        (h) => h.id == hackathonId,
+        orElse: () => mockHackathons.first,
+      )
+      .name;
+}
+
+final DateTime _now = DateTime.now();
+
+/// Seeded pending invitations, mirroring the live `invitations` table.
+final List<Invitation> _mockInvitations = [
+  Invitation(
+    id: 'invite-1',
+    teamId: 'saif-elite',
+    teamName: 'Team Elite',
+    hackathonId: 'saif',
+    hackathonName: 'SAIF — Security & Innovation Fair',
+    hackathonHero: '5M SAR',
+    hackathonDates: 'Nov 19–21',
+    hackathonCity: 'Riyadh',
+    senderName: 'Sara Alqahtani',
+    senderRole: 'Team lead',
+    message:
+        "We need a backend dev who can start now — you're exactly the "
+        'profile we\'re missing.',
+    expiresAt: _now.add(const Duration(hours: 46)),
+    status: 'pending',
+    createdAt: _now.subtract(const Duration(hours: 3)),
+  ),
+  Invitation(
+    id: 'invite-2',
+    teamId: 'ai-disability-pioneers',
+    teamName: 'The Pioneers',
+    hackathonId: 'ai-disability',
+    hackathonName: 'AI for Disability Hackathon',
+    hackathonHero: '220K SAR',
+    hackathonDates: 'Oct 11–13',
+    hackathonCity: 'Riyadh',
+    senderName: 'Abdullah Alrashid',
+    senderRole: 'Team lead',
+    message: 'Loved your portfolio — join us for AI for Disability!',
+    expiresAt: _now.add(const Duration(days: 5)),
+    status: 'pending',
+    createdAt: _now.subtract(const Duration(days: 1)),
+  ),
+];
+
+/// Seeded sent requests, mirroring the live `join_requests` table.
+final List<SentRequest> _mockSentRequests = [
+  SentRequest(
+    id: 'sent-1',
+    teamId: 'energy-crushers',
+    teamName: 'Code Crushers',
+    hackathonId: 'energy',
+    hackathonName: 'Energy Hackathon',
+    status: 'accepted',
+    createdAt: _now.subtract(const Duration(days: 2)),
+  ),
+  SentRequest(
+    id: 'sent-2',
+    teamId: 'gov-eservices-pioneers',
+    teamName: 'The Pioneers',
+    hackathonId: 'gov-eservices',
+    hackathonName: 'Government E-Services Hackathon 2026',
+    status: 'declined',
+    createdAt: _now.subtract(const Duration(hours: 6)),
+  ),
+];
+
+/// Pending invitations, newest first.
+List<Invitation> mockInvitations() {
+  final pending = _mockInvitations.where((i) => i.status == 'pending').toList()
+    ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+  return pending;
+}
+
+/// Updates a mock invitation's status in place (accept/decline).
+void respondToMockInvitation(String id, String status) {
+  final index = _mockInvitations.indexWhere((inv) => inv.id == id);
+  if (index != -1) {
+    _mockInvitations[index] = _mockInvitations[index].copyWith(
+      status: status,
+    );
+  }
+}
+
+/// All sent requests (any status), newest first.
+List<SentRequest> mockSentRequests() {
+  final all = List<SentRequest>.from(_mockSentRequests)
+    ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+  return all;
+}
+
+/// Appends a locally-created sent request so `sendJoinRequest` shows up in
+/// the Sent tab immediately, even without Supabase configured.
+void addMockSentRequest(SentRequest request) {
+  _mockSentRequests.insert(0, request);
+}
+
+/// Removes a mock sent request (withdraw).
+void removeMockSentRequest(String id) {
+  _mockSentRequests.removeWhere((r) => r.id == id);
 }
