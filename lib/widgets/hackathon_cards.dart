@@ -161,6 +161,7 @@ class _StatusBadge extends StatelessWidget {
 /// shared with `TeamsScreen`'s full-page purple card, so tapping through
 /// to Teams visually "grows" the card into the next screen.
 class HackathonCard extends StatefulWidget {
+  static const expansionDuration = Duration(milliseconds: 320);
   const HackathonCard({
     super.key,
     required this.hackathon,
@@ -216,7 +217,7 @@ class _HackathonCardState extends State<HackathonCard> {
 
     final Duration morphDuration = disableAnimations
         ? Duration.zero
-        : const Duration(milliseconds: 320);
+        : HackathonCard.expansionDuration;
     const Cubic morphCurve = Cubic(0.22, 1, 0.36, 1);
 
     final double pressScale = (!disableAnimations && _pressed && !expanded)
@@ -232,9 +233,7 @@ class _HackathonCardState extends State<HackathonCard> {
           color: expanded
               ? VectorColors.purpleBrand
               : VectorColors.surfaceWhite,
-          border: expanded
-              ? null
-              : Border.all(color: VectorColors.hairline),
+          border: expanded ? null : Border.all(color: VectorColors.hairline),
         ),
         child: AnimatedCrossFade(
           duration: morphDuration,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../widgets/vector_bottom_bar.dart';
+import '../data/profile_repository.dart';
 import 'home_screen.dart';
 import 'invites_screen.dart';
 import 'profile_screen.dart';
@@ -9,7 +10,11 @@ import 'profile_screen.dart';
 /// mounted (and keep their state) across switches; only the fade-in and
 /// the bottom-bar triangle animate.
 class RootShell extends StatefulWidget {
-  const RootShell({super.key});
+  const RootShell({
+    super.key,
+    this.profileRepository = const ProfileRepository(),
+  });
+  final ProfileRepository profileRepository;
 
   @override
   State<RootShell> createState() => _RootShellState();
@@ -67,7 +72,11 @@ class _RootShellState extends State<RootShell>
               key: _invitesKey,
               onOpenHackathon: _openHackathonFromInvite,
             ),
-            const ProfileScreen(),
+            ProfileScreen(
+              repository: widget.profileRepository,
+              onBack: () => _onChanged(0),
+              onDiscover: () => _onChanged(0),
+            ),
           ],
         ),
       ),

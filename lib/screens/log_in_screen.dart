@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vector/screens/sign_up_screen.dart';
 
-import 'home_screen.dart';
+import 'root_shell.dart';
 import '../widgets/signup_code_dialog.dart';
 import '../services/supabase_service.dart';
 import '../constants/app_constants.dart';
@@ -97,13 +97,13 @@ class _LogInScreenState extends State<LogInScreen>
         final verified = await showDialog<bool>(
           context: context,
           barrierDismissible: false,
-          builder: (_) => SignupCodeDialog(email: _email.text.trim()),
+          builder: (_) => SignupCodeDialog(email: _email.text.trim(), password: _password.text),
         );
         if (verified != true) return;
       }
       if (!mounted) return;
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
+        MaterialPageRoute(builder: (_) => const RootShell()),
         (route) => false,
       );
     } on AuthException catch (error) {

@@ -1,54 +1,95 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../constants/app_constants.dart';
 import '../services/supabase_service.dart';
 
 class SignupCodeDialog extends StatefulWidget {
-  const SignupCodeDialog({super.key, required this.email});
+  const SignupCodeDialog({
+    super.key,
+    required this.email,
+    required this.password,
+  });
   final String email;
+  final String password;
 
   @override
   State<SignupCodeDialog> createState() => _SignupCodeDialogState();
 }
 
 class _SignupCodeDialogState extends State<SignupCodeDialog> {
-  final _code = TextEditingController();
-  final _codeFocus = FocusNode();
   bool _busy = false;
   String? _message;
+  int _resendSeconds = 60;
+  Timer? _resendTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _startResendCooldown();
+  }
+
+  void _startResendCooldown() {
+    _resendTimer?.cancel();
+    _resendSeconds = 60;
+    _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      setState(() => _resendSeconds--);
+      if (_resendSeconds == 0) timer.cancel();
+    });
+  }
 
   @override
   void dispose() {
-    _code.dispose();
-    _codeFocus.dispose();
+    _resendTimer?.cancel();
     super.dispose();
   }
 
   Future<void> _submit({bool resend = false}) async {
-    if (_busy) return;
-    if (!resend && !RegExp(r'^\d{6,10}$').hasMatch(_code.text.trim())) {
-      setState(() => _message = 'Enter the full code from your email.');
-      return;
-    }
+    if (_busy || (resend && _resendSeconds > 0)) return;
     setState(() {
       _busy = true;
       _message = null;
     });
     try {
       if (resend) {
+        _startResendCooldown();
         await SupabaseService.resendSignupCode(widget.email);
-        if (mounted) setState(() => _message = 'A new code has been sent.');
+        if (mounted) {
+          setState(() => _message = 'A new confirmation email has been sent.');
+        }
       } else {
-        await SupabaseService.verifySignupCode(widget.email, _code.text);
+        await SupabaseService.signIn(widget.email, widget.password);
         if (mounted) Navigator.of(context).pop(true);
+      }
+    } on EmailVerificationRequired {
+      if (mounted) {
+        setState(
+          () => _message = 'Your email is not confirmed yet. Open the confirmation link in your email, then return here.',
+        );
+      }
+    } on AuthException catch (error) {
+      if (mounted) {
+        setState(
+          () => _message =
+              error.statusCode == '429' ||
+                  error.code == 'over_email_send_rate_limit' ||
+                  error.code == 'over_request_rate_limit'
+              ? 'The email or request limit has been reached. Please wait until it resets before trying again.'
+              : error.message,
+        );
       }
     } catch (_) {
       if (mounted) {
         setState(
           () => _message = resend
-              ? 'Could not resend yet. Wait a minute and try again.'
-              : 'Code invalid or expired. Try again or request a new code.',
+              ? 'Could not send the email. Check your connection before trying again.'
+              : 'Could not check confirmation. Check your connection and try again.',
         );
       }
     } finally {
@@ -95,7 +136,7 @@ class _SignupCodeDialogState extends State<SignupCodeDialog> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Enter the code sent to',
+                  'Open the confirmation link in the email sent to',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
                 ),
@@ -110,10 +151,15 @@ class _SignupCodeDialogState extends State<SignupCodeDialog> {
                   ),
                 ),
                 const SizedBox(height: 28),
-                _digitBoxes(),
+                const Text(
+                  "Then return here and tap I've confirmed my email.",
+                  textAlign: TextAlign.center,
+                ),
                 const SizedBox(height: 8),
                 TextButton(
-                  onPressed: _busy ? null : () => _submit(resend: true),
+                  onPressed: _busy || _resendSeconds > 0
+                      ? null
+                      : () => _submit(resend: true),
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.grey.shade500,
                     textStyle: const TextStyle(
@@ -121,7 +167,11 @@ class _SignupCodeDialogState extends State<SignupCodeDialog> {
                       fontWeight: FontWeight.w400,
                     ),
                   ),
-                  child: const Text('Resend email'),
+                  child: Text(
+                    _resendSeconds > 0
+                        ? 'Resend email in ${_resendSeconds}s'
+                        : 'Resend email',
+                  ),
                 ),
                 if (_message != null) ...[
                   const SizedBox(height: 4),
@@ -156,7 +206,10 @@ class _SignupCodeDialogState extends State<SignupCodeDialog> {
                             height: 20,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : const Text('Verify', style: TextStyle(fontSize: 16)),
+                        : const Text(
+                            "I've confirmed my email",
+                            style: TextStyle(fontSize: 16),
+                          ),
                   ),
                 ),
               ],
@@ -165,92 +218,5 @@ class _SignupCodeDialogState extends State<SignupCodeDialog> {
         ),
       ),
     ),
-  );
-
-  // One real input preserves paste, autofill, and natural backspace behavior.
-  // The visual boxes also accommodate projects configured for longer OTPs.
-  Widget _digitBoxes() => ListenableBuilder(
-    listenable: Listenable.merge([_code, _codeFocus]),
-    builder: (context, _) {
-      final digits = _code.text;
-      final count = digits.length.clamp(6, 10);
-      final active = _code.selection.extentOffset.clamp(0, count - 1);
-      return SizedBox(
-        height: 56,
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: Semantics(
-                label: 'Verification code',
-                child: TextField(
-                  controller: _code,
-                  focusNode: _codeFocus,
-                  enabled: !_busy,
-                  autofocus: true,
-                  keyboardType: TextInputType.number,
-                  textInputAction: TextInputAction.done,
-                  autofillHints: const [AutofillHints.oneTimeCode],
-                  autocorrect: false,
-                  enableSuggestions: false,
-                  showCursor: false,
-                  style: const TextStyle(color: Colors.transparent),
-                  cursorColor: Colors.transparent,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(10),
-                  ],
-                  decoration: const InputDecoration(
-                    border: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    filled: false,
-                    counterText: '',
-                  ),
-                  onSubmitted: (_) => _submit(),
-                ),
-              ),
-            ),
-            Positioned.fill(
-              child: IgnorePointer(
-                child: ExcludeSemantics(
-                  child: Row(
-                    children: List.generate(count, (index) {
-                      final focused = _codeFocus.hasFocus && active == index;
-                      return Expanded(
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 150),
-                          margin: EdgeInsets.only(
-                            right: index == count - 1 ? 0 : 6,
-                          ),
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF8F6FA),
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: focused
-                                  ? AppColors.purple
-                                  : const Color(0xFFE6E0EA),
-                              width: focused ? 1.5 : 1,
-                            ),
-                          ),
-                          child: Text(
-                            index < digits.length ? digits[index] : '',
-                            style: const TextStyle(
-                              fontSize: 23,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.purple,
-                            ),
-                          ),
-                        ),
-                      );
-                    }),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    },
   );
 }

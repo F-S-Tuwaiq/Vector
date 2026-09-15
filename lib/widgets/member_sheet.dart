@@ -137,7 +137,7 @@ class _MemberSheetContent extends StatelessWidget {
                   Navigator.of(context).pop();
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => ProfileScreen(name: member.name),
+                      builder: (_) => ProfileScreen(member: member),
                     ),
                   );
                 },

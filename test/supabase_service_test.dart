@@ -1,5 +1,10 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
+import 'package:vector/widgets/signup_code_dialog.dart';
+
+import 'package:file_selector/file_selector.dart';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -30,6 +35,7 @@ void main() {
     requests = [];
     verified = false;
     unconfirmed = false;
+    SupabaseService.isConfigured = true;
     await Supabase.initialize(
       url: 'https://example.supabase.co',
       publishableKey: 'test-key',
@@ -92,9 +98,34 @@ void main() {
         if (path == '/auth/v1/signup') {
           return http.Response(jsonEncode(user), 200);
         }
-        if (path == '/rest/v1/profiles')
+        if (path == '/rest/v1/profiles') {
+          if (request.method == 'GET') {
+            return http.Response(
+              '{"id":"${user['id']}","full_name":"Test User"}',
+              200,
+              request: request,
+              headers: {'content-type': 'application/json'},
+            );
+          }
           return http.Response('', 204, request: request);
+        }
+        if (path == '/rest/v1/skill_certificates') {
+          return http.Response(
+            '[{"id":7,"skill_id":1,"file_name":"dart.pdf","storage_path":"user/1/dart.pdf"}]',
+            200,
+            request: request,
+            headers: {'content-type': 'application/json'},
+          );
+        }
         if (path == '/rest/v1/user_skills') {
+          if (request.method == 'GET') {
+            return http.Response(
+              '[{"id":1,"skill":"Dart"},{"id":2,"skill":"Custom signup skill"}]',
+              200,
+              request: request,
+              headers: {'content-type': 'application/json'},
+            );
+          }
           return http.Response(
             '{"id":1}',
             201,
@@ -107,7 +138,10 @@ void main() {
     );
   });
 
-  tearDown(() async => Supabase.instance.dispose());
+  tearDown(() async {
+    SupabaseService.isConfigured = false;
+    await Supabase.instance.dispose();
+  });
 
   Future<void> submit() => SupabaseService.createAccount(
     fullName: 'Test User',
@@ -138,6 +172,83 @@ void main() {
     expect(jsonDecode(skill.body)['user_id'], user['id']);
     expect(skill.url.queryParameters['on_conflict'], 'user_id,skill');
   });
+  test(
+    'confirmation link resumes signup without sending another email',
+    () async {
+      unconfirmed = true;
+      await expectLater(submit(), throwsA(isA<EmailVerificationRequired>()));
+      expect(requests.any((r) => r.url.path == '/auth/v1/signup'), isFalse);
+      verified = true; // Supabase confirms the email when its link is opened.
+      requests.clear();
+      await SupabaseService.signIn('test@example.com', 'test-password');
+      await submit();
+      expect(requests.any((r) => r.url.path == '/rest/v1/profiles'), isTrue);
+      expect(
+        requests.any(
+          (r) =>
+              r.url.path == '/auth/v1/signup' ||
+              r.url.path == '/auth/v1/resend',
+        ),
+        isFalse,
+      );
+    },
+  );
+
+  test('signup and resend both use the HTTPS confirmation page', () async {
+    await expectLater(submit(), throwsA(isA<EmailVerificationRequired>()));
+    await SupabaseService.resendSignupCode('test@example.com');
+    final emails = requests.where(
+      (r) => r.url.path == '/auth/v1/signup' || r.url.path == '/auth/v1/resend',
+    );
+    expect(emails, hasLength(2));
+    for (final request in emails) {
+      expect(
+        request.url.queryParameters['redirect_to'],
+        SupabaseService.confirmationRedirectUrl,
+      );
+    }
+  });
+
+  testWidgets(
+    'email dialog checks confirmation without resending or requiring OTP',
+    (tester) async {
+      unconfirmed = true;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: TextButton(
+                onPressed: () => showDialog<bool>(
+                  context: context,
+                  builder: (_) => const SignupCodeDialog(
+                    email: 'test@example.com',
+                    password: 'test-password',
+                  ),
+                ),
+                child: const Text('Open'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+      expect(find.byType(TextField), findsNothing);
+      await tester.tap(find.text("I've confirmed my email"));
+      await tester.pumpAndSettle();
+      expect(
+        find.textContaining('Your email is not confirmed yet.'),
+        findsOneWidget,
+      );
+      expect(requests.every((r) => r.url.path == '/auth/v1/token'), isTrue);
+      verified = true;
+      await tester.tap(find.text("I've confirmed my email"));
+      await tester.pumpAndSettle();
+      expect(find.byType(SignupCodeDialog), findsNothing);
+      expect(SupabaseService.isLoggedIn, isTrue);
+    },
+  );
+
   test('unconfirmed login requests code verification', () async {
     unconfirmed = true;
     await expectLater(
@@ -163,6 +274,101 @@ void main() {
     expect(body['type'], 'email');
     expect(SupabaseService.isLoggedIn, isTrue);
   });
+
+  test(
+    'profile loads exact signup skills and user-scoped certificates',
+    () async {
+      await SupabaseService.verifySignupCode('test@example.com', '123456');
+      requests.clear();
+      final result = await SupabaseService.loadProfile();
+      expect((result['profile'] as Map)['full_name'], 'Test User');
+      expect((result['skills'] as List).map((s) => s['skill']), [
+        'Dart',
+        'Custom signup skill',
+      ]);
+      expect((result['certificates'] as List).single['skill_id'], 1);
+      for (final request in requests) {
+        final column = request.url.path.endsWith('/profiles')
+            ? 'id'
+            : 'user_id';
+        expect(request.url.queryParameters[column], 'eq.${user['id']}');
+      }
+    },
+  );
+
+  test('adding a skill preserves existing skills with an upsert', () async {
+    await SupabaseService.verifySignupCode('test@example.com', '123456');
+    requests.clear();
+    await SupabaseService.addProfileSkill(' Flutter ');
+    final request = requests.single;
+    expect(request.method, 'POST');
+    expect(jsonDecode(request.body), {
+      'user_id': user['id'],
+      'skill': 'Flutter',
+    });
+    expect(request.url.queryParameters['on_conflict'], 'user_id,skill');
+  });
+
+  test('evidence rejects unsupported files and oversized files before network writes', () async {
+    await SupabaseService.verifySignupCode('test@example.com', '123456');
+    requests.clear();
+    await expectLater(
+      SupabaseService.attachProfileCertificate(
+        skillId: 1,
+        file: XFile.fromData(Uint8List(1), path: '/tmp/file.exe'),
+      ),
+      throwsArgumentError,
+    );
+    await expectLater(
+      SupabaseService.attachProfileCertificate(
+        skillId: 1,
+        file: XFile.fromData(Uint8List(11), path: '/tmp/file.pdf'),
+        maxBytes: 10,
+      ),
+      throwsArgumentError,
+    );
+    expect(requests, isEmpty);
+  });
+
+  test(
+    'unlink evidence is scoped to owner and never deletes storage bytes',
+    () async {
+      await SupabaseService.verifySignupCode('test@example.com', '123456');
+      requests.clear();
+      await SupabaseService.deleteCertificate(
+        certificateId: 7,
+        storagePath: 'shared/evidence.pdf',
+      );
+      expect(requests.length, 1);
+      expect(requests.single.method, 'DELETE');
+      expect(requests.single.url.path, '/rest/v1/skill_certificates');
+      expect(
+        requests.single.url.queryParameters['user_id'],
+        'eq.${user['id']}',
+      );
+      expect(requests.single.url.queryParameters['id'], 'eq.7');
+    },
+  );
+
+  test(
+    'remove skill unlinks evidence and Undo restores original association IDs',
+    () async {
+      await SupabaseService.verifySignupCode('test@example.com', '123456');
+      requests.clear();
+      final skill = <String, dynamic>{'id': 1, 'skill': 'Dart'};
+      final files = <Map<String, dynamic>>[
+        {'id': 7, 'file_name': 'dart.pdf', 'storage_path': 'shared/dart.pdf'},
+      ];
+      await SupabaseService.removeProfileSkill(skill, files);
+      expect(requests.map((r) => r.method), ['DELETE', 'DELETE']);
+      await SupabaseService.restoreProfileSkill(skill, files);
+      final restored = jsonDecode(requests.last.body) as List;
+      expect(restored.single['skill_id'], 1);
+      expect(restored.single['id'], 7);
+      expect(restored.single['storage_path'], 'shared/dart.pdf');
+      expect(requests.any((r) => r.url.path.startsWith('/storage/')), isFalse);
+    },
+  );
 
   test('resends a signup confirmation code', () async {
     await SupabaseService.resendSignupCode(' test@example.com ');

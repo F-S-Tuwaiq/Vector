@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/services.dart';
 
-import 'home_screen.dart';
+import '../data/skill_catalog.dart';
+import 'root_shell.dart';
 import '../constants/app_constants.dart';
 import '../legal/vector_legal.dart';
 import '../services/supabase_service.dart';
@@ -66,38 +67,7 @@ class _SignUpScreenState extends State<SignUpScreen>
     'HTML / CSS',
   ];
 
-  final Map<String, List<String>> _skills = {
-    'Design': [
-      'UI / UX design',
-      'Figma',
-      'User research',
-      'Adobe Illustrator',
-      'Branding',
-      'Prototyping',
-    ],
-    'Development': [
-      'HTML / CSS',
-      'Flutter',
-      'Python',
-      'Java',
-      'JavaScript',
-      'Git / GitHub',
-    ],
-    'Product': [
-      'Product strategy',
-      'Wireframing',
-      'User testing',
-      'Product research',
-      'Roadmapping',
-    ],
-    'Business': [
-      'Marketing',
-      'Pitching',
-      'Business strategy',
-      'Market research',
-      'Leadership',
-    ],
-  };
+  final _skills = skillCatalog;
 
   @override
   void initState() {
@@ -379,7 +349,7 @@ class _SignUpScreenState extends State<SignUpScreen>
         );
         if (!mounted) return;
         Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
+          MaterialPageRoute(builder: (_) => const RootShell()),
           (route) => false,
         );
       } else {
@@ -395,7 +365,7 @@ class _SignUpScreenState extends State<SignUpScreen>
       final verified = await showDialog<bool>(
         context: context,
         barrierDismissible: false,
-        builder: (context) => SignupCodeDialog(email: _email.text.trim()),
+        builder: (context) => SignupCodeDialog(email: _email.text.trim(), password: _password.text),
       );
       if (verified == true && mounted) {
         setState(() => _loading = false);
@@ -835,7 +805,9 @@ class _SignUpScreenState extends State<SignUpScreen>
 
               // CREATE ACCOUNT
               _gradientButton(
-                text: _awaitingVerification ? 'Complete sign-up' : 'Create account',
+                text: _awaitingVerification
+                    ? 'Complete sign-up'
+                    : 'Create account',
                 loading: _loading,
                 onTap: _loading ? null : _createAccount,
               ),

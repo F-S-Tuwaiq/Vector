@@ -76,40 +76,35 @@ class HomeScreenState extends State<HomeScreen> {
     _expandedId.value = nowExpanding ? hackathon.id : null;
     if (!nowExpanding) return;
 
-    final bool disableAnimations = MediaQuery.disableAnimationsOf(context);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final ctx = _keyFor(hackathon.id).currentContext;
-      if (ctx == null) return;
-      Scrollable.ensureVisible(
-        ctx,
-        duration: disableAnimations
-            ? Duration.zero
-            : const Duration(milliseconds: 350),
-        curve: const Cubic(0.22, 1, 0.36, 1),
-        alignment: 0.1,
-      );
-    });
+    _revealExpandedCard(hackathon.id);
   }
 
-  /// Expands hackathon [hackathonId]'s card and scrolls it into view —
-  /// the Invites tab's hackathon-strip deep link calls this after
-  /// switching the shell to the Home tab.
+  /// Wait for both the old card to collapse and the new one to expand before
+  /// measuring its scroll position. Measuring mid-animation clips its heading.
+  Future<void> _revealExpandedCard(String id) async {
+    final disableAnimations = MediaQuery.disableAnimationsOf(context);
+    if (!disableAnimations) {
+      await Future<void>.delayed(HackathonCard.expansionDuration);
+    }
+    await WidgetsBinding.instance.endOfFrame;
+    if (!mounted || _expandedId.value != id) return;
+    final cardContext = _keyFor(id).currentContext;
+    if (cardContext == null || !cardContext.mounted) return;
+    await Scrollable.ensureVisible(
+      cardContext,
+      duration: disableAnimations
+          ? Duration.zero
+          : const Duration(milliseconds: 350),
+      curve: const Cubic(0.22, 1, 0.36, 1),
+      alignment: 0.1,
+    );
+  }
+
+  /// Opens the selected event from an invitation using the same settled layout.
   void openHackathonExpanded(String hackathonId) {
     setState(() => _selectedField = 'All');
     _expandedId.value = hackathonId;
-    final bool disableAnimations = MediaQuery.disableAnimationsOf(context);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final ctx = _keyFor(hackathonId).currentContext;
-      if (ctx == null) return;
-      Scrollable.ensureVisible(
-        ctx,
-        duration: disableAnimations
-            ? Duration.zero
-            : const Duration(milliseconds: 350),
-        curve: const Cubic(0.22, 1, 0.36, 1),
-        alignment: 0.1,
-      );
-    });
+    _revealExpandedCard(hackathonId);
   }
 
   Future<void> _handleArrowTap(Hackathon hackathon) async {
@@ -117,9 +112,7 @@ class HomeScreenState extends State<HomeScreen> {
     if (!mounted) return;
     if (teams.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Teams are open soon on this hackathon'),
-        ),
+        const SnackBar(content: Text('Teams are open soon on this hackathon')),
       );
       return;
     }
