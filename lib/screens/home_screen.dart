@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../widgets/brand_loader/brand_full_screen_loader.dart';
 import '../data/hackathon_repository.dart';
 import '../models/hackathon.dart';
 import '../models/team.dart';
@@ -33,6 +34,7 @@ class HomeScreenState extends State<HomeScreen> {
   final HackathonRepository _repo = HackathonRepository();
 
   bool _loading = true;
+  bool _openingTeams = false;
   List<Hackathon> _hackathons = const [];
   String _selectedField = 'All';
 
@@ -108,7 +110,17 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _handleArrowTap(Hackathon hackathon) async {
-    final List<Team> teams = await _repo.fetchTeams(hackathon.id);
+    if (_openingTeams) return;
+    _openingTeams = true;
+    late final List<Team> teams;
+    try {
+      teams = await runWithBrandFullScreenLoader(
+        context,
+        () => _repo.fetchTeams(hackathon.id),
+      );
+    } finally {
+      _openingTeams = false;
+    }
     if (!mounted) return;
     if (teams.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -121,7 +133,7 @@ class HomeScreenState extends State<HomeScreen> {
         transitionDuration: const Duration(milliseconds: 425),
         reverseTransitionDuration: const Duration(milliseconds: 425),
         pageBuilder: (context, animation, secondaryAnimation) {
-          return TeamsScreen(hackathon: hackathon);
+          return TeamsScreen(hackathon: hackathon, initialTeams: teams);
         },
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           final CurvedAnimation curved = CurvedAnimation(

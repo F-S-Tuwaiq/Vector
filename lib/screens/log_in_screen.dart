@@ -95,6 +95,7 @@ class _LogInScreenState extends State<LogInScreen>
         await runWithBrandFullScreenLoader(
           context,
           () => widget.onSignIn!(_email.text.trim(), _password.text),
+          sequence: VLogoSequence.oneVAndWhite,
         );
       } on EmailVerificationRequired {
         if (!mounted) return;

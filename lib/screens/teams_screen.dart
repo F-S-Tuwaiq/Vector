@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../widgets/brand_loader/brand_full_screen_loader.dart';
 import '../data/hackathon_repository.dart';
 import '../models/hackathon.dart';
 import '../models/member.dart';
@@ -16,9 +17,37 @@ import '../widgets/vector_header.dart';
 import 'create_team_screen.dart';
 
 class TeamsScreen extends StatefulWidget {
-  const TeamsScreen({super.key, required this.hackathon, this.initialTeamId});
+  const TeamsScreen({
+    super.key,
+    required this.hackathon,
+    this.initialTeamId,
+    this.initialTeams,
+  });
+
+  /// Fetch on the source page so navigation only starts when cards are ready.
+  static Future<void> open(
+    BuildContext context, {
+    required Hackathon hackathon,
+    String? initialTeamId,
+  }) async {
+    final teams = await runWithBrandFullScreenLoader(
+      context,
+      () => HackathonRepository().fetchTeams(hackathon.id),
+    );
+    if (!context.mounted) return;
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => TeamsScreen(
+          hackathon: hackathon,
+          initialTeams: teams,
+          initialTeamId: initialTeamId,
+        ),
+      ),
+    );
+  }
 
   final Hackathon hackathon;
+  final List<Team>? initialTeams;
 
   /// When set, the carousel opens directly at this team's card instead of
   /// the first one (e.g. the "Meet the team" deep link from Invites).
@@ -42,8 +71,12 @@ class _TeamsScreenState extends State<TeamsScreen> {
   @override
   void initState() {
     super.initState();
-    _pageController = PageController();
-    _loadTeams();
+    _teams = widget.initialTeams;
+    final initialIndex =
+        _teams?.indexWhere((t) => t.id == widget.initialTeamId) ?? -1;
+    _currentIndex = initialIndex < 0 ? 0 : initialIndex;
+    _pageController = PageController(initialPage: _currentIndex);
+    if (_teams == null) _loadTeams();
   }
 
   @override
@@ -92,7 +125,10 @@ class _TeamsScreenState extends State<TeamsScreen> {
       ),
     );
     if (created == null || !mounted) return;
-    await _loadTeams(jumpToIndex: (_teams?.length ?? 0));
+    await runWithBrandFullScreenLoader(
+      context,
+      () => _loadTeams(jumpToIndex: (_teams?.length ?? 0)),
+    );
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text("Team created — you're the lead")),
@@ -188,18 +224,20 @@ class _TeamsScreenState extends State<TeamsScreen> {
                   // identical horizontal padding, width, and height.
                   final Widget inner = SizedBox(
                     height: cardHeight,
-                    child: isCreatePage
-                        ? _CreateTeamCard(onStart: _openCreateTeamForm)
-                        : _TeamCard(
-                            team: teams[index],
-                            index: index,
-                            total: teams.length,
-                            isSending: _sendingTeamIds.contains(
-                              teams[index].id,
+                    child: _ScrollableCardBody(
+                      child: isCreatePage
+                          ? _CreateTeamCard(onStart: _openCreateTeamForm)
+                          : _TeamCard(
+                              team: teams[index],
+                              index: index,
+                              total: teams.length,
+                              isSending: _sendingTeamIds.contains(
+                                teams[index].id,
+                              ),
+                              onSendRequest: () =>
+                                  _handleSendRequest(teams[index]),
                             ),
-                            onSendRequest: () =>
-                                _handleSendRequest(teams[index]),
-                          ),
+                    ),
                   );
 
                   final Widget card = Center(
@@ -209,17 +247,7 @@ class _TeamsScreenState extends State<TeamsScreen> {
                     ),
                   );
 
-                  if (disableAnimations) {
-                    return index == 0
-                        ? Hero(
-                            tag: 'hackathon-card-${widget.hackathon.id}',
-                            child: Material(
-                              color: Colors.transparent,
-                              child: card,
-                            ),
-                          )
-                        : card;
-                  }
+                  if (disableAnimations) return card;
 
                   // Exact 3D flip transform on the ENTIRE purple card
                   final double delta = (index - currentPage).clamp(-1.0, 1.0);
@@ -240,15 +268,7 @@ class _TeamsScreenState extends State<TeamsScreen> {
                     ),
                   );
 
-                  return index == 0
-                      ? Hero(
-                          tag: 'hackathon-card-${widget.hackathon.id}',
-                          child: Material(
-                            color: Colors.transparent,
-                            child: flippedCard,
-                          ),
-                        )
-                      : flippedCard;
+                  return flippedCard;
                 },
               );
             },
@@ -257,6 +277,26 @@ class _TeamsScreenState extends State<TeamsScreen> {
       },
     );
   }
+}
+
+/// Preserves the normal card height but lets long content scroll on short
+/// screens and at larger text sizes instead of overflowing the flex layout.
+class _ScrollableCardBody extends StatelessWidget {
+  const _ScrollableCardBody({required this.child});
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) => ClipRRect(
+      borderRadius: BorderRadius.circular(21),
+      child: SingleChildScrollView(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: constraints.maxHeight),
+          child: IntrinsicHeight(child: child),
+        ),
+      ),
+    ),
+  );
 }
 
 /// The full purple team card: hugs its content (mainAxisSize.min)
@@ -534,9 +574,7 @@ class _EmptyMemberTile extends StatelessWidget {
       height: 42,
       child: CustomPaint(
         painter: _DashedRRectPainter(color: dashColor, radius: 13),
-        child: Center(
-          child: Icon(Icons.add, size: 16, color: dashColor),
-        ),
+        child: Center(child: Icon(Icons.add, size: 16, color: dashColor)),
       ),
     );
   }
@@ -557,9 +595,7 @@ class _MissingRolePill extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: VectorText.labelSmall.copyWith(
-          color: VectorColors.textOnPurple,
-        ),
+        style: VectorText.labelSmall.copyWith(color: VectorColors.textOnPurple),
       ),
     );
   }
@@ -594,10 +630,7 @@ class _PageDots extends StatelessWidget {
 }
 
 class _SendJoinRequestButton extends StatelessWidget {
-  const _SendJoinRequestButton({
-    required this.isLoading,
-    required this.onTap,
-  });
+  const _SendJoinRequestButton({required this.isLoading, required this.onTap});
 
   final bool isLoading;
   final VoidCallback onTap;
@@ -714,6 +747,7 @@ class _DashedRRectPainter extends CustomPainter {
     return dest;
   }
 }
+
 /// The trailing carousel page: matches the team cards' medium sizing and
 /// flips like any other page, but is visually distinct (dashed border,
 /// white surface) since it isn't a real team.

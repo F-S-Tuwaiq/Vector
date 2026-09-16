@@ -1,7 +1,48 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>Confirm your email | Vector</title><style>
-*{box-sizing:border-box}body{margin:0;min-height:100svh;display:grid;place-items:center;padding:24px;background:#f8f6fa;color:#32183e;font-family:system-ui,sans-serif}main{width:100%;max-width:440px;background:white;border:1px solid #e6e0ea;border-radius:28px;padding:36px}small{font-size:16px;letter-spacing:3px;font-weight:700}h1{font-size:30px;line-height:1.15;margin-top:32px}p{font-size:17px;line-height:1.65;color:#66576c}.step{padding:18px;background:#f8f6fa;border-radius:14px}a{color:inherit}
-</style></head><body><main><small>VECTOR</small><h1 id="title">Return to Vector</h1><p id="message">If you just confirmed your email, return to the Vector app to finish signing up.</p><p class="step">In the app, tap <strong>I've confirmed my email</strong>. Vector will securely check your confirmation and finish saving your account.</p></main><script>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#f7f4f8">
+<meta name="description" content="Return to Vector to finish confirming your email and creating your account.">
+<title>Confirm your email | Vector</title>
+<style>
+@font-face{font-family:Manrope;src:url('./assets/Manrope.ttf') format('truetype');font-weight:200 800;font-display:swap}
+@font-face{font-family:Cormorant;src:url('./assets/CormorantGaramond.ttf') format('truetype');font-weight:300 700;font-display:swap}
+:root{color-scheme:light;--plum:#3f2449;--lavender:#e5d8ee;--apricot:#f2b880;--paper:#f7f4f8}
+*{box-sizing:border-box}
+body{margin:0;min-height:100svh;display:grid;place-items:center;padding:48px 24px;background:var(--paper);color:var(--plum);font-family:Manrope,sans-serif}
+main{position:relative;isolation:isolate;overflow:hidden;width:100%;max-width:600px;background:var(--paper);border-radius:32px;box-shadow:0 24px 70px #3f244914}
+header{position:relative;min-height:190px;padding:42px 44px;background:linear-gradient(115deg,#4a3054,#3f2449);border-radius:0 0 100px 0;border-bottom:2px solid var(--apricot);color:var(--paper);overflow:hidden}
+header:after{content:"";position:absolute;right:-25px;top:18px;width:180px;height:180px;clip-path:polygon(100% 0,0 50%,100% 100%);background:#b298c01c;pointer-events:none}
+.brand{display:inline-flex;align-items:center;position:relative;z-index:1;font-size:42px;line-height:1;font-weight:500;letter-spacing:-2px}
+.mark{width:40px;height:43px;overflow:hidden;position:relative;display:inline-block}
+.mark img{position:absolute;width:72px;height:72px;max-width:none;left:50%;top:50%;transform:translate(-50%,-50%)}
+.content{position:relative;padding:40px 44px 44px;background:linear-gradient(145deg,#f9f6fb,#f0e6f6 70%,#f9ede2)}
+.eyebrow{margin:0 0 16px;font-size:12px;letter-spacing:2.5px;font-weight:700;color:#715080}
+h1{font-family:Cormorant,Georgia,serif;font-weight:600;font-size:clamp(2.5rem,7vw,3.5rem);letter-spacing:-1.2px;line-height:1.06;margin:0 0 20px;max-width:440px}
+p{font-size:16px;line-height:1.75;margin:0;color:#715080}
+.step{margin-top:30px;padding:23px 24px;background:linear-gradient(110deg,#f8c386,#f4af60);border-radius:14px;color:var(--plum);border:1px solid #edaa6a}
+.step strong{font-weight:750}
+.triangle{position:absolute;right:33px;top:-36px;width:31px;height:35px;clip-path:polygon(0 0,100% 50%,0 100%);background:var(--apricot);transform:rotate(-12deg)}
+footer{display:flex;align-items:center;justify-content:flex-start;min-height:84px;padding:24px 44px;background:#f9ede2;color:#715080;font-size:14px;font-weight:700;line-height:1.5;letter-spacing:.4px;text-align:left}
+@media(max-width:480px){body{padding:22px 16px}main{border-radius:24px}header{padding:32px 28px;min-height:156px}.content{padding:32px 28px}.step{padding:20px}footer{padding:24px 28px}.brand{font-size:38px}}
+</style>
+</head>
+<body>
+<main>
+<header><div class="brand" aria-label="Vector"><span class="mark" aria-hidden="true"><img src="./assets/vector-mark.png" alt="" width="72" height="72"></span><span aria-hidden="true">ector</span></div></header>
+<section class="content" aria-labelledby="title">
+<span class="triangle" aria-hidden="true"></span>
+<p class="eyebrow">EMAIL CONFIRMATION</p>
+<h1 id="title">Return to Vector</h1>
+<p id="message">If you just confirmed your email, return to the Vector app to finish signing up.</p>
+<p class="step">In the app, tap <strong>I've confirmed my email</strong>. Vector will securely check your confirmation and finish saving your account.</p>
+</section>
+<footer>From Vision to Victory.</footer>
+</main>
+<script>
 const query = new URLSearchParams(location.search);
 const fragment = new URLSearchParams(location.hash.slice(1));
 const failed = query.has('error') || query.has('error_code') || fragment.has('error') || fragment.has('error_code');

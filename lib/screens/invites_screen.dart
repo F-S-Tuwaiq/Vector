@@ -30,6 +30,7 @@ class InvitesScreenState extends State<InvitesScreen> {
   final HackathonRepository _repo = HackathonRepository();
 
   bool _loading = true;
+  bool _hasLoaded = false;
   int _tabIndex = 0;
   List<Invitation> _invitations = const [];
   List<SentRequest> _sentRequests = const [];
@@ -46,8 +47,13 @@ class InvitesScreenState extends State<InvitesScreen> {
   }
 
   Future<void> _loadAll() async {
-    final invitations = await _repo.fetchInvitations();
-    final sentRequests = await _repo.fetchSentRequests();
+    setState(() => _loading = true);
+    final results = await Future.wait<Object>([
+      _repo.fetchInvitations(),
+      _repo.fetchSentRequests(),
+    ]);
+    final invitations = results[0] as List<Invitation>;
+    final sentRequests = results[1] as List<SentRequest>;
     if (!mounted) return;
     setState(() {
       _invitations = invitations;
@@ -56,6 +62,7 @@ class InvitesScreenState extends State<InvitesScreen> {
           ? invitations.first.id
           : null;
       _loading = false;
+      _hasLoaded = true;
     });
   }
 
@@ -89,9 +96,8 @@ class InvitesScreenState extends State<InvitesScreen> {
     setState(() => _respondingIds.remove(invitation.id));
     if (success) {
       _dismissInvitation(invitation.id);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Invitation declined')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Invitation declined')));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Something broke. Try again.')),
@@ -131,9 +137,8 @@ class InvitesScreenState extends State<InvitesScreen> {
           _exitingSentIds.remove(request.id);
         });
       });
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Request withdrawn')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Request withdrawn')));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Something broke. Try again.')),
@@ -142,21 +147,18 @@ class InvitesScreenState extends State<InvitesScreen> {
   }
 
   void _handleMeetTeam(SentRequest request) {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => TeamsScreen(
-          hackathon: Hackathon(
-            id: request.hackathonId,
-            name: request.hackathonName,
-            field: '',
-            heroValue: '',
-            heroCaption: '',
-            city: '',
-            status: 'open',
-          ),
-          initialTeamId: request.teamId,
-        ),
+    TeamsScreen.open(
+      context,
+      hackathon: Hackathon(
+        id: request.hackathonId,
+        name: request.hackathonName,
+        field: '',
+        heroValue: '',
+        heroCaption: '',
+        city: '',
+        status: 'open',
       ),
+      initialTeamId: request.teamId,
     );
   }
 
@@ -176,7 +178,7 @@ class InvitesScreenState extends State<InvitesScreen> {
             ),
           ),
           Expanded(
-            child: _loading
+            child: !_hasLoaded
                 ? const _InviteListSkeleton()
                 : AnimatedSwitcher(
                     duration: const Duration(milliseconds: 200),
@@ -420,7 +422,9 @@ class _ExpiryChip extends StatelessWidget {
     final Color background = urgent
         ? VectorColors.error.withValues(alpha: 0.14)
         : Colors.transparent;
-    final Color foreground = urgent ? VectorColors.error : VectorColors.textMuted;
+    final Color foreground = urgent
+        ? VectorColors.error
+        : VectorColors.textMuted;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(

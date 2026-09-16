@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../theme/vector_colors.dart';
+import '../widgets/brand_loader/v_logo_animation.dart';
 
 class VectorSplash extends StatefulWidget {
   const VectorSplash({
@@ -134,7 +135,8 @@ class _VectorSplashState extends State<VectorSplash>
             1,
             curve: Curves.easeInOut,
           ).transform(_exitController.value);
-          final double notch = 0.14 *
+          final double notch =
+              0.14 *
               const Interval(
                 0,
                 0.6,
@@ -186,21 +188,6 @@ class _VectorSplashState extends State<VectorSplash>
               return AnimatedBuilder(
                 animation: _controller,
                 builder: (context, child) {
-                  final leftProgress = _value(
-                    0,
-                    550,
-                    const Cubic(0.65, 0, 0.35, 1),
-                  );
-                  final rightProgress = _value(
-                    220,
-                    770,
-                    const Cubic(0.65, 0, 0.35, 1),
-                  );
-                  final dotScale = _value(
-                    720,
-                    1220,
-                    const Cubic(0.34, 1.56, 0.64, 1),
-                  );
                   final slide = _value(
                     1350,
                     2200,
@@ -277,11 +264,17 @@ class _VectorSplashState extends State<VectorSplash>
                                 top: -minY,
                                 width: markWidth,
                                 height: markHeight,
-                                child: CustomPaint(
-                                  painter: _VectorMarkPainter(
-                                    leftProgress: leftProgress,
-                                    rightProgress: rightProgress,
-                                    dotScale: dotScale,
+                                child: OverflowBox(
+                                  maxWidth: markWidth * 500 / 275,
+                                  maxHeight: markWidth * 500 / 275,
+                                  child: CustomPaint(
+                                    size: Size.square(markWidth * 500 / 275),
+                                    painter: VLogoAnimation.painterAt(
+                                      (_controller.value *
+                                              _totalDuration /
+                                              2000)
+                                          .clamp(0.0, 1.0),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -391,8 +384,7 @@ class _ContinueButton extends StatelessWidget {
                         ? VectorColors.apricot.withValues(alpha: 0.15)
                         : Colors.transparent,
                     border: Border.all(
-                      color: VectorColors.textOnPurple
-                          .withValues(alpha: 0.35),
+                      color: VectorColors.textOnPurple.withValues(alpha: 0.35),
                       width: 1.5,
                     ),
                   ),
@@ -400,8 +392,7 @@ class _ContinueButton extends StatelessWidget {
                     child: AnimatedBuilder(
                       animation: bob,
                       builder: (context, child) {
-                        final dy =
-                            -3.0 * Curves.easeInOut.transform(bob.value);
+                        final dy = -3.0 * Curves.easeInOut.transform(bob.value);
                         return Transform.translate(
                           offset: Offset(0, dy),
                           child: child,
@@ -468,75 +459,6 @@ class _TriangleExitClipper extends CustomClipper<Path> {
   @override
   bool shouldReclip(covariant _TriangleExitClipper oldDelegate) =>
       oldDelegate.notchFactor != notchFactor;
-}
-
-class _VectorMarkPainter extends CustomPainter {
-  const _VectorMarkPainter({
-    required this.leftProgress,
-    required this.rightProgress,
-    required this.dotScale,
-  });
-
-  final double leftProgress;
-  final double rightProgress;
-  final double dotScale;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    canvas.save();
-    canvas.scale(size.width / 64, size.height / 58);
-
-    final leftPath = Path()
-      ..moveTo(6, 6)
-      ..lineTo(32, 50);
-    final rightPath = Path()
-      ..moveTo(58, 6)
-      ..lineTo(32, 50);
-    _drawProgressivePath(
-      canvas,
-      leftPath,
-      leftProgress,
-      VectorColors.textOnPurple,
-    );
-    _drawProgressivePath(
-      canvas,
-      rightPath,
-      rightProgress,
-      VectorColors.apricot,
-    );
-
-    final dotPaint = Paint()
-      ..color = VectorColors.textOnPurple
-          .withValues(alpha: dotScale.clamp(0.0, 1.0));
-    canvas.drawCircle(const Offset(32, 50), 4 * dotScale, dotPaint);
-    canvas.restore();
-  }
-
-  void _drawProgressivePath(
-    Canvas canvas,
-    Path path,
-    double progress,
-    Color color,
-  ) {
-    final metric = path.computeMetrics().first;
-    final revealed = metric.extractPath(
-      0,
-      metric.length * progress.clamp(0.0, 1.0),
-    );
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 6.5
-      ..strokeCap = StrokeCap.round;
-    canvas.drawPath(revealed, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant _VectorMarkPainter oldDelegate) {
-    return leftProgress != oldDelegate.leftProgress ||
-        rightProgress != oldDelegate.rightProgress ||
-        dotScale != oldDelegate.dotScale;
-  }
 }
 
 class _WordmarkPainter extends CustomPainter {

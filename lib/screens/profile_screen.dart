@@ -808,11 +808,7 @@ class ProfileTeamDetails extends StatelessWidget {
           const SizedBox(height: 20),
           ProfileAction(
             label: 'View event teams',
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (_) => TeamsScreen(hackathon: record.event),
-              ),
-            ),
+            onPressed: () => TeamsScreen.open(context, hackathon: record.event),
           ),
         ],
       ),

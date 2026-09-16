@@ -1,59 +1,93 @@
+import 'dart:async';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
-import '../../theme/vector_colors.dart';
-import 'brand_loading_dots.dart';
 import 'v_logo_animation.dart';
+export 'v_logo_animation.dart' show VLogoSequence;
 
-/// Full-screen brand loading moment: the app's main purple background,
-/// centered self-drawing "V" mark, blinking dots below.
-///
-/// Reserved for exactly three moments app-wide: app launch (while checking
-/// auth state), right after login/sign-up submission (while the server
-/// responds), and it is NOT used for routine data reads or writes — see
-/// [BrandMiniLoaderOverlay] for heavy one-off operations, skeleton loaders
-/// for reads, and in-button spinners for writes.
+/// Blurs the current page while keeping the animated V sharp above it.
 class BrandFullScreenLoader extends StatelessWidget {
-  const BrandFullScreenLoader({super.key});
+  const BrandFullScreenLoader({super.key, this.sequence, this.onComplete});
+
+  final VLogoSequence? sequence;
+  final VoidCallback? onComplete;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: VectorColors.purpleBrand,
-      alignment: Alignment.center,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final double logoSize = (constraints.maxWidth * 0.52).clamp(
-            0,
-            260,
-          );
-          return Column(
-            mainAxisSize: MainAxisSize.min,
+    return Positioned.fill(
+      child: ClipRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Stack(
+            fit: StackFit.expand,
             children: [
-              VLogoAnimation(size: logoSize),
-              const SizedBox(height: 28),
-              const BrandLoadingDots(),
+              ModalBarrier(
+                dismissible: false,
+                color: Colors.black.withValues(alpha: 0.22),
+              ),
+              Center(
+                child: Semantics(
+                  label: 'Loading',
+                  liveRegion: true,
+                  child: VLogoAnimation(
+                    size: 120,
+                    sequence: sequence,
+                    onComplete: onComplete,
+                  ),
+                ),
+              ),
             ],
-          );
-        },
+          ),
+        ),
       ),
     );
   }
 }
 
+/// Keeps the page mounted and visible beneath its loading overlay.
+class BrandLoadingRegion extends StatelessWidget {
+  const BrandLoadingRegion({
+    super.key,
+    required this.loading,
+    required this.child,
+  });
+
+  final bool loading;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Stack(
+    fit: StackFit.expand,
+    children: [child, if (loading) const BrandFullScreenLoader()],
+  );
+}
+
 /// Shows [BrandFullScreenLoader] full-screen above everything (including
 /// any app bar / scaffold chrome) while [task] runs, then removes it and
-/// returns the task's result. Use for login/sign-up submission and app
-/// launch — never for a routine data read or write.
+/// returns the task's result. Also used when fetching data before navigation.
 Future<T> runWithBrandFullScreenLoader<T>(
   BuildContext context,
-  Future<T> Function() task,
-) async {
+  Future<T> Function() task, {
+  VLogoSequence? sequence,
+}) async {
   final overlayState = Overlay.of(context, rootOverlay: true);
-  final entry = OverlayEntry(builder: (_) => const BrandFullScreenLoader());
+  final animationDone = Completer<void>();
+  if (sequence == null) animationDone.complete();
+  final entry = OverlayEntry(
+    builder: (_) => BrandFullScreenLoader(
+      sequence: sequence,
+      onComplete: () {
+        if (!animationDone.isCompleted) animationDone.complete();
+      },
+    ),
+  );
   overlayState.insert(entry);
   try {
     return await task();
   } finally {
+    await animationDone.future;
     entry.remove();
+    entry.dispose();
   }
 }

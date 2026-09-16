@@ -6,6 +6,7 @@ import '../theme/vector_colors.dart';
 import '../theme/vector_text.dart';
 import '../theme/profile_theme.dart';
 import '../widgets/profile_widgets.dart';
+import '../widgets/brand_loader/brand_full_screen_loader.dart';
 import 'about_us_screen.dart';
 import 'log_in_screen.dart';
 import 'profile_screen.dart';
@@ -29,9 +30,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   );
 
   Future<void> _logout() async {
+    if (_signingOut) return;
     setState(() => _signingOut = true);
     try {
-      if (SupabaseService.isLoggedIn) await SupabaseService.signOut();
+      await runWithBrandFullScreenLoader(context, () async {
+        if (SupabaseService.isLoggedIn) await SupabaseService.signOut();
+      }, sequence: VLogoSequence.oneV);
       if (!mounted) return;
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute<void>(
