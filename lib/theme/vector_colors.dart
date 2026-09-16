@@ -44,6 +44,17 @@ class VectorColors {
   static const Color linkWarm = Color(0xFF963C1A);
   static const Color error = Color(0xFFAC5747);
 
+  // Brand loader (V-logo loading animation) ------------------------------
+  // The loader background uses [purpleBrand] (the app's main purple) —
+  // only the mark's own stroke colors are spec-exact and distinct from
+  // the rest of the palette.
+  static const Color loaderWhite = Color(0xFFF4F2F6);
+  static const Color loaderOrange = Color(0xFFEFA96B);
+
+  // Skeleton loaders (shimmer placeholders for data reads) ----------------
+  static const Color skeletonBase = Color(0xFFE7E1EC);
+  static const Color skeletonHighlight = Color(0xFFF3EFF6);
+
   // Derived (non-const) colors ------------------------------------------
   /// Hairline border color used INSTEAD of drop shadows everywhere
   /// (cards, dialogs, chips, etc.) — a 1px border in place of elevation.

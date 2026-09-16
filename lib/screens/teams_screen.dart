@@ -11,6 +11,7 @@ import '../theme/vector_colors.dart';
 import '../theme/vector_text.dart';
 import '../widgets/member_sheet.dart';
 import '../widgets/request_sent_dialog.dart';
+import '../widgets/skeleton/skeleton_loader.dart';
 import '../widgets/vector_header.dart';
 import 'create_team_screen.dart';
 
@@ -154,9 +155,7 @@ class _TeamsScreenState extends State<TeamsScreen> {
 
   Widget _buildCarouselArea(List<Team>? teams) {
     if (teams == null) {
-      return const Center(
-        child: CircularProgressIndicator(color: VectorColors.purpleBrand),
-      );
+      return const _TeamCardSkeleton();
     }
 
     final bool disableAnimations = MediaQuery.disableAnimationsOf(context);
@@ -262,6 +261,55 @@ class _TeamsScreenState extends State<TeamsScreen> {
 
 /// The full purple team card: hugs its content (mainAxisSize.min)
 /// and centers vertically with zero dead space.
+/// Placeholder shaped like [_TeamCard], shown while teams are loading —
+/// same card geometry (75% height, 18px side padding) so nothing jumps
+/// when the real card swaps in.
+class _TeamCardSkeleton extends StatelessWidget {
+  const _TeamCardSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double cardHeight = constraints.maxHeight * 0.75;
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18),
+            child: SizedBox(
+              height: cardHeight,
+              width: double.infinity,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 22,
+                  vertical: 20,
+                ),
+                decoration: BoxDecoration(
+                  color: VectorColors.purpleBrand,
+                  borderRadius: BorderRadius.circular(21),
+                ),
+                child: SkeletonShimmer(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      SkeletonBox(width: 90, height: 12),
+                      SizedBox(height: 10),
+                      SkeletonBox(width: 180, height: 24),
+                      Spacer(),
+                      SkeletonBox(width: 140, height: 14),
+                      SizedBox(height: 10),
+                      SkeletonBox(width: 100, height: 14),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
 class _TeamCard extends StatefulWidget {
   const _TeamCard({
     required this.team,
