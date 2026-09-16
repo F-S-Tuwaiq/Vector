@@ -254,7 +254,7 @@ class _LogInScreenState extends State<LogInScreen>
                   SizedBox(
                     height: 104,
                     child: Text(
-                      'Make room\nfor possibility.',
+                      'From Vision\nto Victory.',
                       style: AppTypography.display(),
                     ),
                   ),
@@ -262,7 +262,7 @@ class _LogInScreenState extends State<LogInScreen>
                   SizedBox(
                     height: 18,
                     child: Text(
-                      'Sign in to find your people.',
+                      'Sign in to find your team.',
                       style: AppTypography.sans(
                         size: 13.6,
                         color: AppColors.muted,
