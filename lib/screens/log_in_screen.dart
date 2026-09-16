@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vector/screens/sign_up_screen.dart';
 
 import 'home_screen.dart';
+import '../widgets/brand_loader/brand_full_screen_loader.dart';
 import '../widgets/signup_code_dialog.dart';
 import '../services/supabase_service.dart';
 import '../constants/app_constants.dart';
@@ -91,7 +92,10 @@ class _LogInScreenState extends State<LogInScreen>
     setState(() => _loading = true);
     try {
       try {
-        await widget.onSignIn!(_email.text.trim(), _password.text);
+        await runWithBrandFullScreenLoader(
+          context,
+          () => widget.onSignIn!(_email.text.trim(), _password.text),
+        );
       } on EmailVerificationRequired {
         if (!mounted) return;
         final verified = await showDialog<bool>(
@@ -347,37 +351,28 @@ class _LogInScreenState extends State<LogInScreen>
                 color: Colors.transparent,
                 child: InkWell(
                   onTap: _loading ? null : _submit,
+                  // No in-button spinner: the full-screen brand loader
+                  // takes over the instant this is tapped (see _submit).
                   child: Center(
-                    child: _loading
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 1.8,
-                              color: AppColors.purple,
-                            ),
-                          )
-                        : Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                'Sign in',
-                                style: AppTypography.sans(
-                                  size: 15,
-                                  weight: FontWeight.w500,
-                                  spacing: -0.5,
-                                ),
-                              ),
-                              const SizedBox(width: 9),
-                              const SizedBox(
-                                width: 12,
-                                height: 14,
-                                child: CustomPaint(
-                                  painter: ButtonTrianglePainter(),
-                                ),
-                              ),
-                            ],
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Sign in',
+                          style: AppTypography.sans(
+                            size: 15,
+                            weight: FontWeight.w500,
+                            spacing: -0.5,
                           ),
+                        ),
+                        const SizedBox(width: 9),
+                        const SizedBox(
+                          width: 12,
+                          height: 14,
+                          child: CustomPaint(painter: ButtonTrianglePainter()),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/hackathon.dart';
 import '../theme/vector_colors.dart';
 import '../theme/vector_text.dart';
+import 'skeleton/skeleton_loader.dart';
 
 /// Background geometry: a single large, low-opacity triangle used behind
 /// card content. Always painted BEHIND text via a `Stack`, and clipped to
@@ -555,9 +556,20 @@ class HackathonCardSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 96,
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: VectorColors.surfaceLavender.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(21),
+      ),
+      child: SkeletonShimmer(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: const [
+            SkeletonBox(width: 160, height: 16),
+            SkeletonBox(width: 100, height: 12),
+          ],
+        ),
       ),
     );
   }

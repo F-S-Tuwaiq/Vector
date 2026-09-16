@@ -8,6 +8,8 @@ import '../models/invitation.dart';
 import '../models/sent_request.dart';
 import '../theme/vector_colors.dart';
 import '../theme/vector_text.dart';
+import '../widgets/loading_button_content.dart';
+import '../widgets/skeleton/skeleton_loader.dart';
 import '../widgets/vector_header.dart';
 import 'teams_screen.dart';
 
@@ -175,11 +177,7 @@ class InvitesScreenState extends State<InvitesScreen> {
           ),
           Expanded(
             child: _loading
-                ? const Center(
-                    child: CircularProgressIndicator(
-                      color: VectorColors.purpleBrand,
-                    ),
-                  )
+                ? const _InviteListSkeleton()
                 : AnimatedSwitcher(
                     duration: const Duration(milliseconds: 200),
                     child: _tabIndex == 0
@@ -447,6 +445,58 @@ class _ExpiryChip extends StatelessWidget {
   }
 }
 
+/// Placeholder rows shaped like the collapsed [_InvitationCard] /
+/// [_SentRequestCard], shown while invites/requests are loading — one
+/// shimmer sweep across the whole list rather than one per row.
+class _InviteListSkeleton extends StatelessWidget {
+  const _InviteListSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: 4,
+      separatorBuilder: (context, index) => const SizedBox(height: 12),
+      itemBuilder: (context, index) => const _InviteRowSkeleton(),
+    );
+  }
+}
+
+class _InviteRowSkeleton extends StatelessWidget {
+  const _InviteRowSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: VectorColors.surfaceWhite,
+        borderRadius: BorderRadius.circular(21),
+        border: Border.all(color: VectorColors.hairline),
+      ),
+      child: SkeletonShimmer(
+        child: Row(
+          children: const [
+            SkeletonBox.circle(size: 46),
+            SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SkeletonBox(width: 140, height: 14),
+                  SizedBox(height: 8),
+                  SkeletonBox(width: 200, height: 11),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _InvitationCard extends StatelessWidget {
   const _InvitationCard({
     required this.invitation,
@@ -657,10 +707,15 @@ class _InvitationCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(13),
                     ),
                   ),
-                  child: Text(
-                    'Decline',
-                    style: VectorText.labelLarge.copyWith(
-                      color: VectorColors.textSecondary,
+                  child: LoadingButtonContent(
+                    loading: responding,
+                    spinnerColor: VectorColors.textSecondary,
+                    spinnerSize: 16,
+                    child: Text(
+                      'Decline',
+                      style: VectorText.labelLarge.copyWith(
+                        color: VectorColors.textSecondary,
+                      ),
                     ),
                   ),
                 ),

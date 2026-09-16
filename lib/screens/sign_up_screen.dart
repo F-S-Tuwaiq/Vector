@@ -8,6 +8,7 @@ import 'home_screen.dart';
 import '../constants/app_constants.dart';
 import '../legal/vector_legal.dart';
 import '../services/supabase_service.dart';
+import '../widgets/brand_loader/brand_full_screen_loader.dart';
 import '../widgets/signup_code_dialog.dart';
 import '../widgets/vector_shapes.dart';
 
@@ -366,16 +367,19 @@ class _SignUpScreenState extends State<SignUpScreen>
 
     try {
       if (widget.onCreateAccount != null) {
-        await widget.onCreateAccount!(
-          fullName: _name.text.trim(),
-          email: _email.text.trim(),
-          password: _password.text,
-          github: _github.text.trim().isEmpty ? null : _github.text.trim(),
-          linkedin: _linkedin.text.trim().isEmpty
-              ? null
-              : _linkedin.text.trim(),
-          skills: List<String>.from(_selectedSkills),
-          certificates: Map<String, List<XFile>>.from(_skillCertificates),
+        await runWithBrandFullScreenLoader(
+          context,
+          () => widget.onCreateAccount!(
+            fullName: _name.text.trim(),
+            email: _email.text.trim(),
+            password: _password.text,
+            github: _github.text.trim().isEmpty ? null : _github.text.trim(),
+            linkedin: _linkedin.text.trim().isEmpty
+                ? null
+                : _linkedin.text.trim(),
+            skills: List<String>.from(_selectedSkills),
+            certificates: Map<String, List<XFile>>.from(_skillCertificates),
+          ),
         );
         if (!mounted) return;
         Navigator.of(context).pushAndRemoveUntil(
@@ -834,9 +838,12 @@ class _SignUpScreenState extends State<SignUpScreen>
               const SizedBox(height: 20),
 
               // CREATE ACCOUNT
+              // No in-button spinner here: the full-screen brand loader
+              // (via runWithBrandFullScreenLoader above) takes over the
+              // instant this is tapped, so there's nothing left for the
+              // button itself to show mid-submission.
               _gradientButton(
                 text: _awaitingVerification ? 'Complete sign-up' : 'Create account',
-                loading: _loading,
                 onTap: _loading ? null : _createAccount,
               ),
 
