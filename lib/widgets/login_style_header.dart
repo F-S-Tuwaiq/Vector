@@ -15,76 +15,79 @@ class LoginStyleHeader extends StatelessWidget {
   final VoidCallback? onSettings;
   final VoidCallback? onBack;
   @override
-  Widget build(BuildContext context) => LayoutBuilder(
-    builder: (context, constraints) {
-      final height = (constraints.maxWidth / 390 * 234).clamp(200.0, 290.0);
-      final inset = MediaQuery.paddingOf(context).top;
-      return SizedBox(
-        height: height + inset + (overlapAvatar ? 48 : 0),
-        child: Stack(
-          children: [
-            Positioned(
-              left: 0,
-              right: 0,
-              top: 0,
-              height: height + inset,
-              child: ClipRect(
-                child: CustomPaint(painter: _LoginHeaderPainter()),
-              ),
-            ),
-            if (onBack != null)
+  Widget build(BuildContext context) => SafeArea(
+    bottom: false,
+    child: LayoutBuilder(
+      builder: (context, constraints) {
+        final height = (constraints.maxWidth / 390 * 234).clamp(200.0, 290.0);
+        final inset = MediaQuery.paddingOf(context).top;
+        return SizedBox(
+          height: height + inset + (overlapAvatar ? 48 : 0),
+          child: Stack(
+            children: [
               Positioned(
-                left: 18,
-                top: inset + 20,
-                child: IconButton(
-                  tooltip: 'Back',
-                  onPressed: onBack,
-                  color: VectorColors.background,
-                  icon: const Icon(Icons.arrow_back_rounded),
-                ),
-              ),
-            Positioned(
-              left: 30,
-              top: inset + (onBack == null ? 34 : 86),
-              child: const LoginWordmark(),
-            ),
-            if (onSettings != null)
-              Positioned(
-                top: inset + 26,
-                right: 14,
-                child: IconButton(
-                  tooltip: 'Settings',
-                  onPressed: onSettings,
-                  color: VectorColors.purpleDeep,
-                  icon: const Icon(Icons.settings_outlined),
-                ),
-              ),
-            if (overlapAvatar)
-              Positioned(
-                bottom: 0,
                 left: 0,
                 right: 0,
-                child: Center(
-                  child: Container(
-                    width: 96,
-                    height: 96,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: VectorColors.background,
-                      border: Border.all(color: VectorColors.apricot),
-                    ),
-                    child: const Icon(
-                      Icons.person_outline_rounded,
-                      size: 48,
-                      color: VectorColors.purpleDeep,
+                top: 0,
+                height: height + inset,
+                child: ClipRect(
+                  child: CustomPaint(painter: _LoginHeaderPainter()),
+                ),
+              ),
+              if (onBack != null)
+                Positioned(
+                  left: 18,
+                  top: inset + 20,
+                  child: IconButton(
+                    tooltip: 'Back',
+                    onPressed: onBack,
+                    color: VectorColors.background,
+                    icon: const Icon(Icons.arrow_back_rounded),
+                  ),
+                ),
+              Positioned(
+                left: 30,
+                top: inset + (onBack == null ? 34 : 86),
+                child: const LoginWordmark(),
+              ),
+              if (onSettings != null)
+                Positioned(
+                  top: inset + 26,
+                  right: 14,
+                  child: IconButton(
+                    tooltip: 'Settings',
+                    onPressed: onSettings,
+                    color: VectorColors.purpleDeep,
+                    icon: const Icon(Icons.settings_outlined),
+                  ),
+                ),
+              if (overlapAvatar)
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: Container(
+                      width: 96,
+                      height: 96,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: VectorColors.background,
+                        border: Border.all(color: VectorColors.apricot),
+                      ),
+                      child: const Icon(
+                        Icons.person_outline_rounded,
+                        size: 48,
+                        color: VectorColors.purpleDeep,
+                      ),
                     ),
                   ),
                 ),
-              ),
-          ],
-        ),
-      );
-    },
+            ],
+          ),
+        );
+      },
+    ),
   );
 }
 

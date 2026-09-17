@@ -12,6 +12,7 @@ import '../widgets/loading_button_content.dart';
 import '../widgets/skeleton/skeleton_loader.dart';
 import '../widgets/vector_header.dart';
 import 'teams_screen.dart';
+import '../widgets/confirm_action_dialog.dart';
 
 class InvitesScreen extends StatefulWidget {
   const InvitesScreen({super.key, required this.onOpenHackathon});
@@ -73,6 +74,17 @@ class InvitesScreenState extends State<InvitesScreen> {
   }
 
   Future<void> _handleAccept(Invitation invitation) async {
+    if (_respondingIds.contains(invitation.id)) return;
+    final confirmed = await showConfirmActionDialog(
+      context,
+      title: 'Accept invitation?',
+      message:
+          'Are you sure you want to accept the invitation to join ${invitation.teamName}?',
+      confirmLabel: 'Accept',
+    );
+    if (!mounted || !confirmed || _respondingIds.contains(invitation.id)) {
+      return;
+    }
     setState(() => _respondingIds.add(invitation.id));
     final success = await _repo.respondToInvitation(invitation.id, 'accepted');
     if (!mounted) return;
@@ -122,6 +134,15 @@ class InvitesScreenState extends State<InvitesScreen> {
   }
 
   Future<void> _handleWithdraw(SentRequest request) async {
+    if (_withdrawingIds.contains(request.id)) return;
+    final confirmed = await showConfirmActionDialog(
+      context,
+      title: 'Withdraw request?',
+      message:
+          'Are you sure you want to withdraw your request to join ${request.teamName}?',
+      confirmLabel: 'Withdraw',
+    );
+    if (!mounted || !confirmed || _withdrawingIds.contains(request.id)) return;
     setState(() => _withdrawingIds.add(request.id));
     final success = await _repo.withdrawRequest(request.id);
     if (!mounted) return;

@@ -350,7 +350,6 @@ class _SignUpScreenState extends State<SignUpScreen>
             skills: List<String>.from(_selectedSkills),
             certificates: Map<String, List<XFile>>.from(_skillCertificates),
           ),
-          sequence: VLogoSequence.oneVAndWhite,
         );
         if (!mounted) return;
         Navigator.of(context).pushAndRemoveUntil(

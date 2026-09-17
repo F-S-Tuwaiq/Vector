@@ -7,6 +7,7 @@ import '../theme/vector_text.dart';
 import '../theme/profile_theme.dart';
 import '../widgets/profile_widgets.dart';
 import '../widgets/brand_loader/brand_full_screen_loader.dart';
+import '../widgets/confirm_action_dialog.dart';
 import 'about_us_screen.dart';
 import 'log_in_screen.dart';
 import 'profile_screen.dart';
@@ -31,6 +32,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _logout() async {
     if (_signingOut) return;
+    final confirmed = await showConfirmActionDialog(
+      context,
+      title: 'Log out?',
+      message: 'Are you sure you want to log out?',
+      confirmLabel: 'Log out',
+    );
+    if (!mounted || !confirmed || _signingOut) return;
     setState(() => _signingOut = true);
     try {
       await runWithBrandFullScreenLoader(context, () async {
@@ -472,6 +480,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   }
 
   Future<void> _save() async {
+    if (_saving) return;
     if (_password.text.length < 8) {
       setState(() => _error = 'Use at least 8 characters.');
       return;
@@ -480,6 +489,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       setState(() => _error = 'Passwords do not match.');
       return;
     }
+    final confirmed = await showConfirmActionDialog(
+      context,
+      title: 'Change password?',
+      message: 'Are you sure you want to change your password?',
+      confirmLabel: 'Change password',
+    );
+    if (!mounted || !confirmed || _saving) return;
     setState(() {
       _saving = true;
       _error = null;

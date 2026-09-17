@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vector/screens/sign_up_screen.dart';
 
 import 'root_shell.dart';
+import 'forgot_password_screen.dart';
 import '../widgets/brand_loader/brand_full_screen_loader.dart';
 import '../widgets/signup_code_dialog.dart';
 import '../services/supabase_service.dart';
@@ -95,14 +96,16 @@ class _LogInScreenState extends State<LogInScreen>
         await runWithBrandFullScreenLoader(
           context,
           () => widget.onSignIn!(_email.text.trim(), _password.text),
-          sequence: VLogoSequence.oneVAndWhite,
         );
       } on EmailVerificationRequired {
         if (!mounted) return;
         final verified = await showDialog<bool>(
           context: context,
           barrierDismissible: false,
-          builder: (_) => SignupCodeDialog(email: _email.text.trim(), password: _password.text),
+          builder: (_) => SignupCodeDialog(
+            email: _email.text.trim(),
+            password: _password.text,
+          ),
         );
         if (verified != true) return;
       }
@@ -317,7 +320,21 @@ class _LogInScreenState extends State<LogInScreen>
             right: 30,
             top: 562,
             child: TextButton(
-              onPressed: _loading ? null : () {},
+              onPressed: _loading
+                  ? null
+                  : () {
+                      if (widget.onForgotPassword != null) {
+                        widget.onForgotPassword!();
+                        return;
+                      }
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => ForgotPasswordScreen(
+                            initialEmail: _email.text.trim(),
+                          ),
+                        ),
+                      );
+                    },
               style: TextButton.styleFrom(
                 foregroundColor: AppColors.purple,
                 padding: const EdgeInsets.symmetric(horizontal: 5),
@@ -387,12 +404,14 @@ class _LogInScreenState extends State<LogInScreen>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  'Don’t have an account?',
-                  style: AppTypography.sans(
-                    size: 14,
-                    color: AppColors.muted,
-                    spacing: -0.2,
+                Flexible(
+                  child: Text(
+                    'Don’t have an account?',
+                    style: AppTypography.sans(
+                      size: 14,
+                      color: AppColors.muted,
+                      spacing: -0.2,
+                    ),
                   ),
                 ),
                 TextButton(

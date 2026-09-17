@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'widgets/web_layout.dart';
 
 import 'constants/app_constants.dart';
 import 'screens/log_in_screen.dart';
@@ -30,6 +32,18 @@ class VectorApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Vector',
+      scrollBehavior: const VectorScrollBehavior(),
+      builder: (context, child) => kIsWeb
+          ? ColoredBox(
+              color: AppColors.background,
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 460),
+                  child: child!,
+                ),
+              ),
+            )
+          : child!,
       navigatorKey: navigatorKey,
       theme: ThemeData(
         useMaterial3: true,
