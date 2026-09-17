@@ -35,8 +35,6 @@ Browse hackathons — discover open teams — connect through requests and invit
 
 <div align="center">
 
-<!-- Edit this file on GitHub and drag your demo .mp4 here — it embeds as a playable video automatically. -->
-
 *Demo video coming soon.*
 
 </div>
@@ -67,14 +65,15 @@ The name carries the idea. In mathematics, a vector holds both magnitude and dir
 | **Verified Profiles** | Email-verified signup (OTP), a curated skills showcase, and certificate uploads stored securely |
 | **Integrity by Design** | Uploaded certificates are hashed, eliminating duplicate files at the source |
 
-## 🎨 The Experience
+## 🎨 Design & Details
 
-Vector is built to feel considered, not merely functional.
+Vector pays attention to the details that are usually skipped.
 
-- **A signature brand loader** — a custom animated two-stroke "V" mark at launch, login, and signup, with a scaled-down overlay for heavier operations
-- **Skeleton shimmer placeholders** while lists load, and in-button progress on every write action
-- **An animated splash, a flip-style team carousel, and custom bottom navigation**
-- **A strict design system** — no inline colors anywhere in the codebase; every value flows through centralized design tokens (`VectorColors`, `VectorText`, `VectorTheme`)
+- **Custom brand loader** — the "V" mark is drawn stroke-by-stroke as a custom animation, used at launch, login, and signup, with a smaller overlay version for long-running operations
+- **No dead loading states** — lists load behind skeleton shimmer placeholders, and write actions show progress inside the button itself
+- **Custom motion** — animated splash, a flip-style team carousel, and a hand-built bottom navigation bar
+- **Centralized design system** — zero inline colors in the codebase; every color, text style, and theme value comes from design tokens (`VectorColors`, `VectorText`, `VectorTheme`)
+- **Security in the details** — OTP email verification, credentials kept out of the codebase via `.env`, and certificate uploads hashed to block duplicates at the source
 
 ---
 
@@ -143,39 +142,11 @@ lib/
 └── theme/          # Design tokens — VectorColors, VectorText, VectorTheme
 ```
 
-## 🚀 Getting Started
+## 🚀 Running Vector
 
-**1 — Clone the repository**
+Vector runs out of the box — no configuration needed. The app ships with a built-in mock data layer, so every screen and flow works immediately after `flutter pub get`.
 
-```bash
-git clone https://github.com/F-S-Tuwaiq/Vector.git
-cd Vector
-```
-
-**2 — Install dependencies**
-
-```bash
-flutter pub get
-```
-
-**3 — Configure Supabase**
-
-Create a `.env` file in the project root:
-
-```env
-SUPABASE_URL=your_supabase_project_url
-SUPABASE_ANON_KEY=your_supabase_anon_key
-```
-
-> The app runs fully without credentials — it falls back to mock data by design. Authentication and live data activate once real keys are provided.
-
-**4 — Run**
-
-```bash
-flutter run
-# or target a specific device
-flutter run -d chrome
-```
+To connect a live backend, add a `.env` file with your Supabase credentials. Authentication, live data, and storage activate automatically — no code changes required.
 
 ---
 
@@ -198,6 +169,6 @@ flutter run -d chrome
 
 **Vector — From Vision to Victory.**
 
-*Crafted with passion in Saudi Arabia 🇸🇦 *
+*Crafted with passion 🤍*
 
 </div>
