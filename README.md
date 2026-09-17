@@ -111,7 +111,7 @@ Vector is built to feel considered, not merely functional.
   <tr>
     <td align="center"><img src="screenshots/profile.png" width="250" alt="Profile"/></td>
     <td align="center"><img src="screenshots/settings.png" width="250" alt="Settings"/></td>
-    <td align="center"><img src="screenshots/about.png" width="250" alt="About Us"/></td>
+    <td align="center"><img src="https://github.com/user-attachments/assets/9d123897-c35c-4537-8c6a-0ea2b140afae" width="250" alt="About Us"/></td>
   </tr>
 </table>
 
@@ -198,6 +198,6 @@ flutter run -d chrome
 
 **Vector — From Vision to Victory.**
 
-*Made in Saudi Arabia · The final project of Tuwaiq Academy's Flutter & Dart Bootcamp*
+*Crafted with passion in Saudi Arabia 🇸🇦 *
 
 </div>
