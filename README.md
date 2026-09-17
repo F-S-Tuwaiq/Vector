@@ -31,7 +31,7 @@ Browse hackathons — discover open teams — connect through requests and invit
 
 ---
 
-## Demo
+## 🎬 Demo
 
 <div align="center">
 
@@ -43,7 +43,7 @@ Browse hackathons — discover open teams — connect through requests and invit
 
 ---
 
-## The Story
+## 📖 The Story
 
 We lived this problem ourselves. Every hackathon began the same way: capable people searching for a team, strong teams missing one essential skill, and valuable hours lost before the real work could even begin.
 
@@ -56,7 +56,7 @@ The name carries the idea. In mathematics, a vector holds both magnitude and dir
 
 ---
 
-## Features
+## ✨ Features
 
 | | |
 |---|---|
@@ -67,7 +67,7 @@ The name carries the idea. In mathematics, a vector holds both magnitude and dir
 | **Verified Profiles** | Email-verified signup (OTP), a curated skills showcase, and certificate uploads stored securely |
 | **Integrity by Design** | Uploaded certificates are hashed, eliminating duplicate files at the source |
 
-## The Experience
+## 🎨 The Experience
 
 Vector is built to feel considered, not merely functional.
 
@@ -78,7 +78,7 @@ Vector is built to feel considered, not merely functional.
 
 ---
 
-## Screenshots
+## 📱 Screenshots
 
 <div align="center">
 
@@ -86,62 +86,32 @@ Vector is built to feel considered, not merely functional.
   <tr>
     <th align="center">Splash</th>
     <th align="center">Log In</th>
-    <th align="center">Sign Up — Account</th>
+    <th align="center">Sign Up</th>
   </tr>
   <tr>
-    <td align="center"><img src="assets/readme/splash.png" width="250" alt="Splash"/></td>
-    <td align="center"><img src="assets/readme/login.png" width="250" alt="Log In"/></td>
-    <td align="center"><img src="assets/readme/signup_account.png" width="250" alt="Sign Up — Account"/></td>
+    <td align="center"><img src="screenshots/splash.png" width="250" alt="Splash"/></td>
+    <td align="center"><img src="screenshots/login.png" width="250" alt="Log In"/></td>
+    <td align="center"><img src="screenshots/signup.png" width="250" alt="Sign Up"/></td>
   </tr>
   <tr>
-    <th align="center">Sign Up — Skills</th>
     <th align="center">Home — Hackathons</th>
     <th align="center">Team Details</th>
+    <th align="center">Invites</th>
   </tr>
   <tr>
-    <td align="center"><img src="assets/readme/signup_skills.png" width="250" alt="Sign Up — Skills"/></td>
-    <td align="center"><img src="assets/readme/home.png" width="250" alt="Home"/></td>
-    <td align="center"><img src="assets/readme/team_details.png" width="250" alt="Team Details"/></td>
+    <td align="center"><img src="screenshots/home.png" width="250" alt="Home — Hackathons"/></td>
+    <td align="center"><img src="screenshots/team.png" width="250" alt="Team Details"/></td>
+    <td align="center"><img src="screenshots/invites.png" width="250" alt="Invites"/></td>
   </tr>
   <tr>
-    <th align="center">Start a Team</th>
-    <th align="center">Create Your Team</th>
-    <th align="center">Request Sent</th>
-  </tr>
-  <tr>
-    <td align="center"><img src="assets/readme/create_team_empty.png" width="250" alt="Start a Team"/></td>
-    <td align="center"><img src="assets/readme/create_team_form.png" width="250" alt="Create Your Team"/></td>
-    <td align="center"><img src="assets/readme/request_sent.png" width="250" alt="Request Sent"/></td>
-  </tr>
-  <tr>
-    <th align="center">Invites — Incoming</th>
-    <th align="center">Invites — Sent</th>
     <th align="center">Profile</th>
-  </tr>
-  <tr>
-    <td align="center"><img src="assets/readme/invites_incoming.png" width="250" alt="Invites — Incoming"/></td>
-    <td align="center"><img src="assets/readme/invites_sent.png" width="250" alt="Invites — Sent"/></td>
-    <td align="center"><img src="assets/readme/profile.png" width="250" alt="Profile"/></td>
-  </tr>
-  <tr>
-    <th align="center">Profile — Teams</th>
     <th align="center">Settings</th>
     <th align="center">About Us</th>
   </tr>
   <tr>
-    <td align="center"><img src="assets/readme/profile_teams.png" width="250" alt="Profile — Teams"/></td>
-    <td align="center"><img src="assets/readme/settings.png" width="250" alt="Settings"/></td>
-    <td align="center"><img src="assets/readme/about_1.png" width="250" alt="About Us"/></td>
-  </tr>
-  <tr>
-    <th align="center">Why "Vector"?</th>
-    <th align="center">Made in Saudi Arabia</th>
-    <th align="center"></th>
-  </tr>
-  <tr>
-    <td align="center"><img src="assets/readme/about_2.png" width="250" alt="Why Vector"/></td>
-    <td align="center"><img src="assets/readme/about_3.png" width="250" alt="Made in Saudi Arabia"/></td>
-    <td align="center"></td>
+    <td align="center"><img src="screenshots/profile.png" width="250" alt="Profile"/></td>
+    <td align="center"><img src="screenshots/settings.png" width="250" alt="Settings"/></td>
+    <td align="center"><img src="screenshots/about.png" width="250" alt="About Us"/></td>
   </tr>
 </table>
 
@@ -149,7 +119,7 @@ Vector is built to feel considered, not merely functional.
 
 ---
 
-## Tech Stack
+## 🛠️ Tech Stack
 
 | Layer | Technology |
 |---|---|
@@ -160,7 +130,7 @@ Vector is built to feel considered, not merely functional.
 | Typography | `google_fonts` |
 | Integrity | `crypto` — file hashing to prevent duplicate uploads |
 
-## Project Structure
+## 📂 Project Structure
 
 ```
 lib/
@@ -173,7 +143,7 @@ lib/
 └── theme/          # Design tokens — VectorColors, VectorText, VectorTheme
 ```
 
-## Getting Started
+## 🚀 Getting Started
 
 **1 — Clone the repository**
 
@@ -209,7 +179,7 @@ flutter run -d chrome
 
 ---
 
-## Team
+## 👥 Team
 
 <div align="center">
 
