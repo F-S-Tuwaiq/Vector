@@ -68,7 +68,7 @@ The name carries the idea. In mathematics, a vector holds both magnitude and dir
 ## 🎨 Design & Details
 
 Vector pays attention to the details that are usually skipped.
-
+- **Instantly reactive** — the app reflects every action in real time: create a team and it appears immediately, accept an invitation and your status updates on the spot — no refresh, no waiting
 - **Custom brand loader** — the "V" mark is drawn stroke-by-stroke as a custom animation, used at launch, login, and signup, with a smaller overlay version for long-running operations
 - **No dead loading states** — lists load behind skeleton shimmer placeholders, and write actions show progress inside the button itself
 - **Custom motion** — animated splash, a flip-style team carousel, and a hand-built bottom navigation bar
