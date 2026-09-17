@@ -7,8 +7,8 @@ import 'invites_screen.dart';
 import 'profile_screen.dart';
 
 /// The app's 3-tab shell. Uses [IndexedStack] so all three tabs stay
-/// mounted (and keep their state) across switches; only the fade-in and
-/// the bottom-bar triangle animate.
+/// mounted (and keep their state) across switches; only the fade/scale/
+/// slide-in and the bottom-bar triangle animate.
 class RootShell extends StatefulWidget {
   const RootShell({
     super.key,
@@ -25,9 +25,21 @@ class _RootShellState extends State<RootShell>
   int _index = 0;
   late final AnimationController _fade = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 200),
+    duration: const Duration(milliseconds: 380),
     value: 1,
   );
+  late final Animation<double> _fadeCurve = CurvedAnimation(
+    parent: _fade,
+    curve: Curves.easeOutCubic,
+  );
+  late final Animation<double> _scale = Tween<double>(
+    begin: 0.97,
+    end: 1,
+  ).animate(_fadeCurve);
+  late final Animation<Offset> _slide = Tween<Offset>(
+    begin: const Offset(0, 0.015),
+    end: Offset.zero,
+  ).animate(_fadeCurve);
 
   final GlobalKey<HomeScreenState> _homeKey = GlobalKey<HomeScreenState>();
   final GlobalKey<InvitesScreenState> _invitesKey =
@@ -63,21 +75,27 @@ class _RootShellState extends State<RootShell>
   Widget build(BuildContext context) {
     return Scaffold(
       body: FadeTransition(
-        opacity: _fade,
-        child: IndexedStack(
-          index: _index,
-          children: [
-            HomeScreen(key: _homeKey),
-            InvitesScreen(
-              key: _invitesKey,
-              onOpenHackathon: _openHackathonFromInvite,
+        opacity: _fadeCurve,
+        child: SlideTransition(
+          position: _slide,
+          child: ScaleTransition(
+            scale: _scale,
+            child: IndexedStack(
+              index: _index,
+              children: [
+                HomeScreen(key: _homeKey),
+                InvitesScreen(
+                  key: _invitesKey,
+                  onOpenHackathon: _openHackathonFromInvite,
+                ),
+                ProfileScreen(
+                  repository: widget.profileRepository,
+                  onBack: () => _onChanged(0),
+                  onDiscover: () => _onChanged(0),
+                ),
+              ],
             ),
-            ProfileScreen(
-              repository: widget.profileRepository,
-              onBack: () => _onChanged(0),
-              onDiscover: () => _onChanged(0),
-            ),
-          ],
+          ),
         ),
       ),
       bottomNavigationBar: VectorBottomBar(

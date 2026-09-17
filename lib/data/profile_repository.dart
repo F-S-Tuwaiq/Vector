@@ -111,3 +111,69 @@ class ProfileRepository {
         .toList();
   }
 }
+
+/// Read-only demo data for "Continue as Guest" — no Supabase involved.
+/// Team/participation previews already come for free from the base
+/// [ProfileRepository.participations] fallback when no loader is given.
+class DemoProfileRepository extends ProfileRepository {
+  const DemoProfileRepository();
+
+  static const _signInMessage = 'Sign in to save changes — this is a demo profile.';
+
+  @override
+  Future<Map<String, dynamic>> load() async {
+    return {
+      'profile': {
+        'full_name': 'Guest Explorer',
+        'about': 'Just looking around Vector before creating an account.',
+        'github': 'github.com/vector-demo',
+        'linkedin': 'linkedin.com/in/vector-demo',
+      },
+      'skills': const [
+        {'id': 1, 'skill': 'Flutter'},
+        {'id': 2, 'skill': 'UI / UX design'},
+        {'id': 3, 'skill': 'Public speaking'},
+      ],
+      'certificates': const <Map<String, dynamic>>[],
+    };
+  }
+
+  @override
+  Future<void> saveIdentity({
+    required String name,
+    required String github,
+    required String linkedin,
+  }) => throw ArgumentError(_signInMessage);
+
+  @override
+  Future<void> saveAbout(String about) => throw ArgumentError(_signInMessage);
+
+  @override
+  Future<void> addSkill(String skill) => throw ArgumentError(_signInMessage);
+
+  @override
+  Future<void> attach(int skillId, XFile file, int maxBytes) =>
+      throw ArgumentError(_signInMessage);
+
+  @override
+  Future<void> removeAttachment(Map<String, dynamic> attachment) =>
+      throw ArgumentError(_signInMessage);
+
+  @override
+  Future<void> removeSkill(
+    Map<String, dynamic> skill,
+    List<Map<String, dynamic>> attachments,
+  ) => throw ArgumentError(_signInMessage);
+
+  @override
+  Future<void> restoreAttachment(
+    Map<String, dynamic> skill,
+    Map<String, dynamic> attachment,
+  ) => throw ArgumentError(_signInMessage);
+
+  @override
+  Future<void> restoreSkill(
+    Map<String, dynamic> skill,
+    List<Map<String, dynamic>> attachments,
+  ) => throw ArgumentError(_signInMessage);
+}

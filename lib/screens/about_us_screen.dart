@@ -129,8 +129,6 @@ class AboutUsScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 28),
-                  const _SaudiMadeSignature(),
-                  const SizedBox(height: 20),
                   const Text(
                     'From a shared classroom to a shared direction.\nWith care, Sham & Fatimah.',
                     textAlign: TextAlign.center,
@@ -140,6 +138,8 @@ class AboutUsScreen extends StatelessWidget {
                       color: VectorColors.textSecondary,
                     ),
                   ),
+                  const SizedBox(height: 20),
+                  const _SaudiMadeSignature(),
                 ],
               ),
             ),

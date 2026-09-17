@@ -6,6 +6,7 @@ import 'package:vector/screens/sign_up_screen.dart';
 
 import 'root_shell.dart';
 import 'forgot_password_screen.dart';
+import '../data/profile_repository.dart';
 import '../widgets/brand_loader/brand_full_screen_loader.dart';
 import '../widgets/signup_code_dialog.dart';
 import '../services/supabase_service.dart';
@@ -275,6 +276,30 @@ class _LogInScreenState extends State<LogInScreen>
                         size: 13.6,
                         color: AppColors.muted,
                         spacing: -0.35,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  GestureDetector(
+                    onTap: _loading
+                        ? null
+                        : () {
+                            Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(
+                                builder: (_) => const RootShell(
+                                  profileRepository: DemoProfileRepository(),
+                                ),
+                              ),
+                              (route) => false,
+                            );
+                          },
+                    child: Text(
+                      'Continue as Guest!',
+                      style: AppTypography.sans(
+                        size: 13.6,
+                        color: AppColors.secondary,
+                        weight: FontWeight.w700,
+                        spacing: -0.2,
                       ),
                     ),
                   ),

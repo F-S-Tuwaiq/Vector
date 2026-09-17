@@ -59,7 +59,7 @@ class _SignUpScreenState extends State<SignUpScreen>
   bool _acceptedPrivacy = false;
   bool _agreedToLegal = false;
 
-  String _category = 'Design';
+  final Set<String> _selectedCategories = {'Design'};
 
   final List<String> _selectedSkills = [
     'UI / UX design',
@@ -231,7 +231,8 @@ class _SignUpScreenState extends State<SignUpScreen>
     return _name.text.trim().isNotEmpty &&
         _validEmail &&
         _validPassword &&
-        _legalAccepted;
+        _legalAccepted &&
+        _linkedin.text.trim().isNotEmpty;
   }
 
   double get _accountProgress {
@@ -253,7 +254,11 @@ class _SignUpScreenState extends State<SignUpScreen>
       completed++;
     }
 
-    return completed / 4;
+    if (_linkedin.text.trim().isNotEmpty) {
+      completed++;
+    }
+
+    return completed / 5;
   }
 
   double get _skillsProgress {
@@ -301,6 +306,11 @@ class _SignUpScreenState extends State<SignUpScreen>
       return;
     }
 
+    if (_linkedin.text.trim().isEmpty) {
+      _showMessage('Add your LinkedIn profile to continue.');
+      return;
+    }
+
     await _pageController.animateToPage(
       1,
       duration: const Duration(milliseconds: 420),
@@ -319,8 +329,8 @@ class _SignUpScreenState extends State<SignUpScreen>
   }
 
   Future<void> _createAccount() async {
-    if (_selectedSkills.length < 3) {
-      _showMessage('Choose at least 3 skills.');
+    if (_selectedSkills.isEmpty) {
+      _showMessage('Choose at least 1 skill.');
 
       return;
     }
@@ -540,25 +550,15 @@ class _SignUpScreenState extends State<SignUpScreen>
 
               const SizedBox(height: 28),
 
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Your profiles',
-                      style: AppTypography.display(size: 29, height: 1),
-                    ),
-                  ),
-                  Text(
-                    'Optional',
-                    style: AppTypography.sans(size: 12, color: AppColors.muted),
-                  ),
-                ],
+              Text(
+                'Your profiles',
+                style: AppTypography.display(size: 29, height: 1),
               ),
 
               const SizedBox(height: 5),
 
               Text(
-                'Link your work to enrich your profile.',
+                'LinkedIn is required — GitHub is optional.',
                 style: AppTypography.sans(size: 13, color: AppColors.muted),
               ),
 
@@ -578,6 +578,13 @@ class _SignUpScreenState extends State<SignUpScreen>
                 title: 'LinkedIn',
                 hint: 'linkedin.com/in/username',
                 icon: Icons.work_outline_rounded,
+              ),
+
+              const SizedBox(height: 6),
+
+              Text(
+                'This will be used to get in touch with you.',
+                style: AppTypography.sans(size: 11, color: AppColors.muted),
               ),
 
               const SizedBox(height: 23),
@@ -639,7 +646,9 @@ class _SignUpScreenState extends State<SignUpScreen>
   }
 
   Widget _skillsPage() {
-    final currentSkills = _skills[_category] ?? const <String>[];
+    final currentSkills = _selectedCategories
+        .expand((category) => _skills[category] ?? const <String>[])
+        .toList();
 
     return ListView(
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -672,7 +681,7 @@ class _SignUpScreenState extends State<SignUpScreen>
               const SizedBox(height: 6),
 
               Text(
-                'Choose 3–6 skills. Add evidence to support them.',
+                'Choose 1–6 skills. Add evidence to support them.',
                 style: AppTypography.sans(size: 16, color: AppColors.muted),
               ),
 
@@ -692,15 +701,19 @@ class _SignUpScreenState extends State<SignUpScreen>
                   itemBuilder: (context, index) {
                     final category = _skills.keys.elementAt(index);
 
-                    final selected = _category == category;
+                    final selected = _selectedCategories.contains(category);
 
                     return ChoiceChip(
                       selected: selected,
                       showCheckmark: false,
                       label: Text(category),
-                      onSelected: (_) {
+                      onSelected: (isSelected) {
                         setState(() {
-                          _category = category;
+                          if (isSelected) {
+                            _selectedCategories.add(category);
+                          } else if (_selectedCategories.length > 1) {
+                            _selectedCategories.remove(category);
+                          }
                         });
                       },
                       backgroundColor: Colors.white.withValues(alpha: 0.08),
