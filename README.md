@@ -172,3 +172,4 @@ To connect a live backend, add a `.env` file with your Supabase credentials. Aut
 *Crafted with passion 🤍*
 
 </div>
+
