@@ -83,15 +83,30 @@ class _RootShellState extends State<RootShell>
             child: IndexedStack(
               index: _index,
               children: [
-                HomeScreen(key: _homeKey),
-                InvitesScreen(
-                  key: _invitesKey,
-                  onOpenHackathon: _openHackathonFromInvite,
+                // TickerMode pauses every AnimationController in a hidden
+                // tab's subtree (their tickers stop firing) without
+                // unmounting it, so offscreen tabs stop burning CPU on
+                // decorative loops — e.g. Invites' animated Accept
+                // buttons — while still keeping scroll position and
+                // in-flight state intact when you switch back.
+                TickerMode(
+                  enabled: _index == 0,
+                  child: HomeScreen(key: _homeKey),
                 ),
-                ProfileScreen(
-                  repository: widget.profileRepository,
-                  onBack: () => _onChanged(0),
-                  onDiscover: () => _onChanged(0),
+                TickerMode(
+                  enabled: _index == 1,
+                  child: InvitesScreen(
+                    key: _invitesKey,
+                    onOpenHackathon: _openHackathonFromInvite,
+                  ),
+                ),
+                TickerMode(
+                  enabled: _index == 2,
+                  child: ProfileScreen(
+                    repository: widget.profileRepository,
+                    onBack: () => _onChanged(0),
+                    onDiscover: () => _onChanged(0),
+                  ),
                 ),
               ],
             ),
