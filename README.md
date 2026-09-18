@@ -1,3 +1,5 @@
+
+
 <div align="center">
 
 <br/>
@@ -33,9 +35,12 @@ Browse hackathons — discover open teams — connect through requests and invit
 
 ## 🎬 Demo
 
+
 <div align="center">
 
-*Demo video coming soon.*
+
+https://github.com/user-attachments/assets/ede9f140-c7ee-42aa-bced-8080885eb256
+
 
 </div>
 
