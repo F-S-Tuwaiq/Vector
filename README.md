@@ -62,7 +62,7 @@ The name carries the idea. In mathematics, a vector holds both magnitude and dir
 | **Join Requests** | Request to join teams that need your skills, and track the status of every request |
 | **Invitations** | Receive, accept, decline, or withdraw team invitations in a single tap |
 | **Team Builder** | Create your own team — set its size, define the roles you need, and let people come to you |
-| **Verified Profiles** | Email-verified signup (OTP), a curated skills showcase, and certificate uploads stored securely |
+| **Verified Profiles** | Email-verified signup via a custom-designed confirmation link and verification page, a curated skills showcase, and certificate uploads stored securely |
 | **Integrity by Design** | Uploaded certificates are hashed, eliminating duplicate files at the source |
 
 ## 🎨 Design & Details
