@@ -12,6 +12,7 @@ import '../theme/vector_text.dart';
 import '../widgets/profile_widgets.dart';
 import '../widgets/profile_edit_dialog.dart';
 import '../widgets/evidence_preview_dialog.dart';
+import '../widgets/send_invite_sheet.dart';
 import 'settings_screen.dart';
 import 'teams_screen.dart';
 
@@ -557,6 +558,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       ),
                                     ),
                                 ],
+                              ),
+                            ],
+                            if (!_own && widget.member != null) ...[
+                              const SizedBox(height: 16),
+                              SizedBox(
+                                width: double.infinity,
+                                height: 48,
+                                child: ElevatedButton.icon(
+                                  onPressed: () => showSendInviteSheet(
+                                    context,
+                                    widget.member!,
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: VectorColors.purpleBrand,
+                                    foregroundColor: VectorColors.textOnPurple,
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(13),
+                                    ),
+                                  ),
+                                  icon: const Icon(Icons.send_rounded),
+                                  label: Text(
+                                    'Send invite',
+                                    style: VectorText.labelLarge.copyWith(
+                                      color: VectorColors.textOnPurple,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ],
                             if (_loading)

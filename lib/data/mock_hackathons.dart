@@ -254,6 +254,47 @@ void addMockTeam(Team team) {
   ];
 }
 
+/// The current user's own teams (the ones with 'ME' in
+/// [Team.memberInitials], i.e. created locally via `createTeam`). Falls
+/// back to two fixed sample teams so the invite picker is never empty.
+List<Team> myMockTeams() {
+  final owned = [
+    for (final teams in _mockTeamsByHackathon.values)
+      for (final team in teams)
+        if (team.memberInitials.contains('ME')) team,
+  ];
+  if (owned.isNotEmpty) return owned;
+
+  const lead = Member(
+    initials: 'ME',
+    name: 'You',
+    role: 'Team lead',
+    lead: true,
+  );
+  return [
+    Team(
+      id: 'sample-pixel-pioneers',
+      hackathonId: 'saif',
+      name: 'Pixel Pioneers',
+      members: 2,
+      maxMembers: 5,
+      memberInitials: const ['ME', 'SA'],
+      missingRoles: const ['UI/UX Designer', 'Marketer'],
+      membersInfo: const [lead],
+    ),
+    Team(
+      id: 'sample-neural-nexus',
+      hackathonId: 'ai-disability',
+      name: 'Neural Nexus',
+      members: 2,
+      maxMembers: 5,
+      memberInitials: const ['ME', 'NH'],
+      missingRoles: const ['Backend Developer', 'Marketer'],
+      membersInfo: const [lead],
+    ),
+  ];
+}
+
 /// Finds a mock team by id across every hackathon, or `null`.
 Team? findMockTeamById(String teamId) {
   for (final teams in _mockTeamsByHackathon.values) {

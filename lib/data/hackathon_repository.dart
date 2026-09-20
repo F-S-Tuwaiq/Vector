@@ -149,6 +149,59 @@ class HackathonRepository {
     }
   }
 
+  /// The current user's own teams, for the "send invite" team picker.
+  Future<List<Team>> fetchMyTeams() async {
+    if (!Env.isConfigured) {
+      return myMockTeams();
+    }
+
+    try {
+      final rows = await Supabase.instance.client
+          .from('teams')
+          .select()
+          .contains('member_initials', ['ME'])
+          .timeout(_timeout);
+      final data = (rows as List).cast<Map<String, dynamic>>();
+      if (data.isEmpty) return myMockTeams();
+      return data.map(Team.fromMap).toList();
+    } catch (_) {
+      return myMockTeams();
+    }
+  }
+
+  /// Sends an invitation for [member] to join [team]. Returns success.
+  ///
+  /// Mock mode mirrors [sendJoinRequest]'s judgment call: there is nothing
+  /// to persist, so it simulates a short network delay and reports success
+  /// so the UI's confirmation step still demos end to end.
+  Future<bool> sendInvitation({
+    required Team team,
+    required Member member,
+  }) async {
+    if (!Env.isConfigured) {
+      await Future.delayed(const Duration(milliseconds: 400));
+      return true;
+    }
+
+    try {
+      await Supabase.instance.client.from('invitations').insert({
+        'team_id': team.id,
+        'sender_name': 'You',
+        'sender_role': 'Team lead',
+        'message':
+            'Hey ${member.name}, we think your skills as a ${member.role} '
+            'would be a great fit for ${team.name} — join us!',
+        'status': 'pending',
+        'expires_at': DateTime.now()
+            .add(const Duration(days: 7))
+            .toIso8601String(),
+      }).timeout(_timeout);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   // ============================================================
   // INVITES TAB — invitations + sent requests
   // ============================================================

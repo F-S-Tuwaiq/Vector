@@ -240,31 +240,32 @@ class _LogInScreenState extends State<LogInScreen>
             left: 35,
             right: 35,
             top: 234,
-            height: 232,
+            height: 178,
             child: Align(
               alignment: Alignment.centerLeft,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(
-                    height: 14,
-                    child: Text(
-                      'WELCOME BACK',
-                      style: AppTypography.sans(
-                        size: 10,
-                        color: AppColors.muted,
-                        weight: FontWeight.w600,
-                        spacing: 3.1,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 18),
                   SizedBox(
                     height: 104,
                     child: Text(
                       'From Vision\nto Victory.',
                       style: AppTypography.display(),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    height: 14,
+                    child: Text(
+                      'WELCOME BACK!',
+                      style: AppTypography.sans(
+                        size: 10,
+                        color: AppColors.muted,
+                        weight: FontWeight.w900,
+                        spacing: 3.1,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -279,30 +280,6 @@ class _LogInScreenState extends State<LogInScreen>
                       ),
                     ),
                   ),
-                  const SizedBox(height: 14),
-                  GestureDetector(
-                    onTap: _loading
-                        ? null
-                        : () {
-                            Navigator.of(context).pushAndRemoveUntil(
-                              MaterialPageRoute(
-                                builder: (_) => const RootShell(
-                                  profileRepository: DemoProfileRepository(),
-                                ),
-                              ),
-                              (route) => false,
-                            );
-                          },
-                    child: Text(
-                      'Continue as Guest!',
-                      style: AppTypography.sans(
-                        size: 13.6,
-                        color: AppColors.secondary,
-                        weight: FontWeight.w700,
-                        spacing: -0.2,
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -310,7 +287,7 @@ class _LogInScreenState extends State<LogInScreen>
           Positioned(
             left: 35,
             right: 35,
-            top: 466,
+            top: 434,
             height: 47,
             child: _input(
               controller: _email,
@@ -328,7 +305,7 @@ class _LogInScreenState extends State<LogInScreen>
           Positioned(
             left: 35,
             right: 35,
-            top: 528,
+            top: 496,
             height: 47,
             child: _input(
               controller: _password,
@@ -343,7 +320,7 @@ class _LogInScreenState extends State<LogInScreen>
           ),
           Positioned(
             right: 30,
-            top: 562,
+            top: 545,
             child: TextButton(
               onPressed: _loading
                   ? null
@@ -378,7 +355,7 @@ class _LogInScreenState extends State<LogInScreen>
           Positioned(
             left: 35,
             right: 35,
-            top: 616,
+            top: 584,
             height: 44,
             child: DecoratedBox(
               decoration: BoxDecoration(
@@ -424,7 +401,7 @@ class _LogInScreenState extends State<LogInScreen>
           Positioned(
             left: 20,
             right: 20,
-            top: 680,
+            top: 648,
             height: 48,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -468,6 +445,37 @@ class _LogInScreenState extends State<LogInScreen>
                   ),
                 ),
               ],
+            ),
+          ),
+          Positioned(
+            left: 20,
+            right: 20,
+            top: 694,
+            height: 24,
+            child: Center(
+              child: GestureDetector(
+                onTap: _loading
+                    ? null
+                    : () {
+                        Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(
+                            builder: (_) => const RootShell(
+                              profileRepository: DemoProfileRepository(),
+                            ),
+                          ),
+                          (route) => false,
+                        );
+                      },
+                child: Text(
+                  'Continue as Guest!',
+                  style: AppTypography.sans(
+                    size: 14,
+                    color: AppColors.secondary,
+                    weight: FontWeight.w500,
+                    spacing: -0.2,
+                  ),
+                ),
+              ),
             ),
           ),
         ],

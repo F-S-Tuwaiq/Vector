@@ -1,11 +1,11 @@
 {
-    "name": "vector",
-    "short_name": "vector",
+    "name": "Vector",
+    "short_name": "Vector",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#493252",
+    "theme_color": "#493252",
+    "description": "Vector — find your hackathon team. From vision to victory.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
