@@ -13,6 +13,15 @@ class EmailVerificationRequired implements Exception {
       'Open the confirmation link sent to your email, then return to Vector.';
 }
 
+class BackendNotConfigured implements Exception {
+  const BackendNotConfigured();
+
+  @override
+  String toString() =>
+      "This demo isn't connected to a live account system yet. "
+      'Try Continue as Guest instead.';
+}
+
 class SupabaseService {
   // ============================================================
   // SUPABASE CONFIG
@@ -61,7 +70,10 @@ class SupabaseService {
   // CLIENT
   // ============================================================
 
-  static SupabaseClient get client => Supabase.instance.client;
+  static SupabaseClient get client {
+    if (!isConfigured) throw const BackendNotConfigured();
+    return Supabase.instance.client;
+  }
 
   static User? get currentUser => isConfigured ? client.auth.currentUser : null;
 

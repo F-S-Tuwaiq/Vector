@@ -1,11 +1,18 @@
 // Minimal app-shell service worker. Flutter's own generated service worker
 // (flutter_service_worker.js) is no longer auto-registered by
 // flutter_bootstrap.js as of recent Flutter versions (it's deprecated
-// upstream), so this hand-rolled one takes its place: it caches the shell
-// files needed to reopen the app offline/on a flaky connection and is the
+// upstream), so this hand-rolled one takes its place: it's the
 // fetch-handling service worker Chrome requires before it will offer
-// "Install app" / add-to-home-screen.
-const CACHE_NAME = 'vector-shell-v1';
+// "Install app" / add-to-home-screen, and it gives the shell an offline
+// fallback.
+//
+// Network-first, not cache-first: this app ships new builds to the same
+// URL often, and a cache-first shell would silently freeze returning
+// visitors on whatever version happened to be cached on their first
+// visit, even across many redeploys, since the browser only reinstalls
+// this worker when this file's bytes change. Always prefer the network
+// when it's available; only fall back to the cache when it's not.
+const CACHE_NAME = 'vector-shell-v2';
 const SHELL_ASSETS = [
   './',
   'index.html',
@@ -42,6 +49,12 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   event.respondWith(
-    caches.match(event.request).then((cached) => cached || fetch(event.request)),
+    fetch(event.request)
+      .then((response) => {
+        const copy = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+        return response;
+      })
+      .catch(() => caches.match(event.request)),
   );
 });
