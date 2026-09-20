@@ -94,7 +94,8 @@ Vector pays attention to the details that are usually skipped.
   </tr>
   <tr>
     <td align="center"><img src="screenshots/splash.png" width="250" alt="Splash"/></td>
-    <td align="center"><img src="screenshots/login.png" width="250" alt="Log In"/></td>
+
+<td align="center"><img src="https://github.com/user-attachments/assets/1d7c18c6-a69b-452d-bf48-b62326e84a0c" width="250" alt="Log In"/></td>
     <td align="center"><img src="screenshots/signup.png" width="250" alt="Sign Up"/></td>
   </tr>
   <tr>
