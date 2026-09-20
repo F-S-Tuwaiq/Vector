@@ -1,5 +1,21 @@
 # Email confirmation
 
+## Building the live web app
+
+Run `python3 tool/build_web.py` from the project root for GitHub Pages.
+It builds for `/Vector/` and rejects missing/placeholder backend settings and
+private keys before compilation. Publish the complete `build/web/` output.
+The `.env` bundled into a web app is publicly downloadable: it must contain only
+`SUPABASE_URL` and the public anon/publishable `SUPABASE_ANON_KEY`.
+Never replace it with `.env.example` when preparing a live deployment.
+
+The September 20 authentication failure came from the deployed `assets/.env`
+containing placeholders. The source supported real authentication, but that
+deployment disabled it. The service worker now revalidates local assets and
+configuration, clears its old shell cache, and does not cache backend requests.
+
+## Confirmation flow
+
 The hosted Supabase project uses default confirmation-link emails, not OTP emails.
 The app now asks users to open the email link and return to tap **I've confirmed my email**.
 That button signs in with the entered email/password; an unconfirmed email cannot proceed.

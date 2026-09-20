@@ -12,7 +12,7 @@
 // visit, even across many redeploys, since the browser only reinstalls
 // this worker when this file's bytes change. Always prefer the network
 // when it's available; only fall back to the cache when it's not.
-const CACHE_NAME = 'vector-shell-v2';
+const CACHE_NAME = 'vector-shell-v3';
 const SHELL_ASSETS = [
   './',
   'index.html',
@@ -40,7 +40,7 @@ self.addEventListener('activate', (event) => {
     caches
       .keys()
       .then((keys) =>
-        Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))),
+        Promise.all(keys.filter((key) => key.startsWith('vector-shell-') && key !== CACHE_NAME).map((key) => caches.delete(key))),
       )
       .then(() => self.clients.claim()),
   );
@@ -48,13 +48,23 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+  const url = new URL(event.request.url);
+  // Never cache Supabase responses, signed uploads, or other external data.
+  if (!url.href.startsWith(self.registration.scope) ||
+      url.search || event.request.headers.has('Authorization')) return;
   event.respondWith(
-    fetch(event.request)
+    fetch(event.request, { cache: 'no-cache' })
       .then((response) => {
-        const copy = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+        if (response.ok) {
+          const copy = response.clone();
+          event.waitUntil(
+            caches.open(CACHE_NAME)
+              .then((cache) => cache.put(event.request, copy))
+              .catch(() => {}),
+          );
+        }
         return response;
       })
-      .catch(() => caches.match(event.request)),
+      .catch(async () => (await caches.match(event.request)) || Response.error()),
   );
 });
