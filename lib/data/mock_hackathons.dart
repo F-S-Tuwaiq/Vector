@@ -268,11 +268,10 @@ void removeMockTeam(String teamId) {
   }
 }
 
-/// The current user's own teams (the ones with 'ME' in
-/// [Team.memberInitials]) — always includes at least [_mySeedTeam], plus
-/// anything created locally via `createTeam`. Reads straight from
-/// [_mockTeamsByHackathon], so this always matches what the Teams screen
-/// shows for each hackathon.
+/// The current user's own teams — the ones with 'ME' in
+/// [Team.memberInitials], i.e. created locally via `createTeam`. Reads
+/// straight from [_mockTeamsByHackathon], so this always matches what
+/// the Teams screen shows for each hackathon.
 List<Team> myMockTeams() => [
   for (final teams in _mockTeamsByHackathon.values)
     for (final team in teams)
@@ -288,6 +287,19 @@ Team? findMockTeamById(String teamId) {
   }
   return null;
 }
+
+/// Every team (across every hackathon) with a member matching [initials]
+/// and [name] — used to show a teammate's *real* teams on their own
+/// profile instead of a generic placeholder, since [Member] itself
+/// carries no team/hackathon reference back to where it came from.
+List<Team> mockTeamsForMember(String initials, String name) => [
+  for (final teams in _mockTeamsByHackathon.values)
+    for (final team in teams)
+      if (team.membersInfo.any(
+        (m) => m.initials == initials && m.name == name,
+      ))
+        team,
+];
 
 /// The mock hackathon's name for [hackathonId], or the first hackathon's
 /// name if unknown (defensive fallback — never surfaces empty text).

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../data/hackathon_repository.dart';
+import '../data/mock_hackathons.dart';
 import '../data/profile_repository.dart';
 import '../data/skill_catalog.dart';
 import '../models/member.dart';
@@ -15,6 +16,7 @@ import '../widgets/profile_widgets.dart';
 import '../widgets/profile_edit_dialog.dart';
 import '../widgets/evidence_preview_dialog.dart';
 import '../widgets/send_invite_sheet.dart';
+import '../widgets/vector_header.dart';
 import 'settings_screen.dart';
 import 'teams_screen.dart';
 
@@ -79,6 +81,30 @@ class ProfileScreenState extends State<ProfileScreen> {
         for (final skill in widget.member?.skills ?? <String>[])
           {'skill': skill},
       ];
+      final member = widget.member;
+      if (member != null) {
+        _participations = [
+          for (final team in mockTeamsForMember(member.initials, member.name))
+            ProfileParticipation(
+              id: team.id,
+              team: team,
+              event: mockHackathons.firstWhere(
+                (h) => h.id == team.hackathonId,
+                orElse: () => mockHackathons.first,
+              ),
+              status: team.membersInfo
+                      .firstWhere(
+                        (m) =>
+                            m.initials == member.initials &&
+                            m.name == member.name,
+                        orElse: () => member,
+                      )
+                      .lead
+                  ? MembershipStatus.leader
+                  : MembershipStatus.member,
+            ),
+        ];
+      }
     }
   }
 
@@ -716,22 +742,18 @@ class ProfileScreenState extends State<ProfileScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
-                                  if (!_own)
-                                    const ProfileSurface(
-                                      child: Text(
-                                        'Only authorized team information is shown here.',
-                                      ),
-                                    )
-                                  else if (_teamsLoading)
+                                  if (_teamsLoading)
                                     const Center(
                                       child: CircularProgressIndicator(),
                                     )
                                   else if (_teamsError != null)
                                     ProfileSurface(child: Text(_teamsError!))
                                   else if (current.isEmpty)
-                                    const ProfileSurface(
+                                    ProfileSurface(
                                       child: Text(
-                                        'You haven’t joined a team yet.',
+                                        _own
+                                            ? 'You haven’t joined a team yet.'
+                                            : '$firstName hasn’t joined a team yet.',
                                       ),
                                     )
                                   else
@@ -883,55 +905,150 @@ class _ProfileTeamDetailsState extends State<ProfileTeamDetails> {
   @override
   Widget build(BuildContext context) {
     final record = widget.record;
+    final statusLabel = switch (record.status) {
+      MembershipStatus.member => 'Member',
+      MembershipStatus.requested => 'Requested',
+      MembershipStatus.leader => 'Leader',
+    };
     return Theme(
       data: ProfileTheme.data,
       child: Scaffold(
-        appBar: AppBar(title: Text(record.team.name)),
-        body: ListView(
-          padding: const EdgeInsets.all(24),
+        backgroundColor: VectorColors.background,
+        body: Column(
           children: [
-            Text(record.event.name, style: ProfileTheme.heading),
-            const SizedBox(height: 12),
-            Text('${record.team.members} members'),
-            const SizedBox(height: 16),
-            ...record.team.membersInfo.map(
-              (member) => ListTile(
-                leading: const Icon(Icons.person_outline),
-                title: Text(member.name),
-                subtitle: Text(member.role),
-              ),
+            VectorHeader.slim(
+              title: record.team.name,
+              onBack: () => Navigator.of(context).pop(),
             ),
-            const SizedBox(height: 20),
-            ProfileAction(
-              label: 'View event teams',
-              onPressed: () =>
-                  TeamsScreen.open(context, hackathon: record.event),
-            ),
-            if (widget.onDeleted != null) ...[
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: OutlinedButton.icon(
-                  onPressed: _deleting ? null : _delete,
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: VectorColors.error,
-                    side: const BorderSide(color: VectorColors.error),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(13),
+            Expanded(
+              child: SafeArea(
+                top: false,
+                child: ListView(
+                  padding: const EdgeInsets.all(24),
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            record.event.name,
+                            style: ProfileTheme.heading,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        ProfileStatusPill(
+                          label: statusLabel,
+                          requested:
+                              record.status == MembershipStatus.requested,
+                          leader: record.status == MembershipStatus.leader,
+                        ),
+                      ],
                     ),
-                  ),
-                  icon: _deleting
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.delete_outline),
-                  label: Text(_deleting ? 'Deleting…' : 'Delete team'),
+                    const SizedBox(height: 6),
+                    Text(
+                      '${record.team.members} of ${record.team.maxMembers} members',
+                      style: const TextStyle(color: VectorColors.textSecondary),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      'Members',
+                      style: VectorText.titleMedium.copyWith(
+                        color: VectorColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    ...record.team.membersInfo.map(
+                      (member) => Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: ProfileSurface(
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 44,
+                                height: 44,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: VectorColors.surfaceLavender,
+                                  borderRadius: BorderRadius.circular(13),
+                                ),
+                                child: Text(
+                                  member.initials,
+                                  style: VectorText.titleMedium.copyWith(
+                                    color: VectorColors.purpleBrand,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      member.name,
+                                      style: VectorText.bodyLarge.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: VectorColors.textPrimary,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      member.role,
+                                      style: const TextStyle(
+                                        color: VectorColors.textSecondary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              if (member.lead) ...[
+                                const SizedBox(width: 8),
+                                const ProfileStatusPill(
+                                  label: 'Lead',
+                                  leader: true,
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    ProfileAction(
+                      label: 'View event teams',
+                      onPressed: () =>
+                          TeamsScreen.open(context, hackathon: record.event),
+                    ),
+                    if (widget.onDeleted != null) ...[
+                      const SizedBox(height: 8),
+                      Center(
+                        child: TextButton.icon(
+                          onPressed: _deleting ? null : _delete,
+                          icon: _deleting
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: VectorColors.error,
+                                  ),
+                                )
+                              : const Icon(
+                                  Icons.delete_outline,
+                                  color: VectorColors.error,
+                                ),
+                          label: Text(
+                            _deleting ? 'Deleting…' : 'Delete team',
+                            style: const TextStyle(color: VectorColors.error),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
-            ],
+            ),
           ],
         ),
       ),
