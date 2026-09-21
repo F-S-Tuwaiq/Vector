@@ -146,6 +146,17 @@ class _TeamPicker extends StatelessWidget {
             padding: EdgeInsets.symmetric(vertical: 24),
             child: Center(child: CircularProgressIndicator()),
           )
+        else if (teams!.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Text(
+              "You don't have a team yet. Create one from a hackathon's "
+              "Teams page first, then come back to invite ${member.name}.",
+              style: VectorText.bodyMedium.copyWith(
+                color: VectorColors.textSecondary,
+              ),
+            ),
+          )
         else
           for (final team in teams!)
             Padding(

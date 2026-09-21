@@ -120,17 +120,6 @@ class _TeamsScreenState extends State<TeamsScreen> {
   }
 
   Future<void> _openCreateTeamForm() async {
-    if (!Env.isConfigured &&
-        (_teams ?? const <Team>[]).any(
-          (t) => t.memberInitials.contains('ME'),
-        )) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('You already have a team for this hackathon.'),
-        ),
-      );
-      return;
-    }
     final Team? created = await Navigator.of(context).push<Team>(
       MaterialPageRoute(
         builder: (_) => CreateTeamScreen(hackathon: widget.hackathon),
@@ -207,6 +196,10 @@ class _TeamsScreenState extends State<TeamsScreen> {
     }
 
     final bool disableAnimations = MediaQuery.disableAnimationsOf(context);
+    // Mock mode only: one team per hackathon — the create-team page shows
+    // a message instead of the form when this is already true.
+    final bool hasOwnTeam =
+        !Env.isConfigured && teams.any((t) => t.memberInitials.contains('ME'));
     // +1 for the trailing create-team page (Section C).
     final int pageCount = teams.length + 1;
 
@@ -238,7 +231,10 @@ class _TeamsScreenState extends State<TeamsScreen> {
                     height: cardHeight,
                     child: _ScrollableCardBody(
                       child: isCreatePage
-                          ? _CreateTeamCard(onStart: _openCreateTeamForm)
+                          ? _CreateTeamCard(
+                              onStart: _openCreateTeamForm,
+                              alreadyHasTeam: hasOwnTeam,
+                            )
                           : _TeamCard(
                               team: teams[index],
                               index: index,
@@ -764,9 +760,14 @@ class _DashedRRectPainter extends CustomPainter {
 /// flips like any other page, but is visually distinct (dashed border,
 /// white surface) since it isn't a real team.
 class _CreateTeamCard extends StatelessWidget {
-  const _CreateTeamCard({required this.onStart});
+  const _CreateTeamCard({required this.onStart, this.alreadyHasTeam = false});
 
   final VoidCallback onStart;
+
+  /// Mock mode only: true when the current user already leads a team in
+  /// this hackathon — shows a message here instead of the create form,
+  /// since only one team per hackathon is allowed.
+  final bool alreadyHasTeam;
 
   @override
   Widget build(BuildContext context) {
@@ -807,19 +808,25 @@ class _CreateTeamCard extends StatelessWidget {
                   width: 72,
                   height: 72,
                   decoration: BoxDecoration(
-                    color: VectorColors.apricot,
+                    color: alreadyHasTeam
+                        ? VectorColors.surfaceLavender
+                        : VectorColors.apricot,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   alignment: Alignment.center,
-                  child: const Icon(
-                    Icons.add,
+                  child: Icon(
+                    alreadyHasTeam ? Icons.groups : Icons.add,
                     size: 34,
-                    color: VectorColors.textNeutral,
+                    color: alreadyHasTeam
+                        ? VectorColors.purpleBrand
+                        : VectorColors.textNeutral,
                   ),
                 ),
                 const SizedBox(height: 18),
                 Text(
-                  'Create a new team',
+                  alreadyHasTeam
+                      ? 'You already have a team here'
+                      : 'Create a new team',
                   textAlign: TextAlign.center,
                   style: VectorText.titleLarge.copyWith(
                     fontSize: 21,
@@ -828,35 +835,40 @@ class _CreateTeamCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  "Didn't find your fit? Start your own team and let "
-                  'people come to you.',
+                  alreadyHasTeam
+                      ? 'You can only lead one team per hackathon. Manage '
+                            'or delete yours from your profile.'
+                      : "Didn't find your fit? Start your own team and let "
+                            'people come to you.',
                   textAlign: TextAlign.center,
                   style: VectorText.bodyMedium.copyWith(
                     color: VectorColors.textSecondary,
                   ),
                 ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    onPressed: onStart,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: VectorColors.purpleBrand,
-                      foregroundColor: VectorColors.textOnPurple,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(13),
+                if (!alreadyHasTeam) ...[
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: onStart,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: VectorColors.purpleBrand,
+                        foregroundColor: VectorColors.textOnPurple,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(13),
+                        ),
                       ),
-                    ),
-                    child: Text(
-                      'Start a team',
-                      style: VectorText.labelLarge.copyWith(
-                        color: VectorColors.textOnPurple,
+                      child: Text(
+                        'Start a team',
+                        style: VectorText.labelLarge.copyWith(
+                          color: VectorColors.textOnPurple,
+                        ),
                       ),
                     ),
                   ),
-                ),
+                ],
               ],
             ),
           ),

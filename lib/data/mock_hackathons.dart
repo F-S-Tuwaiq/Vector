@@ -228,27 +228,12 @@ List<Team> _standardTeams(String hackathonId) => [
       ),
     ];
 
-/// The current user's one always-there seeded team, so "Your teams" and
-/// the send-invite picker are never empty for a fresh guest session.
-const Team _mySeedTeam = Team(
-  id: 'seed-pixel-pioneers',
-  hackathonId: 'saif',
-  name: 'Pixel Pioneers',
-  members: 2,
-  maxMembers: 5,
-  memberInitials: ['ME', 'SA'],
-  missingRoles: ['UI/UX Designer', 'Marketer'],
-  membersInfo: [
-    Member(initials: 'ME', name: 'You', role: 'Team lead', lead: true),
-  ],
-);
-
 /// Mock teams keyed by hackathon id. Only featured hackathons get seeded
 /// teams; the rest have an empty list (no teams looking for members yet).
-/// `saif` also carries [_mySeedTeam] so the current user always owns
-/// exactly one team by default.
+/// The current user owns none of these by default — a fresh guest has
+/// to create their own team, same as a real new user would.
 Map<String, List<Team>> _seedTeamsByHackathon() => {
-  'saif': [..._standardTeams('saif'), _mySeedTeam],
+  'saif': _standardTeams('saif'),
   'ai-disability': _standardTeams('ai-disability'),
   'agentx': const [],
   'gov-eservices': _standardTeams('gov-eservices'),
@@ -332,8 +317,8 @@ List<Invitation> _seedInvitations() {
       senderName: 'Sara Alqahtani',
       senderRole: 'Team lead',
       message:
-          "We need a backend dev who can start now — you're exactly the "
-          'profile we\'re missing.',
+          "We're missing a Flutter developer and a UI/UX designer — saw "
+          "you've got both on your profile. Exactly what Team Elite needs.",
       expiresAt: now.add(const Duration(hours: 46)),
       status: 'pending',
       createdAt: now.subtract(const Duration(hours: 3)),
@@ -349,7 +334,9 @@ List<Invitation> _seedInvitations() {
       hackathonCity: 'Riyadh',
       senderName: 'Abdullah Alrashid',
       senderRole: 'Team lead',
-      message: 'Loved your portfolio — join us for AI for Disability!',
+      message:
+          "Your public speaking skill caught our eye — we need someone "
+          'who can own the demo-day pitch. Join us for AI for Disability!',
       expiresAt: now.add(const Duration(days: 5)),
       status: 'pending',
       createdAt: now.subtract(const Duration(days: 1)),
