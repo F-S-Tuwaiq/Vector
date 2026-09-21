@@ -693,10 +693,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                             ),
                             ProfileSection(
-                              title: 'Your teams',
-                              subtitle: current.any((p) => p.isPreview)
-                                  ? 'The people you build with. · Sample teams'
-                                  : 'The people you build with.',
+                              title: _own ? 'Your teams' : "$name's teams",
+                              subtitle: _own
+                                  ? (current.any((p) => p.isPreview)
+                                        ? 'The people you build with. · Sample teams'
+                                        : 'The people you build with.')
+                                  : 'Teams $name is part of.',
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
