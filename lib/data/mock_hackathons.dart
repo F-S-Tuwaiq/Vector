@@ -318,43 +318,57 @@ String mockHackathonNameFor(String hackathonId) {
 
 final DateTime _now = DateTime.now();
 
-/// Seeded pending invitations, mirroring the live `invitations` table.
-final List<Invitation> _mockInvitations = [
-  Invitation(
-    id: 'invite-1',
-    teamId: 'saif-elite',
-    teamName: 'Team Elite',
-    hackathonId: 'saif',
-    hackathonName: 'SAIF — Security & Innovation Fair',
-    hackathonHero: '5M SAR',
-    hackathonDates: 'Nov 19–21',
-    hackathonCity: 'Riyadh',
-    senderName: 'Sara Alqahtani',
-    senderRole: 'Team lead',
-    message:
-        "We need a backend dev who can start now — you're exactly the "
-        'profile we\'re missing.',
-    expiresAt: _now.add(const Duration(hours: 46)),
-    status: 'pending',
-    createdAt: _now.subtract(const Duration(hours: 3)),
-  ),
-  Invitation(
-    id: 'invite-2',
-    teamId: 'ai-disability-pioneers',
-    teamName: 'The Pioneers',
-    hackathonId: 'ai-disability',
-    hackathonName: 'AI for Disability Hackathon',
-    hackathonHero: '220K SAR',
-    hackathonDates: 'Oct 11–13',
-    hackathonCity: 'Riyadh',
-    senderName: 'Abdullah Alrashid',
-    senderRole: 'Team lead',
-    message: 'Loved your portfolio — join us for AI for Disability!',
-    expiresAt: _now.add(const Duration(days: 5)),
-    status: 'pending',
-    createdAt: _now.subtract(const Duration(days: 1)),
-  ),
-];
+/// Builds the 2 seeded pending invitations, mirroring the live
+/// `invitations` table, with timestamps relative to right now.
+List<Invitation> _seedInvitations() {
+  final now = DateTime.now();
+  return [
+    Invitation(
+      id: 'invite-1',
+      teamId: 'saif-elite',
+      teamName: 'Team Elite',
+      hackathonId: 'saif',
+      hackathonName: 'SAIF — Security & Innovation Fair',
+      hackathonHero: '5M SAR',
+      hackathonDates: 'Nov 19–21',
+      hackathonCity: 'Riyadh',
+      senderName: 'Sara Alqahtani',
+      senderRole: 'Team lead',
+      message:
+          "We need a backend dev who can start now — you're exactly the "
+          'profile we\'re missing.',
+      expiresAt: now.add(const Duration(hours: 46)),
+      status: 'pending',
+      createdAt: now.subtract(const Duration(hours: 3)),
+    ),
+    Invitation(
+      id: 'invite-2',
+      teamId: 'ai-disability-pioneers',
+      teamName: 'The Pioneers',
+      hackathonId: 'ai-disability',
+      hackathonName: 'AI for Disability Hackathon',
+      hackathonHero: '220K SAR',
+      hackathonDates: 'Oct 11–13',
+      hackathonCity: 'Riyadh',
+      senderName: 'Abdullah Alrashid',
+      senderRole: 'Team lead',
+      message: 'Loved your portfolio — join us for AI for Disability!',
+      expiresAt: now.add(const Duration(days: 5)),
+      status: 'pending',
+      createdAt: now.subtract(const Duration(days: 1)),
+    ),
+  ];
+}
+
+List<Invitation> _mockInvitations = _seedInvitations();
+
+/// Resets pending invitations back to the 2 seeded ones so the Invites
+/// tab always has something to demo — called every time a guest session
+/// starts, regardless of accept/decline actions from an earlier guest
+/// session in this same app run.
+void resetMockInvitations() {
+  _mockInvitations = _seedInvitations();
+}
 
 /// Seeded sent requests, mirroring the live `join_requests` table.
 final List<SentRequest> _mockSentRequests = [
