@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../widgets/brand_loader/brand_full_screen_loader.dart';
+import '../config/env.dart';
 import '../data/hackathon_repository.dart';
 import '../models/hackathon.dart';
 import '../models/member.dart';
@@ -119,6 +120,17 @@ class _TeamsScreenState extends State<TeamsScreen> {
   }
 
   Future<void> _openCreateTeamForm() async {
+    if (!Env.isConfigured &&
+        (_teams ?? const <Team>[]).any(
+          (t) => t.memberInitials.contains('ME'),
+        )) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('You already have a team for this hackathon.'),
+        ),
+      );
+      return;
+    }
     final Team? created = await Navigator.of(context).push<Team>(
       MaterialPageRoute(
         builder: (_) => CreateTeamScreen(hackathon: widget.hackathon),

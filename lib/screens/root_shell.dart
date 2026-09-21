@@ -44,6 +44,8 @@ class _RootShellState extends State<RootShell>
   final GlobalKey<HomeScreenState> _homeKey = GlobalKey<HomeScreenState>();
   final GlobalKey<InvitesScreenState> _invitesKey =
       GlobalKey<InvitesScreenState>();
+  final GlobalKey<ProfileScreenState> _profileKey =
+      GlobalKey<ProfileScreenState>();
 
   void _onChanged(int i) {
     if (i == _index) return;
@@ -54,6 +56,7 @@ class _RootShellState extends State<RootShell>
       _fade.forward(from: 0);
     }
     if (i == 1) _invitesKey.currentState?.refreshOnFocus();
+    if (i == 2) _profileKey.currentState?.refreshOnFocus();
   }
 
   /// The Invites hackathon-strip deep link: switch to Home, then expand
@@ -103,6 +106,7 @@ class _RootShellState extends State<RootShell>
                 TickerMode(
                   enabled: _index == 2,
                   child: ProfileScreen(
+                    key: _profileKey,
                     repository: widget.profileRepository,
                     onBack: () => _onChanged(0),
                     onDiscover: () => _onChanged(0),

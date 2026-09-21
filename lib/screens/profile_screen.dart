@@ -2,6 +2,7 @@ import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../data/hackathon_repository.dart';
 import '../data/profile_repository.dart';
 import '../data/skill_catalog.dart';
 import '../models/member.dart';
@@ -9,6 +10,7 @@ import '../services/supabase_service.dart';
 import '../theme/profile_theme.dart';
 import '../theme/vector_colors.dart';
 import '../theme/vector_text.dart';
+import '../widgets/confirm_action_dialog.dart';
 import '../widgets/profile_widgets.dart';
 import '../widgets/profile_edit_dialog.dart';
 import '../widgets/evidence_preview_dialog.dart';
@@ -38,10 +40,12 @@ class ProfileScreen extends StatefulWidget {
   final int maxEvidenceBytes;
   final EvidencePicker? pickEvidence;
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  State<ProfileScreen> createState() => ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+/// Public so [RootShell] can hold a `GlobalKey<ProfileScreenState>` and
+/// call [refreshOnFocus] when this tab gains focus.
+class ProfileScreenState extends State<ProfileScreen> {
   Map<String, dynamic> _profile = {};
   List<Map<String, dynamic>> _skills = [], _certificates = [];
   List<ProfileParticipation> _participations = [];
@@ -132,6 +136,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (!_busy && !_undoPending && _own) {
       await Future.wait([_load(), _loadTeams()]);
     }
+  }
+
+  /// Refetches this tab's teams — called when it gains focus so a team
+  /// just created (or deleted) elsewhere shows up here without a manual
+  /// pull-to-refresh.
+  void refreshOnFocus() {
+    if (!_teamsLoading && _own) _loadTeams();
   }
 
   Future<bool> _mutate(
@@ -447,6 +458,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     : null) ??
                 'Your profile')
             .toString();
+    final firstName = name.trim().split(RegExp(r'\s+')).first;
     final metadata = _own ? SupabaseService.currentUser?.userMetadata : null;
     String field(String key) =>
         (_profile[key] ?? metadata?[key] ?? '').toString().trim();
@@ -693,12 +705,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                             ),
                             ProfileSection(
-                              title: _own ? 'Your teams' : "$name's teams",
+                              title: _own
+                                  ? 'Your teams'
+                                  : "$firstName's teams",
                               subtitle: _own
                                   ? (current.any((p) => p.isPreview)
                                         ? 'The people you build with. · Sample teams'
                                         : 'The people you build with.')
-                                  : 'Teams $name is part of.',
+                                  : 'Teams $firstName is part of.',
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
@@ -740,6 +754,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                     builder: (_) =>
                                                         ProfileTeamDetails(
                                                           record: record,
+                                                          onDeleted:
+                                                              _own &&
+                                                                  widget.repository
+                                                                      is DemoProfileRepository &&
+                                                                  record.status ==
+                                                                      MembershipStatus
+                                                                          .leader
+                                                              ? _loadTeams
+                                                              : null,
                                                         ),
                                                   ),
                                                 ),
@@ -814,37 +837,106 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 }
 
-class ProfileTeamDetails extends StatelessWidget {
-  const ProfileTeamDetails({super.key, required this.record});
+class ProfileTeamDetails extends StatefulWidget {
+  const ProfileTeamDetails({super.key, required this.record, this.onDeleted});
   final ProfileParticipation record;
+
+  /// Present only when the viewer owns this team (their own, mock-only
+  /// "leader" team) — shows the "Delete team" action and is called after
+  /// a successful delete so the caller can refresh its team list.
+  final VoidCallback? onDeleted;
+
   @override
-  Widget build(BuildContext context) => Theme(
-    data: ProfileTheme.data,
-    child: Scaffold(
-      appBar: AppBar(title: Text(record.team.name)),
-      body: ListView(
-        padding: const EdgeInsets.all(24),
-        children: [
-          Text(record.event.name, style: ProfileTheme.heading),
-          const SizedBox(height: 12),
-          Text('${record.team.members} members'),
-          const SizedBox(height: 16),
-          ...record.team.membersInfo.map(
-            (member) => ListTile(
-              leading: const Icon(Icons.person_outline),
-              title: Text(member.name),
-              subtitle: Text(member.role),
+  State<ProfileTeamDetails> createState() => _ProfileTeamDetailsState();
+}
+
+class _ProfileTeamDetailsState extends State<ProfileTeamDetails> {
+  bool _deleting = false;
+
+  Future<void> _delete() async {
+    if (_deleting) return;
+    final confirmed = await showConfirmActionDialog(
+      context,
+      title: 'Delete team?',
+      message:
+          'This removes "${widget.record.team.name}" for anyone who can '
+          "see it. This can't be undone.",
+      confirmLabel: 'Delete',
+    );
+    if (!mounted || !confirmed) return;
+    setState(() => _deleting = true);
+    final success = await HackathonRepository().deleteTeam(
+      widget.record.team.id,
+    );
+    if (!mounted) return;
+    if (success) {
+      widget.onDeleted?.call();
+      Navigator.of(context).pop();
+    } else {
+      setState(() => _deleting = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not delete the team. Try again.')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final record = widget.record;
+    return Theme(
+      data: ProfileTheme.data,
+      child: Scaffold(
+        appBar: AppBar(title: Text(record.team.name)),
+        body: ListView(
+          padding: const EdgeInsets.all(24),
+          children: [
+            Text(record.event.name, style: ProfileTheme.heading),
+            const SizedBox(height: 12),
+            Text('${record.team.members} members'),
+            const SizedBox(height: 16),
+            ...record.team.membersInfo.map(
+              (member) => ListTile(
+                leading: const Icon(Icons.person_outline),
+                title: Text(member.name),
+                subtitle: Text(member.role),
+              ),
             ),
-          ),
-          const SizedBox(height: 20),
-          ProfileAction(
-            label: 'View event teams',
-            onPressed: () => TeamsScreen.open(context, hackathon: record.event),
-          ),
-        ],
+            const SizedBox(height: 20),
+            ProfileAction(
+              label: 'View event teams',
+              onPressed: () =>
+                  TeamsScreen.open(context, hackathon: record.event),
+            ),
+            if (widget.onDeleted != null) ...[
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: OutlinedButton.icon(
+                  onPressed: _deleting ? null : _delete,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: VectorColors.error,
+                    side: const BorderSide(color: VectorColors.error),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(13),
+                    ),
+                  ),
+                  icon: _deleting
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.delete_outline),
+                  label: Text(_deleting ? 'Deleting…' : 'Delete team'),
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 Widget profileCard(Widget child) => Material(

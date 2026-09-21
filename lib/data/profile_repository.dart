@@ -3,6 +3,7 @@ import 'package:file_selector/file_selector.dart';
 import '../models/hackathon.dart';
 import '../models/team.dart';
 import 'hackathon_repository.dart';
+import 'mock_hackathons.dart';
 import '../services/supabase_service.dart';
 
 /// Supply only authenticated records. The current teams API has neither a
@@ -113,8 +114,6 @@ class ProfileRepository {
 }
 
 /// Read-only demo data for "Continue as Guest" — no Supabase involved.
-/// Team/participation previews already come for free from the base
-/// [ProfileRepository.participations] fallback when no loader is given.
 class DemoProfileRepository extends ProfileRepository {
   const DemoProfileRepository();
 
@@ -136,6 +135,26 @@ class DemoProfileRepository extends ProfileRepository {
       ],
       'certificates': const <Map<String, dynamic>>[],
     };
+  }
+
+  /// Built straight from the same mock teams the Teams screen reads, so
+  /// creating/deleting a team there is immediately reflected here too —
+  /// no separate, disconnected preview data.
+  @override
+  Future<List<ProfileParticipation>> participations() async {
+    final hackathons = await HackathonRepository().fetchHackathons();
+    return [
+      for (final team in myMockTeams())
+        ProfileParticipation(
+          id: team.id,
+          team: team,
+          event: hackathons.firstWhere(
+            (h) => h.id == team.hackathonId,
+            orElse: () => hackathons.first,
+          ),
+          status: MembershipStatus.leader,
+        ),
+    ];
   }
 
   @override

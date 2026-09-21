@@ -228,10 +228,27 @@ List<Team> _standardTeams(String hackathonId) => [
       ),
     ];
 
+/// The current user's one always-there seeded team, so "Your teams" and
+/// the send-invite picker are never empty for a fresh guest session.
+const Team _mySeedTeam = Team(
+  id: 'seed-pixel-pioneers',
+  hackathonId: 'saif',
+  name: 'Pixel Pioneers',
+  members: 2,
+  maxMembers: 5,
+  memberInitials: ['ME', 'SA'],
+  missingRoles: ['UI/UX Designer', 'Marketer'],
+  membersInfo: [
+    Member(initials: 'ME', name: 'You', role: 'Team lead', lead: true),
+  ],
+);
+
 /// Mock teams keyed by hackathon id. Only featured hackathons get seeded
 /// teams; the rest have an empty list (no teams looking for members yet).
-final Map<String, List<Team>> _mockTeamsByHackathon = {
-  'saif': _standardTeams('saif'),
+/// `saif` also carries [_mySeedTeam] so the current user always owns
+/// exactly one team by default.
+Map<String, List<Team>> _seedTeamsByHackathon() => {
+  'saif': [..._standardTeams('saif'), _mySeedTeam],
   'ai-disability': _standardTeams('ai-disability'),
   'agentx': const [],
   'gov-eservices': _standardTeams('gov-eservices'),
@@ -239,6 +256,8 @@ final Map<String, List<Team>> _mockTeamsByHackathon = {
   'energy': _standardTeams('energy'),
   'sidf': _standardTeams('sidf'),
 };
+
+Map<String, List<Team>> _mockTeamsByHackathon = _seedTeamsByHackathon();
 
 /// Returns the mock teams for [hackathonId], or an empty list if unknown.
 List<Team> mockTeamsFor(String hackathonId) {
@@ -254,46 +273,26 @@ void addMockTeam(Team team) {
   ];
 }
 
-/// The current user's own teams (the ones with 'ME' in
-/// [Team.memberInitials], i.e. created locally via `createTeam`). Falls
-/// back to two fixed sample teams so the invite picker is never empty.
-List<Team> myMockTeams() {
-  final owned = [
-    for (final teams in _mockTeamsByHackathon.values)
-      for (final team in teams)
-        if (team.memberInitials.contains('ME')) team,
-  ];
-  if (owned.isNotEmpty) return owned;
-
-  const lead = Member(
-    initials: 'ME',
-    name: 'You',
-    role: 'Team lead',
-    lead: true,
-  );
-  return [
-    Team(
-      id: 'sample-pixel-pioneers',
-      hackathonId: 'saif',
-      name: 'Pixel Pioneers',
-      members: 2,
-      maxMembers: 5,
-      memberInitials: const ['ME', 'SA'],
-      missingRoles: const ['UI/UX Designer', 'Marketer'],
-      membersInfo: const [lead],
-    ),
-    Team(
-      id: 'sample-neural-nexus',
-      hackathonId: 'ai-disability',
-      name: 'Neural Nexus',
-      members: 2,
-      maxMembers: 5,
-      memberInitials: const ['ME', 'NH'],
-      missingRoles: const ['Backend Developer', 'Marketer'],
-      membersInfo: const [lead],
-    ),
-  ];
+/// Removes a team the current user owns (see "Delete team" on their
+/// profile) from whichever hackathon it belongs to.
+void removeMockTeam(String teamId) {
+  for (final hackathonId in _mockTeamsByHackathon.keys.toList()) {
+    _mockTeamsByHackathon[hackathonId] = mockTeamsFor(
+      hackathonId,
+    ).where((t) => t.id != teamId).toList();
+  }
 }
+
+/// The current user's own teams (the ones with 'ME' in
+/// [Team.memberInitials]) — always includes at least [_mySeedTeam], plus
+/// anything created locally via `createTeam`. Reads straight from
+/// [_mockTeamsByHackathon], so this always matches what the Teams screen
+/// shows for each hackathon.
+List<Team> myMockTeams() => [
+  for (final teams in _mockTeamsByHackathon.values)
+    for (final team in teams)
+      if (team.memberInitials.contains('ME')) team,
+];
 
 /// Finds a mock team by id across every hackathon, or `null`.
 Team? findMockTeamById(String teamId) {
@@ -315,8 +314,6 @@ String mockHackathonNameFor(String hackathonId) {
       )
       .name;
 }
-
-final DateTime _now = DateTime.now();
 
 /// Builds the 2 seeded pending invitations, mirroring the live
 /// `invitations` table, with timestamps relative to right now.
@@ -362,35 +359,44 @@ List<Invitation> _seedInvitations() {
 
 List<Invitation> _mockInvitations = _seedInvitations();
 
-/// Resets pending invitations back to the 2 seeded ones so the Invites
-/// tab always has something to demo — called every time a guest session
-/// starts, regardless of accept/decline actions from an earlier guest
-/// session in this same app run.
-void resetMockInvitations() {
-  _mockInvitations = _seedInvitations();
+/// Builds the 2 seeded sent requests, mirroring the live `join_requests`
+/// table, with timestamps relative to right now.
+List<SentRequest> _seedSentRequests() {
+  final now = DateTime.now();
+  return [
+    SentRequest(
+      id: 'sent-1',
+      teamId: 'energy-crushers',
+      teamName: 'Code Crushers',
+      hackathonId: 'energy',
+      hackathonName: 'Energy Hackathon',
+      status: 'accepted',
+      createdAt: now.subtract(const Duration(days: 2)),
+    ),
+    SentRequest(
+      id: 'sent-2',
+      teamId: 'gov-eservices-pioneers',
+      teamName: 'The Pioneers',
+      hackathonId: 'gov-eservices',
+      hackathonName: 'Government E-Services Hackathon 2026',
+      status: 'declined',
+      createdAt: now.subtract(const Duration(hours: 6)),
+    ),
+  ];
 }
 
-/// Seeded sent requests, mirroring the live `join_requests` table.
-final List<SentRequest> _mockSentRequests = [
-  SentRequest(
-    id: 'sent-1',
-    teamId: 'energy-crushers',
-    teamName: 'Code Crushers',
-    hackathonId: 'energy',
-    hackathonName: 'Energy Hackathon',
-    status: 'accepted',
-    createdAt: _now.subtract(const Duration(days: 2)),
-  ),
-  SentRequest(
-    id: 'sent-2',
-    teamId: 'gov-eservices-pioneers',
-    teamName: 'The Pioneers',
-    hackathonId: 'gov-eservices',
-    hackathonName: 'Government E-Services Hackathon 2026',
-    status: 'declined',
-    createdAt: _now.subtract(const Duration(hours: 6)),
-  ),
-];
+List<SentRequest> _mockSentRequests = _seedSentRequests();
+
+/// Resets every guest-mutable mock store (teams, invitations, sent
+/// requests) back to its seeded defaults. Called every time a guest
+/// session starts, so "Continue as Guest" always shows the same demo
+/// data — regardless of what an earlier guest session in this same app
+/// run created, joined, accepted, declined, or deleted.
+void resetGuestMockData() {
+  _mockTeamsByHackathon = _seedTeamsByHackathon();
+  _mockInvitations = _seedInvitations();
+  _mockSentRequests = _seedSentRequests();
+}
 
 /// Pending invitations, newest first.
 List<Invitation> mockInvitations() {

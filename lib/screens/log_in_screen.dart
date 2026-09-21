@@ -458,7 +458,7 @@ class _LogInScreenState extends State<LogInScreen>
                 onTap: _loading
                     ? null
                     : () {
-                        resetMockInvitations();
+                        resetGuestMockData();
                         Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(
                             builder: (_) => const RootShell(

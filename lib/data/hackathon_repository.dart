@@ -111,6 +111,17 @@ class HackathonRepository {
     }
   }
 
+  /// Deletes a team the current user owns. Mock mode only for now — there
+  /// is no live-backend path yet, so this returns `false` when Supabase
+  /// is configured rather than silently doing nothing.
+  Future<bool> deleteTeam(String teamId) async {
+    if (!Env.isConfigured) {
+      removeMockTeam(teamId);
+      return true;
+    }
+    return false;
+  }
+
   /// Sends a join request for [teamId].
   ///
   /// In mock mode (Supabase not configured) there is nothing to actually
