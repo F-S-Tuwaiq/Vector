@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
 
 import '../models/member.dart';
+import '../models/team.dart';
+import '../models/hackathon.dart';
+import '../data/profile_repository.dart';
 import '../screens/profile_screen.dart';
 import '../theme/vector_colors.dart';
 import '../theme/vector_text.dart';
 
-Future<void> showMemberSheet(BuildContext context, Member member) {
+Future<void> showMemberSheet(
+  BuildContext context,
+  Member member, {
+  required Team team,
+  required Hackathon hackathon,
+}) {
   return showModalBottomSheet<void>(
     context: context,
     backgroundColor: VectorColors.surfaceWhite,
@@ -14,12 +22,20 @@ Future<void> showMemberSheet(BuildContext context, Member member) {
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
     ),
-    builder: (context) => _MemberSheetContent(member: member),
+    builder: (context) =>
+        _MemberSheetContent(member: member, team: team, hackathon: hackathon),
   );
 }
 
 class _MemberSheetContent extends StatelessWidget {
-  const _MemberSheetContent({required this.member});
+  const _MemberSheetContent({
+    required this.member,
+    required this.team,
+    required this.hackathon,
+  });
+
+  final Team team;
+  final Hackathon hackathon;
 
   final Member member;
 
@@ -136,7 +152,18 @@ class _MemberSheetContent extends StatelessWidget {
                   Navigator.of(context).pop();
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => ProfileScreen(member: member),
+                      builder: (_) => ProfileScreen(
+                        member: member,
+                        participation: ProfileParticipation(
+                          id: team.id,
+                          team: team,
+                          event: hackathon,
+                          role: member.role,
+                          status: member.lead
+                              ? MembershipStatus.leader
+                              : MembershipStatus.member,
+                        ),
+                      ),
                     ),
                   );
                 },

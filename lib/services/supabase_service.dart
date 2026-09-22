@@ -117,24 +117,28 @@ class SupabaseService {
     String? linkedin,
     required List<String> skills,
     required Map<String, List<XFile>> certificates,
+    bool resumeAfterVerification = false,
   }) async {
     late final AuthResponse authResponse;
-    try {
-      authResponse = await client.auth.signInWithPassword(
-        email: email.trim(),
-        password: password,
+    if (resumeAfterVerification) {
+      await signIn(email, password);
+      authResponse = AuthResponse(
+        session: client.auth.currentSession,
+        user: client.auth.currentUser,
       );
-    } on AuthException catch (error) {
-      if (error.code == 'email_not_confirmed') {
-        throw const EmailVerificationRequired();
-      }
-      if (error.code != 'invalid_credentials') rethrow;
+    } else {
       authResponse = await client.auth.signUp(
         emailRedirectTo: confirmationRedirectUrl,
         email: email.trim(),
         password: password,
         data: {'full_name': fullName.trim()},
       );
+      if (authResponse.user?.identities?.isEmpty == true) {
+        throw const AuthException(
+          'This email already has an account. Please sign in.',
+          code: 'user_already_exists',
+        );
+      }
     }
 
     final User? user = authResponse.user;

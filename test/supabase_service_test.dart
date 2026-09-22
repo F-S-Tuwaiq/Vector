@@ -31,11 +31,13 @@ void main() {
   late bool verified;
   late bool unconfirmed;
   var omitSession = false;
+  var existingSignup = false;
 
   setUp(() async {
     requests = [];
     verified = false;
     omitSession = false;
+    existingSignup = false;
     unconfirmed = false;
     SupabaseService.isConfigured = true;
     await Supabase.initialize(
@@ -101,7 +103,10 @@ void main() {
           return http.Response('{}', 200);
         }
         if (path == '/auth/v1/signup') {
-          return http.Response(jsonEncode(user), 200);
+          return http.Response(
+            jsonEncode({...user, if (existingSignup) 'identities': []}),
+            200,
+          );
         }
         if (path == '/rest/v1/profiles') {
           if (request.method == 'GET') {
@@ -157,13 +162,22 @@ void main() {
     expect(SupabaseService.isLoggedIn, isFalse);
   });
 
-  Future<void> submit() => SupabaseService.createAccount(
+  Future<void> submit({bool resume = false}) => SupabaseService.createAccount(
+    resumeAfterVerification: resume,
     fullName: 'Test User',
     email: 'test@example.com',
     password: 'test-password',
     skills: ['Dart'],
     certificates: {},
   );
+
+  test('new signup never silently signs into an existing account', () async {
+    verified = true;
+    existingSignup = true;
+    await expectLater(submit(), throwsA(isA<AuthException>()));
+    expect(requests.map((r) => r.url.path), ['/auth/v1/signup']);
+    expect(SupabaseService.isLoggedIn, isFalse);
+  });
 
   test('waits for email verification before database writes', () async {
     await expectLater(submit(), throwsA(isA<EmailVerificationRequired>()));
@@ -174,7 +188,7 @@ void main() {
     await expectLater(submit(), throwsA(isA<EmailVerificationRequired>()));
     requests.clear();
     await SupabaseService.verifySignupCode('test@example.com', '123456');
-    await submit();
+    await submit(resume: true);
     expect(requests.any((r) => r.url.path == '/auth/v1/signup'), isFalse);
     final profile = requests.singleWhere(
       (r) => r.url.path == '/rest/v1/profiles',
@@ -190,12 +204,15 @@ void main() {
     'confirmation link resumes signup without sending another email',
     () async {
       unconfirmed = true;
-      await expectLater(submit(), throwsA(isA<EmailVerificationRequired>()));
+      await expectLater(
+        submit(resume: true),
+        throwsA(isA<EmailVerificationRequired>()),
+      );
       expect(requests.any((r) => r.url.path == '/auth/v1/signup'), isFalse);
       verified = true;
       requests.clear();
       await SupabaseService.signIn('test@example.com', 'test-password');
-      await submit();
+      await submit(resume: true);
       expect(requests.any((r) => r.url.path == '/rest/v1/profiles'), isTrue);
       expect(
         requests.any(

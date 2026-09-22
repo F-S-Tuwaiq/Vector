@@ -32,7 +32,18 @@ The hosted Supabase project uses default confirmation-link emails, not OTP email
 The app now asks users to open the email link and return to tap **I've confirmed my email**.
 That button signs in with the entered email/password; an unconfirmed email cannot proceed.
 Signup then resumes profile/skill persistence. It never resends automatically.
-The resend control has a 60-second cooldown. Existing unconfirmed accounts do not trigger duplicate signup emails.
+The resend control has a 60-second cooldown. Within a pending signup, retries check confirmation without sending another signup email.
+
+New signup submissions call `signUp` directly. They no longer try to sign in first,
+which previously let existing confirmed accounts skip the verification dialog and
+overwrite their profile through the signup form. Existing-account responses show
+a sign-in message. Only an explicitly resumed verification flow signs in and
+saves the pending profile and skills. Changing the email starts a fresh signup.
+
+The live project was checked again: Confirm email is enabled and custom SMTP
+remains disabled by request. Account deletion was verified across Auth, profile,
+skills, certificate associations, and stored files. Actual inbox delivery still
+requires a new signup by the user and is not asserted by automated tests.
 
 ## Live configuration
 

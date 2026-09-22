@@ -27,6 +27,7 @@ class ProfileScreen extends StatefulWidget {
     super.key,
     this.name,
     this.member,
+    this.participation,
     this.onBack,
     this.onDiscover,
     this.repository = const ProfileRepository(),
@@ -36,6 +37,7 @@ class ProfileScreen extends StatefulWidget {
   final String? name;
 
   final Member? member;
+  final ProfileParticipation? participation;
   final VoidCallback? onBack, onDiscover;
   final ProfileRepository repository;
   final int maxEvidenceBytes;
@@ -80,28 +82,33 @@ class ProfileScreenState extends State<ProfileScreen> {
       ];
       final member = widget.member;
       if (member != null) {
-        _participations = [
-          for (final team in mockTeamsForMember(member.initials, member.name))
-            ProfileParticipation(
-              id: team.id,
-              team: team,
-              event: mockHackathons.firstWhere(
-                (h) => h.id == team.hackathonId,
-                orElse: () => mockHackathons.first,
-              ),
-              status:
-                  team.membersInfo
-                      .firstWhere(
-                        (m) =>
-                            m.initials == member.initials &&
-                            m.name == member.name,
-                        orElse: () => member,
-                      )
-                      .lead
-                  ? MembershipStatus.leader
-                  : MembershipStatus.member,
-            ),
-        ];
+        _participations = widget.participation != null
+            ? [widget.participation!]
+            : [
+                for (final team in mockTeamsForMember(
+                  member.initials,
+                  member.name,
+                ))
+                  ProfileParticipation(
+                    id: team.id,
+                    team: team,
+                    event: mockHackathons.firstWhere(
+                      (h) => h.id == team.hackathonId,
+                      orElse: () => mockHackathons.first,
+                    ),
+                    status:
+                        team.membersInfo
+                            .firstWhere(
+                              (m) =>
+                                  m.initials == member.initials &&
+                                  m.name == member.name,
+                              orElse: () => member,
+                            )
+                            .lead
+                        ? MembershipStatus.leader
+                        : MembershipStatus.member,
+                  ),
+              ];
       }
     }
   }

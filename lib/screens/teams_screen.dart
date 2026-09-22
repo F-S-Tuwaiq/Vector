@@ -229,6 +229,7 @@ class _TeamsScreenState extends State<TeamsScreen> {
                             )
                           : _TeamCard(
                               team: teams[index],
+                              hackathon: widget.hackathon,
                               index: index,
                               total: teams.length,
                               isSending: _sendingTeamIds.contains(
@@ -345,6 +346,7 @@ class _TeamCardSkeleton extends StatelessWidget {
 class _TeamCard extends StatefulWidget {
   const _TeamCard({
     required this.team,
+    required this.hackathon,
     required this.index,
     required this.total,
     required this.isSending,
@@ -352,6 +354,7 @@ class _TeamCard extends StatefulWidget {
   });
 
   final Team team;
+  final Hackathon hackathon;
   final int index;
   final int total;
   final bool isSending;
@@ -366,7 +369,12 @@ class _TeamCardState extends State<_TeamCard> {
 
   Future<void> _handleMemberTap(int i, Member member) async {
     setState(() => _openMemberIndex = i);
-    await showMemberSheet(context, member);
+    await showMemberSheet(
+      context,
+      member,
+      team: widget.team,
+      hackathon: widget.hackathon,
+    );
     if (mounted) setState(() => _openMemberIndex = null);
   }
 

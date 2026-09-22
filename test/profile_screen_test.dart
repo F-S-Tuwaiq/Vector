@@ -13,6 +13,7 @@ import 'package:vector/models/member.dart';
 import 'package:vector/models/team.dart';
 import 'package:vector/screens/profile_screen.dart';
 import 'package:vector/widgets/profile_widgets.dart';
+import 'package:vector/widgets/member_sheet.dart';
 
 class TestProfileRepository extends ProfileRepository {
   final skills = <Map<String, dynamic>>[
@@ -429,6 +430,63 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(AttachmentMenu), findsNothing);
   });
+
+  for (final lead in [false, true]) {
+    testWidgets('member sheet keeps live team membership (lead=$lead)', (
+      tester,
+    ) async {
+      final member = Member(
+        initials: 'SA',
+        name: 'Sarah Alqahtani',
+        role: 'Designer',
+        lead: lead,
+      );
+      final event = Hackathon.fromMap({
+        'id': 'live-event-uuid',
+        'name': 'Live Hackathon',
+      });
+      final team = Team(
+        id: 'live-team-uuid',
+        hackathonId: event.id,
+        name: 'Live Team',
+        members: 1,
+        maxMembers: 5,
+        membersInfo: [member],
+      );
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: TextButton(
+                onPressed: () => showMemberSheet(
+                  context,
+                  member,
+                  team: team,
+                  hackathon: event,
+                ),
+                child: const Text('Open member'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Open member'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('View full profile'));
+      await tester.pumpAndSettle();
+      final rows = tester
+          .widgetList<ProfileTeamRow>(find.byType(ProfileTeamRow))
+          .toList();
+      expect(rows, hasLength(1));
+      expect(rows.single.record.team.id, team.id);
+      expect(rows.single.record.event.id, event.id);
+      expect(
+        rows.single.record.status,
+        lead ? MembershipStatus.leader : MembershipStatus.member,
+      );
+      expect(tester.takeException(), isNull);
+    });
+  }
 
   testWidgets('other profiles expose public skills without private controls', (
     tester,

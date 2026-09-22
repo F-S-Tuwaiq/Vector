@@ -24,6 +24,7 @@ class SignUpScreen extends StatefulWidget {
     String? linkedin,
     required List<String> skills,
     required Map<String, List<XFile>> certificates,
+    required bool resumeAfterVerification,
   })?
   onCreateAccount;
 
@@ -54,6 +55,7 @@ class _SignUpScreenState extends State<SignUpScreen>
   bool _obscure = true;
   bool _loading = false;
   bool _awaitingVerification = false;
+  String? _verificationEmail;
 
   bool _agreedToLegal = false;
 
@@ -340,6 +342,9 @@ class _SignUpScreenState extends State<SignUpScreen>
         await runWithBrandFullScreenLoader(
           context,
           () => widget.onCreateAccount!(
+            resumeAfterVerification:
+                _awaitingVerification &&
+                _verificationEmail == _email.text.trim(),
             fullName: _name.text.trim(),
             email: _email.text.trim(),
             password: _password.text,
@@ -365,7 +370,10 @@ class _SignUpScreenState extends State<SignUpScreen>
       }
     } on EmailVerificationRequired {
       if (!mounted) return;
-      setState(() => _awaitingVerification = true);
+      setState(() {
+        _awaitingVerification = true;
+        _verificationEmail = _email.text.trim();
+      });
       final verified = await showDialog<bool>(
         context: context,
         barrierDismissible: false,
