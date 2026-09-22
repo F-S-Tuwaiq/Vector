@@ -4,11 +4,6 @@ import '../models/team.dart';
 import '../theme/vector_colors.dart';
 import '../theme/vector_text.dart';
 
-/// Shows the "request sent" confirmation dialog for [team].
-///
-/// Entrance is fade + an overshoot scale (0.85 -> 1.0, `Cubic(0.22, 1,
-/// 0.36, 1)`) over 350ms, unless [MediaQuery.disableAnimationsOf] is
-/// true, in which case the dialog appears instantly at its final state.
 Future<void> showRequestSentDialog(BuildContext context, Team team) {
   final disableAnimations = MediaQuery.disableAnimationsOf(context);
   final duration = disableAnimations
@@ -120,14 +115,9 @@ class _RequestSentDialogContent extends StatelessWidget {
   }
 }
 
-/// The apricot check tile with a scatter of small flat "confetti"
-/// triangles behind/around it — brand-consistent celebration, no motion
-/// beyond the dialog's own entrance.
 class _CelebrationIcon extends StatelessWidget {
   const _CelebrationIcon();
 
-  // Hand-picked scatter: (dx, dy) offset from center, size, rotation
-  // (radians), and whether it uses apricot or surfaceLavender.
   static const List<_ConfettiSpec> _confetti = [
     _ConfettiSpec(Offset(-46, -30), 10, -0.4, true),
     _ConfettiSpec(Offset(44, -34), 8, 0.6, false),

@@ -4,8 +4,6 @@ import '../models/member.dart';
 import '../models/sent_request.dart';
 import '../models/team.dart';
 
-/// Fixed mock hackathon ids, kept stable so they can be cross-referenced
-/// with [mockTeamsFor] and used in manual testing / the integration pass.
 const List<Hackathon> mockHackathons = [
   Hackathon(
     id: 'saif',
@@ -19,8 +17,7 @@ const List<Hackathon> mockHackathons = [
     status: 'open',
     isFeatured: true,
     pinRank: 1,
-    detail:
-        'Global competition · AI, cybersecurity, digital forensics · under the patronage of the Crown Prince',
+    detail: 'Global competition · AI, cybersecurity, digital forensics · under the patronage of the Crown Prince',
     website: 'https://saifair.sa',
   ),
   Hackathon(
@@ -35,8 +32,7 @@ const List<Hackathon> mockHackathons = [
     status: 'open',
     isFeatured: true,
     pinRank: null,
-    detail:
-        '4 tracks: assistive tech, health & rehab, education, Hajj & Umrah services',
+    detail: '4 tracks: assistive tech, health & rehab, education, Hajj & Umrah services',
     website: 'https://hackathon.kscdr.org',
   ),
   Hackathon(
@@ -51,8 +47,7 @@ const List<Hackathon> mockHackathons = [
     status: 'open',
     isFeatured: false,
     pinRank: null,
-    detail:
-        'Agentic AI · Energy, Logistics, CX & Sustainability tracks · job placement with 70+ employers',
+    detail: 'Agentic AI · Energy, Logistics, CX & Sustainability tracks · job placement with 70+ employers',
     website: 'https://www.agentx.sa',
   ),
   Hackathon(
@@ -67,8 +62,7 @@ const List<Hackathon> mockHackathons = [
     status: 'open',
     isFeatured: true,
     pinRank: null,
-    detail:
-        'Fully remote · register solo and get matched to a team · up to 7 members',
+    detail: 'Fully remote · register solo and get matched to a team · up to 7 members',
     website: 'https://hackathon.prx.ejadtech.sa',
   ),
   Hackathon(
@@ -83,8 +77,7 @@ const List<Hackathon> mockHackathons = [
     status: 'closing_soon',
     isFeatured: false,
     pinRank: null,
-    detail:
-        '5 tracks: urban planning, social development, economy, sustainability, human capacity',
+    detail: '5 tracks: urban planning, social development, economy, sustainability, human capacity',
     website: 'https://conferences.uj.edu.sa/tanmiyathon/index.html',
   ),
   Hackathon(
@@ -99,8 +92,7 @@ const List<Hackathon> mockHackathons = [
     status: 'open',
     isFeatured: true,
     pinRank: null,
-    detail:
-        '1st edition · "Ignite Your Ideas" · KAPSARC · alongside the World Petroleum Congress',
+    detail: '1st edition · "Ignite Your Ideas" · KAPSARC · alongside the World Petroleum Congress',
     website: 'https://hackathon.moenergy.gov.sa',
   ),
   Hackathon(
@@ -120,8 +112,6 @@ const List<Hackathon> mockHackathons = [
   ),
 ];
 
-/// SAIF's 3 mock teams. `saif-elite`'s lead (Sara Alqahtani) is also the
-/// sender of a seeded invitation, so keep that id/name/team pairing.
 List<Team> _saifTeams() => const [
   Team(
     id: 'saif-elite',
@@ -233,9 +223,6 @@ List<Team> _saifTeams() => const [
   ),
 ];
 
-/// AI for Disability's 3 mock teams. `ai-disability-pioneers`'s lead
-/// (Abdullah Alrashid) is also the sender of a seeded invitation, so
-/// keep that id/name/team pairing.
 List<Team> _aiDisabilityTeams() => const [
   Team(
     id: 'ai-disability-elite',
@@ -347,8 +334,6 @@ List<Team> _aiDisabilityTeams() => const [
   ),
 ];
 
-/// Government E-Services's 3 mock teams. `gov-eservices-pioneers` is
-/// also referenced (by id/name only) by a seeded sent request.
 List<Team> _govEservicesTeams() => const [
   Team(
     id: 'gov-eservices-elite',
@@ -460,8 +445,6 @@ List<Team> _govEservicesTeams() => const [
   ),
 ];
 
-/// Energy's 3 mock teams. `energy-crushers` is also referenced (by
-/// id/name only) by a seeded sent request.
 List<Team> _energyTeams() => const [
   Team(
     id: 'energy-elite',
@@ -573,7 +556,6 @@ List<Team> _energyTeams() => const [
   ),
 ];
 
-/// SIDF's 3 mock teams.
 List<Team> _sidfTeams() => const [
   Team(
     id: 'sidf-elite',
@@ -685,13 +667,6 @@ List<Team> _sidfTeams() => const [
   ),
 ];
 
-/// Mock teams keyed by hackathon id. Only featured hackathons get seeded
-/// teams; the rest have an empty list (no teams looking for members yet).
-/// Every seeded member across every hackathon is a distinct person —
-/// none of them are reused between hackathons — so a teammate's profile
-/// never shows the same "team" duplicated once per hackathon.
-/// The current user owns none of these by default — a fresh guest has
-/// to create their own team, same as a real new user would.
 Map<String, List<Team>> _seedTeamsByHackathon() => {
   'saif': _saifTeams(),
   'ai-disability': _aiDisabilityTeams(),
@@ -704,13 +679,10 @@ Map<String, List<Team>> _seedTeamsByHackathon() => {
 
 Map<String, List<Team>> _mockTeamsByHackathon = _seedTeamsByHackathon();
 
-/// Returns the mock teams for [hackathonId], or an empty list if unknown.
 List<Team> mockTeamsFor(String hackathonId) {
   return _mockTeamsByHackathon[hackathonId] ?? const [];
 }
 
-/// Appends a locally-created team so the create-team flow still demos
-/// end to end when Supabase isn't configured.
 void addMockTeam(Team team) {
   _mockTeamsByHackathon[team.hackathonId] = [
     ...mockTeamsFor(team.hackathonId),
@@ -718,27 +690,20 @@ void addMockTeam(Team team) {
   ];
 }
 
-/// Removes a team the current user owns (see "Delete team" on their
-/// profile) from whichever hackathon it belongs to.
 void removeMockTeam(String teamId) {
   for (final hackathonId in _mockTeamsByHackathon.keys.toList()) {
-    _mockTeamsByHackathon[hackathonId] = mockTeamsFor(
-      hackathonId,
-    ).where((t) => t.id != teamId).toList();
+    _mockTeamsByHackathon[hackathonId] = mockTeamsFor(hackathonId)
+        .where((t) => t.id != teamId)
+        .toList();
   }
 }
 
-/// The current user's own teams — the ones with 'ME' in
-/// [Team.memberInitials], i.e. created locally via `createTeam`. Reads
-/// straight from [_mockTeamsByHackathon], so this always matches what
-/// the Teams screen shows for each hackathon.
 List<Team> myMockTeams() => [
   for (final teams in _mockTeamsByHackathon.values)
     for (final team in teams)
       if (team.memberInitials.contains('ME')) team,
 ];
 
-/// Finds a mock team by id across every hackathon, or `null`.
 Team? findMockTeamById(String teamId) {
   for (final teams in _mockTeamsByHackathon.values) {
     for (final team in teams) {
@@ -748,21 +713,13 @@ Team? findMockTeamById(String teamId) {
   return null;
 }
 
-/// Every team (across every hackathon) with a member matching [initials]
-/// and [name] — used to show a teammate's *real* teams on their own
-/// profile instead of a generic placeholder, since [Member] itself
-/// carries no team/hackathon reference back to where it came from.
 List<Team> mockTeamsForMember(String initials, String name) => [
   for (final teams in _mockTeamsByHackathon.values)
     for (final team in teams)
-      if (team.membersInfo.any(
-        (m) => m.initials == initials && m.name == name,
-      ))
+      if (team.membersInfo.any((m) => m.initials == initials && m.name == name))
         team,
 ];
 
-/// The mock hackathon's name for [hackathonId], or the first hackathon's
-/// name if unknown (defensive fallback — never surfaces empty text).
 String mockHackathonNameFor(String hackathonId) {
   return mockHackathons
       .firstWhere(
@@ -772,8 +729,6 @@ String mockHackathonNameFor(String hackathonId) {
       .name;
 }
 
-/// Builds the 2 seeded pending invitations, mirroring the live
-/// `invitations` table, with timestamps relative to right now.
 List<Invitation> _seedInvitations() {
   final now = DateTime.now();
   return [
@@ -818,8 +773,6 @@ List<Invitation> _seedInvitations() {
 
 List<Invitation> _mockInvitations = _seedInvitations();
 
-/// Builds the 2 seeded sent requests, mirroring the live `join_requests`
-/// table, with timestamps relative to right now.
 List<SentRequest> _seedSentRequests() {
   final now = DateTime.now();
   return [
@@ -846,48 +799,35 @@ List<SentRequest> _seedSentRequests() {
 
 List<SentRequest> _mockSentRequests = _seedSentRequests();
 
-/// Resets every guest-mutable mock store (teams, invitations, sent
-/// requests) back to its seeded defaults. Called every time a guest
-/// session starts, so "Continue as Guest" always shows the same demo
-/// data — regardless of what an earlier guest session in this same app
-/// run created, joined, accepted, declined, or deleted.
 void resetGuestMockData() {
   _mockTeamsByHackathon = _seedTeamsByHackathon();
   _mockInvitations = _seedInvitations();
   _mockSentRequests = _seedSentRequests();
 }
 
-/// Pending invitations, newest first.
 List<Invitation> mockInvitations() {
   final pending = _mockInvitations.where((i) => i.status == 'pending').toList()
     ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
   return pending;
 }
 
-/// Updates a mock invitation's status in place (accept/decline).
 void respondToMockInvitation(String id, String status) {
   final index = _mockInvitations.indexWhere((inv) => inv.id == id);
   if (index != -1) {
-    _mockInvitations[index] = _mockInvitations[index].copyWith(
-      status: status,
-    );
+    _mockInvitations[index] = _mockInvitations[index].copyWith(status: status);
   }
 }
 
-/// All sent requests (any status), newest first.
 List<SentRequest> mockSentRequests() {
   final all = List<SentRequest>.from(_mockSentRequests)
     ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
   return all;
 }
 
-/// Appends a locally-created sent request so `sendJoinRequest` shows up in
-/// the Sent tab immediately, even without Supabase configured.
 void addMockSentRequest(SentRequest request) {
   _mockSentRequests.insert(0, request);
 }
 
-/// Removes a mock sent request (withdraw).
 void removeMockSentRequest(String id) {
   _mockSentRequests.removeWhere((r) => r.id == id);
 }

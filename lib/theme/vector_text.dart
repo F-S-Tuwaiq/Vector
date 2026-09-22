@@ -2,12 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'vector_colors.dart';
 
-/// The Vector app type-scale.
-///
-/// Family is always "IBM Plex Sans Arabic", set via the plain `fontFamily`
-/// string (never GoogleFonts / runtime font fetching). Every style defaults
-/// its `color` to [VectorColors.textNeutral]; callers rendering on a
-/// purple/dark surface should `.copyWith(color: VectorColors.textOnPurple)`.
 class VectorText {
   VectorText._();
 
@@ -87,10 +81,6 @@ class VectorText {
     color: VectorColors.textNeutral,
   );
 
-  /// Presentation convention: this is used for UPPERCASE eyebrow/tag labels.
-  /// Flutter's [TextStyle] cannot apply a text-transform, so callers are
-  /// responsible for calling `.toUpperCase()` on the string themselves
-  /// before rendering it with this style.
   static const TextStyle labelSmall = TextStyle(
     fontFamily: _family,
     fontSize: 11,

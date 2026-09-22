@@ -2,13 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'v_logo_animation.dart';
 
-/// Mini version of the brand loader: same 2s draw/hold/fade timing and
-/// colors as [BrandFullScreenLoader], scaled to ~72px, no dots, shown over
-/// a 35%-black dim rather than a full opaque background.
-///
-/// Reserved for genuinely heavy operations expected to take more than
-/// 2-3 seconds (large file uploads, heavy processing) — never for routine
-/// reads (use a skeleton loader) or writes (use an in-button spinner).
 class BrandMiniLoaderOverlay extends StatelessWidget {
   const BrandMiniLoaderOverlay({super.key});
 
@@ -23,8 +16,6 @@ class BrandMiniLoaderOverlay extends StatelessWidget {
   }
 }
 
-/// Shows [BrandMiniLoaderOverlay] above the current screen while [task]
-/// runs, then removes it and returns the task's result.
 Future<T> runWithBrandMiniLoader<T>(
   BuildContext context,
   Future<T> Function() task,

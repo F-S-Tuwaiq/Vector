@@ -42,7 +42,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() => _signingOut = true);
     try {
       await runWithBrandFullScreenLoader(context, () async {
-        if (SupabaseService.isLoggedIn) await SupabaseService.signOut();
+        await SupabaseService.signOut();
       }, sequence: VLogoSequence.oneV);
       if (!mounted) return;
       Navigator.of(context).pushAndRemoveUntil(

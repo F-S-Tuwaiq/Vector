@@ -1,6 +1,4 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
-
-import '../config/env.dart';
+import '../services/supabase_service.dart';
 import '../models/hackathon.dart';
 import '../models/invitation.dart';
 import '../models/member.dart';
@@ -8,15 +6,11 @@ import '../models/sent_request.dart';
 import '../models/team.dart';
 import 'mock_hackathons.dart';
 
-/// Data access for hackathons/teams. Falls back to bundled mock data
-/// whenever Supabase isn't configured (`.env` still has placeholder
-/// values) or whenever a live call fails/times out — this is a no-auth
-/// mock app and the Home screen must never surface an error.
 class HackathonRepository {
   static const _timeout = Duration(seconds: 3);
 
   Future<List<Hackathon>> fetchHackathons() async {
-    if (!Env.isConfigured) {
+    if (SupabaseService.usesDemoData) {
       return _sortHackathons(
         mockHackathons,
         List<dynamic>.filled(mockHackathons.length, null),
@@ -24,7 +18,7 @@ class HackathonRepository {
     }
 
     try {
-      final rows = await Supabase.instance.client
+      final rows = await SupabaseService.client
           .from('hackathons')
           .select()
           .timeout(_timeout);
@@ -41,12 +35,12 @@ class HackathonRepository {
   }
 
   Future<List<Team>> fetchTeams(String hackathonId) async {
-    if (!Env.isConfigured) {
+    if (SupabaseService.usesDemoData) {
       return mockTeamsFor(hackathonId);
     }
 
     try {
-      final rows = await Supabase.instance.client
+      final rows = await SupabaseService.client
           .from('teams')
           .select()
           .eq('hackathon_id', hackathonId)
@@ -58,10 +52,6 @@ class HackathonRepository {
     }
   }
 
-  /// Creates a new team as the current user (always "Team lead"), with
-  /// [hackathonId]/[name]/[maxMembers]/[missingRoles] from the create-team
-  /// form. Returns the created [Team], or `null` on failure. In mock mode
-  /// the team is appended locally so the flow still demos end to end.
   Future<Team?> createTeam({
     required String hackathonId,
     required String name,
@@ -75,7 +65,7 @@ class HackathonRepository {
       lead: true,
     );
 
-    if (!Env.isConfigured) {
+    if (SupabaseService.usesDemoData) {
       final team = Team(
         id: 'local-${DateTime.now().microsecondsSinceEpoch}',
         hackathonId: hackathonId,
@@ -91,7 +81,7 @@ class HackathonRepository {
     }
 
     try {
-      final row = await Supabase.instance.client
+      final row = await SupabaseService.client
           .from('teams')
           .insert({
             'hackathon_id': hackathonId,
@@ -111,27 +101,16 @@ class HackathonRepository {
     }
   }
 
-  /// Deletes a team the current user owns. Mock mode only for now — there
-  /// is no live-backend path yet, so this returns `false` when Supabase
-  /// is configured rather than silently doing nothing.
   Future<bool> deleteTeam(String teamId) async {
-    if (!Env.isConfigured) {
+    if (SupabaseService.usesDemoData) {
       removeMockTeam(teamId);
       return true;
     }
     return false;
   }
 
-  /// Sends a join request for [teamId].
-  ///
-  /// In mock mode (Supabase not configured) there is nothing to actually
-  /// persist. To keep the demo flow working end to end — the UI shows a
-  /// "request sent" dialog only when this returns `true` — mock mode
-  /// simulates a short network delay and reports success rather than
-  /// failing outright. This is a judgment call for the no-auth mock app,
-  /// not something spelled out in the contract.
   Future<bool> sendJoinRequest(String teamId) async {
-    if (!Env.isConfigured) {
+    if (SupabaseService.usesDemoData) {
       await Future.delayed(const Duration(milliseconds: 400));
       final team = findMockTeamById(teamId);
       if (team != null) {
@@ -151,23 +130,22 @@ class HackathonRepository {
     }
 
     try {
-      await Supabase.instance.client
-          .from('join_requests')
-          .insert({'team_id': teamId});
+      await SupabaseService.client.from('join_requests').insert({
+        'team_id': teamId,
+      });
       return true;
     } catch (_) {
       return false;
     }
   }
 
-  /// The current user's own teams, for the "send invite" team picker.
   Future<List<Team>> fetchMyTeams() async {
-    if (!Env.isConfigured) {
+    if (SupabaseService.usesDemoData) {
       return myMockTeams();
     }
 
     try {
-      final rows = await Supabase.instance.client
+      final rows = await SupabaseService.client
           .from('teams')
           .select()
           .contains('member_initials', ['ME'])
@@ -180,51 +158,44 @@ class HackathonRepository {
     }
   }
 
-  /// Sends an invitation for [member] to join [team]. Returns success.
-  ///
-  /// Mock mode mirrors [sendJoinRequest]'s judgment call: there is nothing
-  /// to persist, so it simulates a short network delay and reports success
-  /// so the UI's confirmation step still demos end to end.
   Future<bool> sendInvitation({
     required Team team,
     required Member member,
   }) async {
-    if (!Env.isConfigured) {
+    if (SupabaseService.usesDemoData) {
       await Future.delayed(const Duration(milliseconds: 400));
       return true;
     }
 
     try {
-      await Supabase.instance.client.from('invitations').insert({
-        'team_id': team.id,
-        'sender_name': 'You',
-        'sender_role': 'Team lead',
-        'message':
-            'Hey ${member.name}, we think your skills as a ${member.role} '
-            'would be a great fit for ${team.name} — join us!',
-        'status': 'pending',
-        'expires_at': DateTime.now()
-            .add(const Duration(days: 7))
-            .toIso8601String(),
-      }).timeout(_timeout);
+      await SupabaseService.client
+          .from('invitations')
+          .insert({
+            'team_id': team.id,
+            'sender_name': 'You',
+            'sender_role': 'Team lead',
+            'message':
+                'Hey ${member.name}, we think your skills as a ${member.role} '
+                'would be a great fit for ${team.name} — join us!',
+            'status': 'pending',
+            'expires_at': DateTime.now()
+                .add(const Duration(days: 7))
+                .toIso8601String(),
+          })
+          .timeout(_timeout);
       return true;
     } catch (_) {
       return false;
     }
   }
 
-  // ============================================================
-  // INVITES TAB — invitations + sent requests
-  // ============================================================
-
-  /// Pending invitations for the current user, newest first.
   Future<List<Invitation>> fetchInvitations() async {
-    if (!Env.isConfigured) {
+    if (SupabaseService.usesDemoData) {
       return mockInvitations();
     }
 
     try {
-      final rows = await Supabase.instance.client
+      final rows = await SupabaseService.client
           .from('invitations')
           .select(
             '*, teams(id, name, hackathon_id, '
@@ -240,15 +211,14 @@ class HackathonRepository {
     }
   }
 
-  /// Accepts or declines invitation [id]. Returns success.
   Future<bool> respondToInvitation(String id, String status) async {
-    if (!Env.isConfigured) {
+    if (SupabaseService.usesDemoData) {
       respondToMockInvitation(id, status);
       return true;
     }
 
     try {
-      await Supabase.instance.client
+      await SupabaseService.client
           .from('invitations')
           .update({'status': status})
           .eq('id', id)
@@ -259,14 +229,13 @@ class HackathonRepository {
     }
   }
 
-  /// All join requests the current user has sent, newest first.
   Future<List<SentRequest>> fetchSentRequests() async {
-    if (!Env.isConfigured) {
+    if (SupabaseService.usesDemoData) {
       return mockSentRequests();
     }
 
     try {
-      final rows = await Supabase.instance.client
+      final rows = await SupabaseService.client
           .from('join_requests')
           .select('*, teams(id, name, hackathon_id, hackathons(id, name))')
           .order('created_at', ascending: false)
@@ -278,15 +247,14 @@ class HackathonRepository {
     }
   }
 
-  /// Withdraws a pending sent request. Returns success.
   Future<bool> withdrawRequest(String id) async {
-    if (!Env.isConfigured) {
+    if (SupabaseService.usesDemoData) {
       removeMockSentRequest(id);
       return true;
     }
 
     try {
-      await Supabase.instance.client
+      await SupabaseService.client
           .from('join_requests')
           .delete()
           .eq('id', id)
@@ -297,11 +265,6 @@ class HackathonRepository {
     }
   }
 
-  /// Sorts hackathons by `pin_rank` ascending (nulls last), then
-  /// `is_featured` descending, then `created_at` ascending, using the
-  /// original list position as a final, stable tiebreaker (mock rows have
-  /// no `created_at`, and `List.sort` isn't guaranteed stable in general,
-  /// so we decorate-sort-undecorate with the index explicitly).
   List<Hackathon> _sortHackathons(
     List<Hackathon> items,
     List<dynamic> createdAts,

@@ -2,8 +2,6 @@
 
 import { ArrowUpRight, Globe2, Play, BookOpen, Code2, ContactRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
-// Add the published app and demo URLs here when they are ready.
 const links = [
   { title: 'Open the web app', detail: 'Find your people. Build your team.', icon: Globe2, href: '', status: 'Link coming soon', primary: true },
   { title: 'Watch the demo', detail: 'A little look inside Vector.', icon: Play, href: '', status: 'Video coming soon' },

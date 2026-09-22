@@ -30,10 +30,12 @@ void main() {
   late List<http.Request> requests;
   late bool verified;
   late bool unconfirmed;
+  var omitSession = false;
 
   setUp(() async {
     requests = [];
     verified = false;
+    omitSession = false;
     unconfirmed = false;
     SupabaseService.isConfigured = true;
     await Supabase.initialize(
@@ -50,6 +52,9 @@ void main() {
         requests.add(request);
         final path = request.url.path;
         if (path == '/auth/v1/token') {
+          if (omitSession) {
+            return http.Response(jsonEncode({'user': user}), 200);
+          }
           if (!verified) {
             return http.Response(
               jsonEncode({
@@ -143,6 +148,15 @@ void main() {
     await Supabase.instance.dispose();
   });
 
+  test('sign in rejects an auth response without a session', () async {
+    omitSession = true;
+    await expectLater(
+      SupabaseService.signIn('test@example.com', 'test-password'),
+      throwsA(isA<AuthException>()),
+    );
+    expect(SupabaseService.isLoggedIn, isFalse);
+  });
+
   Future<void> submit() => SupabaseService.createAccount(
     fullName: 'Test User',
     email: 'test@example.com',
@@ -178,7 +192,7 @@ void main() {
       unconfirmed = true;
       await expectLater(submit(), throwsA(isA<EmailVerificationRequired>()));
       expect(requests.any((r) => r.url.path == '/auth/v1/signup'), isFalse);
-      verified = true; // Supabase confirms the email when its link is opened.
+      verified = true;
       requests.clear();
       await SupabaseService.signIn('test@example.com', 'test-password');
       await submit();

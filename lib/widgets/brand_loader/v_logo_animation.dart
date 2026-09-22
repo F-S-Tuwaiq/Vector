@@ -2,13 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'v_logo_painter.dart';
 
-/// The self-drawing two-stroke "V" mark: white arm draws, then the orange
-/// arm draws in, the mark holds fully drawn, then the whole thing fades
-/// out quickly right before the 2s cycle restarts.
-///
-/// Used, at different sizes, for both the full-screen brand loader and the
-/// mini overlay loader — the timing and colors are identical, only the
-/// size and surrounding chrome (background, dots) differ.
 enum VLogoSequence {
   oneV(Duration(milliseconds: 1100), 0.55),
   oneVAndWhite(Duration(milliseconds: 2380), 0.19);
@@ -33,9 +26,6 @@ class VLogoAnimation extends StatefulWidget {
 
   static const Cubic _drawCurve = Cubic(0.6, 0.05, 0.35, 1);
 
-  /// Progress of [t] through the window [start]..[end] (both fractions of
-  /// the 2s cycle), eased by [curve]. 0 before the window opens, 1 once it
-  /// has closed.
   static double _windowProgress(
     double t,
     double start,
@@ -47,7 +37,6 @@ class VLogoAnimation extends StatefulWidget {
     return curve.transform((t - start) / (end - start));
   }
 
-  /// Shared stroke timing for the loader and the splash wordmark.
   static VLogoPainter painterAt(double progress) => VLogoPainter(
     whiteReveal: _windowProgress(progress, 0, 0.19, _drawCurve),
     orangeReveal: _windowProgress(progress, 0.19, 0.37, _drawCurve),

@@ -6,9 +6,6 @@ import 'home_screen.dart';
 import 'invites_screen.dart';
 import 'profile_screen.dart';
 
-/// The app's 3-tab shell. Uses [IndexedStack] so all three tabs stay
-/// mounted (and keep their state) across switches; only the fade/scale/
-/// slide-in and the bottom-bar triangle animate.
 class RootShell extends StatefulWidget {
   const RootShell({
     super.key,
@@ -59,8 +56,6 @@ class _RootShellState extends State<RootShell>
     if (i == 2) _profileKey.currentState?.refreshOnFocus();
   }
 
-  /// The Invites hackathon-strip deep link: switch to Home, then expand
-  /// and center that hackathon's card.
   void _openHackathonFromInvite(String hackathonId) {
     _onChanged(0);
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -86,12 +81,6 @@ class _RootShellState extends State<RootShell>
             child: IndexedStack(
               index: _index,
               children: [
-                // TickerMode pauses every AnimationController in a hidden
-                // tab's subtree (their tickers stop firing) without
-                // unmounting it, so offscreen tabs stop burning CPU on
-                // decorative loops — e.g. Invites' animated Accept
-                // buttons — while still keeping scroll position and
-                // in-flight state intact when you switch back.
                 TickerMode(
                   enabled: _index == 0,
                   child: HomeScreen(key: _homeKey),

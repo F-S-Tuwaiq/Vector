@@ -1,5 +1,3 @@
-/// A pending team invitation sent to the current user, joined with its
-/// team and hackathon display fields.
 class Invitation {
   final String id;
   final String teamId;
@@ -52,8 +50,6 @@ class Invitation {
     createdAt: createdAt,
   );
 
-  /// Parses a Supabase row nested-joined as
-  /// `teams(..., hackathons(...))`.
   factory Invitation.fromMap(Map<String, dynamic> map) {
     final team = map['teams'] as Map<String, dynamic>?;
     final hackathon = team?['hackathons'] as Map<String, dynamic>?;

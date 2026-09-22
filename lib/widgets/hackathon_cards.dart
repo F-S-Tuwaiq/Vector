@@ -5,9 +5,6 @@ import '../theme/vector_colors.dart';
 import '../theme/vector_text.dart';
 import 'skeleton/skeleton_loader.dart';
 
-/// Background geometry: a single large, low-opacity triangle used behind
-/// card content. Always painted BEHIND text via a `Stack`, and clipped to
-/// the card's own bounds so it never bleeds outside the rounded corners.
 class _BackgroundTriangle extends StatelessWidget {
   const _BackgroundTriangle({required this.color});
 
@@ -31,8 +28,6 @@ class _TrianglePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    // A large triangle anchored to the top-right corner, pointing down
-    // and to the left, evoking the brand's arrow/triangle motif.
     final Path path = Path()
       ..moveTo(size.width * 0.35, -size.height * 0.25)
       ..lineTo(size.width * 1.25, size.height * 0.15)
@@ -48,8 +43,6 @@ class _TrianglePainter extends CustomPainter {
   }
 }
 
-/// Small filled apricot triangle pointing right — used as a section /
-/// eyebrow marker throughout the app.
 class _EyebrowTriangle extends StatelessWidget {
   const _EyebrowTriangle({this.size = 8});
 
@@ -85,8 +78,6 @@ class _RightTrianglePainter extends CustomPainter {
   }
 }
 
-/// A hairline vertical rule (1px x 12px) used to separate meta items in a
-/// row, per the design system's meta-row convention.
 class _MetaDivider extends StatelessWidget {
   const _MetaDivider();
 
@@ -101,7 +92,6 @@ class _MetaDivider extends StatelessWidget {
   }
 }
 
-/// Status pill — top-right of a card, both collapsed and expanded.
 class _StatusBadge extends StatelessWidget {
   const _StatusBadge({required this.status});
 
@@ -120,8 +110,6 @@ class _StatusBadge extends StatelessWidget {
         label = 'Open';
         break;
       case 'closing_soon':
-        // Urgency reads as the theme's soft red — the only status that
-        // isn't apricot (open) or the dark neutral pill (tba).
         background = VectorColors.error.withValues(alpha: 0.14);
         textColor = VectorColors.error;
         label = 'Closing soon';
@@ -148,19 +136,6 @@ class _StatusBadge extends StatelessWidget {
   }
 }
 
-/// The one unified hackathon card, used for every hackathon regardless of
-/// `isFeatured`/`pinRank` (those only affect list sort order, never a
-/// visible badge). Has two visual states:
-///
-/// - Collapsed (default): white surface, small eyebrow, name, meta row.
-/// - Expanded: purple hero surface with background triangle, larger
-///   type, an optional gated prize hero-number block, and a bottom meta
-///   row whose apricot arrow tile is the only tap target that navigates
-///   to Teams.
-///
-/// Wrapped in a [Hero] using the tag convention `'hackathon-card-${id}'`,
-/// shared with `TeamsScreen`'s full-page purple card, so tapping through
-/// to Teams visually "grows" the card into the next screen.
 class HackathonCard extends StatefulWidget {
   static const expansionDuration = Duration(milliseconds: 320);
   const HackathonCard({
@@ -174,21 +149,12 @@ class HackathonCard extends StatefulWidget {
 
   final Hackathon hackathon;
 
-  /// Whether this card should render its expanded (purple hero) state.
-  /// Expansion is controlled by the parent list — only one card in the
-  /// list is expanded at a time.
   final bool isExpanded;
 
-  /// Fires when the card (in either state) is tapped anywhere except the
-  /// expanded-state arrow tile — toggles expand/collapse in the parent.
   final VoidCallback? onTap;
 
-  /// Fires only when the expanded-state apricot arrow tile is tapped —
-  /// the sole trigger for navigating to Teams.
   final VoidCallback? onArrowTap;
 
-  /// Optional team count for the "{n} teams" meta segment. When null (or
-  /// zero), the segment is simply omitted.
   final int? teamCount;
 
   @override
@@ -199,7 +165,7 @@ class _HackathonCardState extends State<HackathonCard> {
   bool _pressed = false;
 
   void _setPressed(bool value) {
-    if (widget.isExpanded) return; // press feedback only in collapsed state
+    if (widget.isExpanded) return;
     if (_pressed == value) return;
     setState(() => _pressed = value);
   }
@@ -210,7 +176,6 @@ class _HackathonCardState extends State<HackathonCard> {
     final bool disableAnimations = MediaQuery.disableAnimationsOf(context);
     final bool expanded = widget.isExpanded;
 
-    // The giant apricot hero number is exclusively for prize money.
     final bool isPrize = h.heroCaption.toLowerCase().contains('prize');
     final String statText = isPrize
         ? '${h.heroValue} SAR'
@@ -279,8 +244,6 @@ class _HackathonCardState extends State<HackathonCard> {
   }
 }
 
-/// Collapsed card content — white surface, eyebrow + status, name, and a
-/// plain-text meta row (never a giant prize number).
 class _CollapsedContent extends StatelessWidget {
   const _CollapsedContent({required this.hackathon, required this.statText});
 
@@ -342,9 +305,6 @@ class _CollapsedContent extends StatelessWidget {
   }
 }
 
-/// Expanded card content — purple hero surface with background triangle,
-/// larger type, a gated prize hero-number block, and a bottom meta row
-/// whose arrow tile is the sole Teams tap target.
 class _ExpandedContent extends StatelessWidget {
   const _ExpandedContent({
     required this.hackathon,
@@ -367,8 +327,6 @@ class _ExpandedContent extends StatelessWidget {
       color: VectorColors.textOnPurple.withValues(alpha: 0.85),
     );
 
-    // The prize hero number already conveys `statText`'s value, so it is
-    // only added to the meta row when there is no hero block to show it.
     final List<Widget> metaChildren = [];
     if (!isPrize) {
       metaChildren.add(Text(statText, style: metaStyle));
@@ -384,7 +342,6 @@ class _ExpandedContent extends StatelessWidget {
 
     return Stack(
       children: [
-        // Background geometry — behind all content.
         Positioned.fill(
           child: _BackgroundTriangle(
             color: VectorColors.apricot.withValues(alpha: 0.10),
@@ -517,9 +474,6 @@ class _ExpandedContent extends StatelessWidget {
   }
 }
 
-/// Fades + slides its child in AFTER the enclosing card's container has
-/// already started growing (the last 65% of the morph), so expanded-only
-/// content never appears squashed mid-grow.
 class _StaggeredIn extends StatelessWidget {
   const _StaggeredIn({required this.child});
 
@@ -546,8 +500,6 @@ class _StaggeredIn extends StatelessWidget {
   }
 }
 
-/// Placeholder block shaped like the collapsed [HackathonCard], shown
-/// while hackathons are loading.
 class HackathonCardSkeleton extends StatelessWidget {
   const HackathonCardSkeleton({super.key});
 

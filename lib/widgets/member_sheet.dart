@@ -5,7 +5,6 @@ import '../screens/profile_screen.dart';
 import '../theme/vector_colors.dart';
 import '../theme/vector_text.dart';
 
-/// The one reusable bottom sheet for tapping any member tile, anywhere.
 Future<void> showMemberSheet(BuildContext context, Member member) {
   return showModalBottomSheet<void>(
     context: context,

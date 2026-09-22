@@ -6,7 +6,7 @@ import 'package:vector/screens/sign_up_screen.dart';
 
 import 'root_shell.dart';
 import 'forgot_password_screen.dart';
-import '../data/mock_hackathons.dart';
+import '../services/guest_session.dart';
 import '../data/profile_repository.dart';
 import '../widgets/brand_loader/brand_full_screen_loader.dart';
 import '../widgets/signup_code_dialog.dart';
@@ -372,8 +372,7 @@ class _LogInScreenState extends State<LogInScreen>
                 color: Colors.transparent,
                 child: InkWell(
                   onTap: _loading ? null : _submit,
-                  // No in-button spinner: the full-screen brand loader
-                  // takes over the instant this is tapped (see _submit).
+
                   child: Center(
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -458,7 +457,7 @@ class _LogInScreenState extends State<LogInScreen>
                 onTap: _loading
                     ? null
                     : () {
-                        resetGuestMockData();
+                        GuestSession.start();
                         Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(
                             builder: (_) => const RootShell(

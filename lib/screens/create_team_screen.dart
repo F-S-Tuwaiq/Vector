@@ -84,9 +84,7 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
       Navigator.of(context).pop(created);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Couldn't create the team. Try again."),
-        ),
+        const SnackBar(content: Text("Couldn't create the team. Try again.")),
       );
     }
   }
@@ -135,8 +133,9 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
                             selected: _selectedRoles.contains(role),
                             onTap: () => _toggleRole(role),
                           ),
-                        for (final role in _selectedRoles
-                            .where((r) => !_kSuggestedRoles.contains(r)))
+                        for (final role in _selectedRoles.where(
+                          (r) => !_kSuggestedRoles.contains(r),
+                        ))
                           _RoleChip(
                             label: role,
                             selected: true,
@@ -152,9 +151,7 @@ class _CreateTeamScreenState extends State<CreateTeamScreen> {
                           _AddCustomRoleChip(
                             onTap: () {
                               setState(() => _addingCustomRole = true);
-                              WidgetsBinding.instance.addPostFrameCallback((
-                                _,
-                              ) {
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
                                 _customRoleFocus.requestFocus();
                               });
                             },
@@ -257,9 +254,7 @@ class _TextField extends StatelessWidget {
       style: VectorText.bodyLarge.copyWith(color: VectorColors.textPrimary),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: VectorText.bodyLarge.copyWith(
-          color: VectorColors.textMuted,
-        ),
+        hintStyle: VectorText.bodyLarge.copyWith(color: VectorColors.textMuted),
         filled: true,
         fillColor: VectorColors.surfaceWhite,
         contentPadding: EdgeInsets.symmetric(
@@ -415,10 +410,7 @@ class _AddCustomRoleChip extends StatelessWidget {
         decoration: ShapeDecoration(
           color: Colors.transparent,
           shape: StadiumBorder(
-            side: const BorderSide(
-              color: VectorColors.inputBorder,
-              width: 1.5,
-            ),
+            side: const BorderSide(color: VectorColors.inputBorder, width: 1.5),
           ),
         ),
         child: Row(

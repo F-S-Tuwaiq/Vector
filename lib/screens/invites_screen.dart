@@ -17,16 +17,12 @@ import '../widgets/confirm_action_dialog.dart';
 class InvitesScreen extends StatefulWidget {
   const InvitesScreen({super.key, required this.onOpenHackathon});
 
-  /// Called with a hackathon id when the hackathon-strip deep link is
-  /// tapped — the shell switches to Home and expands that card.
   final ValueChanged<String> onOpenHackathon;
 
   @override
   State<InvitesScreen> createState() => InvitesScreenState();
 }
 
-/// Public so [RootShell] can hold a `GlobalKey<InvitesScreenState>` and
-/// call [refreshOnFocus] when this tab gains focus.
 class InvitesScreenState extends State<InvitesScreen> {
   final HackathonRepository _repo = HackathonRepository();
 
@@ -67,8 +63,6 @@ class InvitesScreenState extends State<InvitesScreen> {
     });
   }
 
-  /// Refetches both lists — called when this tab gains focus so a
-  /// just-sent join request shows up in Sent without a manual pull.
   void refreshOnFocus() {
     if (!_loading) _loadAll();
   }
@@ -470,9 +464,6 @@ class _ExpiryChip extends StatelessWidget {
   }
 }
 
-/// Placeholder rows shaped like the collapsed [_InvitationCard] /
-/// [_SentRequestCard], shown while invites/requests are loading — one
-/// shimmer sweep across the whole list rather than one per row.
 class _InviteListSkeleton extends StatelessWidget {
   const _InviteListSkeleton();
 
@@ -758,9 +749,6 @@ class _InvitationCard extends StatelessWidget {
   }
 }
 
-/// The Accept CTA: apricot gradient, a soft shine sweep and a subtle
-/// breathe (scale 1.0 -> 1.015) on the same ~2.6s period — fully still
-/// when [MediaQuery.disableAnimationsOf] is true.
 class _AcceptButton extends StatefulWidget {
   const _AcceptButton({required this.onTap, required this.loading});
 

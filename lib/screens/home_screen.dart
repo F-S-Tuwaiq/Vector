@@ -11,7 +11,6 @@ import '../widgets/hackathon_cards.dart';
 import '../widgets/vector_header.dart';
 import 'teams_screen.dart';
 
-/// Chip filter order, per the design spec. "All" applies no filter.
 const List<String> _kFieldChips = [
   'All',
   'Security',
@@ -28,8 +27,6 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => HomeScreenState();
 }
 
-/// Public so [RootShell] can hold a `GlobalKey<HomeScreenState>` and call
-/// [openHackathonExpanded] from the Invites tab's deep link.
 class HomeScreenState extends State<HomeScreen> {
   final HackathonRepository _repo = HackathonRepository();
 
@@ -38,10 +35,6 @@ class HomeScreenState extends State<HomeScreen> {
   List<Hackathon> _hackathons = const [];
   String _selectedField = 'All';
 
-  /// Which card is expanded, if any. A [ValueNotifier] (rather than
-  /// `setState`) so toggling it only notifies the per-card
-  /// `ValueListenableBuilder`s below — the list, chips, and header never
-  /// rebuild on expand/collapse.
   final ValueNotifier<String?> _expandedId = ValueNotifier<String?>(null);
   final Map<String, GlobalKey> _cardKeys = {};
 
@@ -81,8 +74,6 @@ class HomeScreenState extends State<HomeScreen> {
     _revealExpandedCard(hackathon.id);
   }
 
-  /// Wait for both the old card to collapse and the new one to expand before
-  /// measuring its scroll position. Measuring mid-animation clips its heading.
   Future<void> _revealExpandedCard(String id) async {
     final disableAnimations = MediaQuery.disableAnimationsOf(context);
     if (!disableAnimations) {
@@ -102,7 +93,6 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// Opens the selected event from an invitation using the same settled layout.
   void openHackathonExpanded(String hackathonId) {
     setState(() => _selectedField = 'All');
     _expandedId.value = hackathonId;

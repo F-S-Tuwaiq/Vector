@@ -11,9 +11,6 @@ const List<_TabSpec> _kTabs = [
   (icon: Icons.person_outline_rounded, label: 'Profile'),
 ];
 
-/// The bottom nav bar: surfaceWhite, hairline top border, three equal
-/// items, and a single sliding apricot triangle overlay (never per-item)
-/// that translates behind the active icon.
 class VectorBottomBar extends StatelessWidget {
   const VectorBottomBar({
     super.key,
@@ -111,7 +108,9 @@ class _NavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool disableAnimations = MediaQuery.disableAnimationsOf(context);
-    final Color color = active ? VectorColors.purpleBrand : VectorColors.textMuted;
+    final Color color = active
+        ? VectorColors.purpleBrand
+        : VectorColors.textMuted;
     final Duration duration = disableAnimations
         ? Duration.zero
         : const Duration(milliseconds: 250);
@@ -146,9 +145,6 @@ class _NavItem extends StatelessWidget {
   }
 }
 
-/// Flat apricot triangle, apex up, 35% opacity — the sliding active-tab
-/// indicator. Width 52 / height 29; centroid (where the icon center must
-/// land) sits at height*2/3 ≈ 19.3 from the apex.
 class _NavTrianglePainter extends CustomPainter {
   const _NavTrianglePainter();
 

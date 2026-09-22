@@ -125,11 +125,7 @@ class _VectorSplashState extends State<VectorSplash>
           final double t = Curves.easeInOutCubic.transform(
             _exitController.value,
           );
-          // The bottom edge morphs into a V tip (the logo's apex) during
-          // the first part of the exit, then the whole sheet lifts away.
-          // Fade only starts once the lift is under way and eases in and
-          // out, so the sheet dissolves gradually instead of snapping away
-          // right at the end.
+
           final double fade = const Interval(
             0.35,
             1,
@@ -143,7 +139,6 @@ class _VectorSplashState extends State<VectorSplash>
                 curve: Curves.easeInOutCubic,
               ).transform(_exitController.value);
           return FractionalTranslation(
-            // Extra travel so the trailing triangle tip fully clears.
             translation: Offset(0, -(1 + notch) * t),
             child: Opacity(
               opacity: 1 - fade,
@@ -336,9 +331,6 @@ class _VectorSplashState extends State<VectorSplash>
   }
 }
 
-/// Branded continue affordance: an outlined square tile (radius 13) with a
-/// bobbing apricot triangle inside, and a letterspaced CONTINUE below —
-/// quiet, editorial, and it hints at the upward exit.
 class _ContinueButton extends StatelessWidget {
   const _ContinueButton({
     required this.pressed,
@@ -416,7 +408,6 @@ class _ContinueButton extends StatelessWidget {
   }
 }
 
-/// Small solid upward triangle — the brand glyph.
 class _TriangleGlyphPainter extends CustomPainter {
   const _TriangleGlyphPainter({required this.color});
 
@@ -437,8 +428,6 @@ class _TriangleGlyphPainter extends CustomPainter {
       oldDelegate.color != color;
 }
 
-/// Clips the splash so its bottom edge forms a downward V tip (the logo's
-/// apex) while the sheet lifts away. notchFactor 0 = flat edge.
 class _TriangleExitClipper extends CustomClipper<Path> {
   const _TriangleExitClipper({required this.notchFactor});
 
@@ -475,15 +464,6 @@ class _WordmarkPainter extends CustomPainter {
   bool shouldRepaint(covariant _WordmarkPainter oldDelegate) => true;
 }
 
-/// Hosts the splash as an OVERLAY above the next screen (not as a route).
-/// The next screen is built and laid out beneath the splash from the very
-/// first frame, so when the purple sheet lifts away with its V tip, the
-/// screen underneath is simply revealed — no navigation during the exit,
-/// no black frame, ever.
-///
-/// Usage in main.dart:
-///   home: const AppLauncher(next: LogInScreen()),
-/// (swap LogInScreen for whatever should come after the splash)
 class AppLauncher extends StatefulWidget {
   const AppLauncher({required this.next, super.key});
 
@@ -499,8 +479,7 @@ class _AppLauncherState extends State<AppLauncher> {
   void _onSplashComplete() {
     if (!mounted) return;
     setState(() => _splashDone = true);
-    // The splash forced light status-bar icons for the purple background;
-    // flip them for the light screen now underneath.
+
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -517,8 +496,6 @@ class _AppLauncherState extends State<AppLauncher> {
     return Stack(
       fit: StackFit.expand,
       children: [
-        // Always present beneath the splash — this is what the V-tip
-        // exit reveals.
         widget.next,
         if (!_splashDone) VectorSplash(onComplete: _onSplashComplete),
       ],

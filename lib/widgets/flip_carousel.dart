@@ -2,9 +2,6 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-/// A generic, reusable page carousel that renders a 3D "flip" transition
-/// between pages as the user drags. Knows nothing about the data it shows -
-/// callers supply [itemBuilder] for each page.
 class FlipCarousel extends StatefulWidget {
   const FlipCarousel({
     super.key,
@@ -65,10 +62,7 @@ class _FlipCarouselState extends State<FlipCarousel> {
                 ..setEntry(3, 2, 0.0015)
                 ..rotateY(delta * math.pi * 0.75)
                 ..scaleByDouble(scale, scale, scale, 1),
-              child: Opacity(
-                opacity: 1 - delta.abs() * 0.6,
-                child: child,
-              ),
+              child: Opacity(opacity: 1 - delta.abs() * 0.6, child: child),
             );
           },
           child: widget.itemBuilder(context, index),

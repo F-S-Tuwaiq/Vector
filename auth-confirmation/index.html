@@ -46,8 +46,6 @@ footer{display:flex;align-items:center;justify-content:flex-start;min-height:84p
 const query = new URLSearchParams(location.search);
 const fragment = new URLSearchParams(location.hash.slice(1));
 const failed = query.has('error') || query.has('error_code') || fragment.has('error') || fragment.has('error_code');
-// Remove authentication parameters before any further navigation. No analytics,
-// external resources, token storage, or credential exchange on this page.
 history.replaceState(null, '', location.pathname);
 if (failed) { document.getElementById('title').textContent='This link could not be used'; document.getElementById('message').textContent='It may have expired or already been used. Return to Vector and check your confirmation first. Request another email only if the app says your email is still unconfirmed.'; }
 </script></body></html>

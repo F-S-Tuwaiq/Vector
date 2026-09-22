@@ -5,6 +5,8 @@ import 'package:file_selector/file_selector.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'guest_session.dart';
+
 class EmailVerificationRequired implements Exception {
   const EmailVerificationRequired();
 
@@ -23,24 +25,12 @@ class BackendNotConfigured implements Exception {
 }
 
 class SupabaseService {
-  // ============================================================
-  // SUPABASE CONFIG
-  // ============================================================
-
   static String get supabaseUrl => dotenv.env['SUPABASE_URL']?.trim() ?? '';
 
   static String get supabasePublishableKey =>
       dotenv.env['SUPABASE_ANON_KEY']?.trim() ?? '';
 
-  /// Whether [initialize] actually configured a live Supabase client.
-  /// False while `.env` still holds placeholder/missing credentials —
-  /// the app should still run and land on the login screen in that
-  /// case, it just can't authenticate against a real backend yet.
   static bool isConfigured = false;
-
-  // ============================================================
-  // INITIALIZE SUPABASE
-  // ============================================================
 
   static Future<void> initialize() async {
     await dotenv.load(fileName: '.env');
@@ -50,9 +40,6 @@ class SupabaseService {
         uri.host.isEmpty ||
         supabasePublishableKey.isEmpty ||
         supabasePublishableKey == 'PASTE_ANON_KEY_HERE') {
-      // No real credentials yet - skip Supabase setup instead of
-      // crashing on startup. Set SUPABASE_URL and SUPABASE_ANON_KEY in
-      // .env to enable real sign-in.
       return;
     }
     await Supabase.initialize(
@@ -66,29 +53,32 @@ class SupabaseService {
     isConfigured = true;
   }
 
-  // ============================================================
-  // CLIENT
-  // ============================================================
-
   static SupabaseClient get client {
+    if (GuestSession.isActive) {
+      throw StateError('Guest sessions cannot access the account database.');
+    }
     if (!isConfigured) throw const BackendNotConfigured();
     return Supabase.instance.client;
   }
 
-  static User? get currentUser => isConfigured ? client.auth.currentUser : null;
+  static User? get currentUser =>
+      isConfigured && !GuestSession.isActive ? client.auth.currentUser : null;
+
+  static bool get usesDemoData => GuestSession.isActive || !isLoggedIn;
 
   static bool get isLoggedIn => currentUser != null;
 
-  // ============================================================
-  // SIGN IN
-  // ============================================================
-
   static Future<void> signIn(String email, String password) async {
     try {
-      await client.auth.signInWithPassword(
+      final response = await client.auth.signInWithPassword(
         email: email.trim(),
         password: password,
       );
+      if (response.session == null || response.user == null) {
+        throw const AuthException(
+          'Could not start a session. Please sign in again.',
+        );
+      }
     } on AuthException catch (error) {
       if (error.code == 'email_not_confirmed') {
         throw const EmailVerificationRequired();
@@ -119,10 +109,6 @@ class SupabaseService {
     );
   }
 
-  // ============================================================
-  // CREATE ACCOUNT
-  // ============================================================
-
   static Future<void> createAccount({
     required String fullName,
     required String email,
@@ -132,11 +118,6 @@ class SupabaseService {
     required List<String> skills,
     required Map<String, List<XFile>> certificates,
   }) async {
-    // ----------------------------------------------------------
-    // 1. CREATE USER IN SUPABASE AUTH
-    // ----------------------------------------------------------
-
-    // Signing in first also resumes a verified or partially saved account.
     late final AuthResponse authResponse;
     try {
       authResponse = await client.auth.signInWithPassword(
@@ -162,17 +143,11 @@ class SupabaseService {
       throw Exception('Account could not be created.');
     }
 
-    // Your current signup flow immediately writes to
-    // RLS-protected tables, so it needs an authenticated session.
     if (authResponse.session == null) {
       throw const EmailVerificationRequired();
     }
 
     final String userId = user.id;
-
-    // ----------------------------------------------------------
-    // 2. CREATE PROFILE
-    // ----------------------------------------------------------
 
     await client.from('profiles').upsert({
       'id': userId,
@@ -180,10 +155,6 @@ class SupabaseService {
       'github': _optionalString(github),
       'linkedin': _optionalString(linkedin),
     });
-
-    // ----------------------------------------------------------
-    // 3. CREATE EACH SKILL
-    // ----------------------------------------------------------
 
     for (final String skill in skills) {
       final String cleanSkill = skill.trim();
@@ -203,10 +174,6 @@ class SupabaseService {
 
       final int skillId = insertedSkill['id'] as int;
 
-      // --------------------------------------------------------
-      // 4. UPLOAD CERTIFICATES ATTACHED TO THIS SKILL
-      // --------------------------------------------------------
-
       final List<XFile> files = certificates[skill] ?? <XFile>[];
 
       for (final XFile file in files) {
@@ -214,10 +181,6 @@ class SupabaseService {
       }
     }
   }
-
-  // ============================================================
-  // UPLOAD CERTIFICATE
-  // ============================================================
 
   static Future<void> _uploadCertificate({
     required String userId,
@@ -230,8 +193,6 @@ class SupabaseService {
 
     final String uniqueName = '${sha256.convert(bytes)}_$safeName';
 
-    // Example:
-    // USER_ID / SKILL_ID / certificate.pdf
     final String storagePath = '$userId/$skillId/$uniqueName';
 
     final existing = await client
@@ -242,7 +203,6 @@ class SupabaseService {
         .limit(1);
     if (existing.isNotEmpty) return;
 
-    // Upload actual PDF/image to Supabase Storage.
     try {
       await client.storage
           .from('certificates')
@@ -255,11 +215,9 @@ class SupabaseService {
             ),
           );
     } on StorageException catch (error) {
-      // A previous upload may have succeeded before its metadata save failed.
       if (error.statusCode != '409' && error.error != 'Duplicate') rethrow;
     }
 
-    // Save certificate information in database.
     await client.from('skill_certificates').insert({
       'user_id': userId,
       'skill_id': skillId,
@@ -311,7 +269,7 @@ class SupabaseService {
       'github': _optionalString(github),
       'linkedin': _optionalString(linkedin),
     });
-    // These optional presentation fields use auth metadata; no assumed DB columns.
+
     if (headline != null || about != null || availability != null) {
       await client.auth.updateUser(
         UserAttributes(
@@ -403,7 +361,6 @@ class SupabaseService {
           .eq('user_id', userId)
           .eq('id', skillId);
     } catch (_) {
-      // Compensate if the parent deletion is rejected. Never delete file bytes.
       await restoreProfileAttachments(attachments, skillId: skillId);
       rethrow;
     }
@@ -446,7 +403,6 @@ class SupabaseService {
   }
 
   static Future<String> profileAttachmentUrl(int certificateId) async {
-    // Resolve the path from an authorized association, never from caller input.
     final record = await client
         .from('skill_certificates')
         .select('storage_path')
@@ -458,24 +414,19 @@ class SupabaseService {
         .createSignedUrl(record['storage_path'] as String, 60);
   }
 
-  // ============================================================
-  // SIGN OUT
-  // ============================================================
-
   static Future<void> signOut() async {
+    if (GuestSession.isActive) {
+      GuestSession.end();
+      return;
+    }
+    if (!isConfigured) return;
     await client.auth.signOut();
   }
-
-  // ============================================================
-  // DELETE CERTIFICATE
-  // Useful later for profile editing.
-  // ============================================================
 
   static Future<void> deleteCertificate({
     required int certificateId,
     required String storagePath,
   }) async {
-    // Unlink only. Storage may be shared, and Undo needs the original bytes.
     await client
         .from('skill_certificates')
         .delete()
@@ -483,10 +434,6 @@ class SupabaseService {
         .eq('id', certificateId)
         .eq('storage_path', storagePath);
   }
-
-  // ============================================================
-  // HELPERS
-  // ============================================================
 
   static String? _optionalString(String? value) {
     if (value == null) {

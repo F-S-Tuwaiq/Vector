@@ -6,8 +6,6 @@ import 'hackathon_repository.dart';
 import 'mock_hackathons.dart';
 import '../services/supabase_service.dart';
 
-/// Supply only authenticated records. The current teams API has neither a
-/// user membership relation nor participation history, so no demo fallback.
 typedef ParticipationLoader = Future<List<ProfileParticipation>> Function(
   String userId,
 );
@@ -106,18 +104,18 @@ class ProfileRepository {
     final user = SupabaseService.currentUser;
     if (user == null) throw StateError('Sign in to load your teams.');
     final records = await loader(user.id);
-    // A pending request is not a completed participation or a membership.
+
     return records
         .where((r) => !(r.completed && r.status == MembershipStatus.requested))
         .toList();
   }
 }
 
-/// Read-only demo data for "Continue as Guest" — no Supabase involved.
 class DemoProfileRepository extends ProfileRepository {
   const DemoProfileRepository();
 
-  static const _signInMessage = 'Sign in to save changes — this is a demo profile.';
+  static const _signInMessage =
+      'Sign in to save changes — this is a demo profile.';
 
   @override
   Future<Map<String, dynamic>> load() async {
@@ -137,9 +135,6 @@ class DemoProfileRepository extends ProfileRepository {
     };
   }
 
-  /// Built straight from the same mock teams the Teams screen reads, so
-  /// creating/deleting a team there is immediately reflected here too —
-  /// no separate, disconnected preview data.
   @override
   Future<List<ProfileParticipation>> participations() async {
     final hackathons = await HackathonRepository().fetchHackathons();

@@ -18,7 +18,7 @@ void main() {
     }
   });
   testWidgets(
-    'forgot password validates email and completes without auth setup',
+    'forgot password does not claim to send an email without recovery setup',
     (tester) async {
       await tester.pumpWidget(
         MaterialApp(
@@ -35,19 +35,19 @@ void main() {
       await tester.tap(find.text('Forgot password?'));
       await tester.pumpAndSettle();
       expect(find.byType(ForgotPasswordScreen), findsOneWidget);
-      expect(find.byType(TextFormField), findsOneWidget);
-      await tester.ensureVisible(find.text('Reset password'));
-      await tester.tap(find.text('Reset password'));
-      await tester.pumpAndSettle();
-      expect(find.text('Enter a valid email.'), findsOneWidget);
-      await tester.enterText(find.byType(TextFormField), 'test@example.com');
-      await tester.ensureVisible(find.text('Reset password'));
-      await tester.tap(find.text('Reset password'));
-      await tester.pumpAndSettle();
+      expect(find.byType(TextFormField), findsNothing);
+      expect(find.text('Reset password'), findsNothing);
       expect(
         find.text('Check your email to reset your password.'),
+        findsNothing,
+      );
+      expect(
+        find.text(
+          'Password reset is not available yet. Please contact the Vector team for help.',
+        ),
         findsOneWidget,
       );
+      await tester.ensureVisible(find.text('Back to sign in'));
       await tester.tap(find.text('Back to sign in'));
       await tester.pumpAndSettle();
       expect(find.byType(LogInScreen), findsOneWidget);

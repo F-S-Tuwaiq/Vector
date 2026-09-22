@@ -180,7 +180,6 @@ class VectorSignUpHeaderPainter extends CustomPainter {
 
     final phase = animation.value * math.pi * 2;
 
-    // Pale translucent layer behind the purple block.
     final ribbon = Path()
       ..moveTo(241, 91)
       ..lineTo(390, 121)
@@ -203,7 +202,6 @@ class VectorSignUpHeaderPainter extends CustomPainter {
         ).createShader(const Rect.fromLTWH(190, 85, 200, 105)),
     );
 
-    // Shorter signup-only purple block.
     final header = Path()
       ..moveTo(0, 0)
       ..lineTo(259, 0)
@@ -252,7 +250,6 @@ class VectorSignUpHeaderPainter extends CustomPainter {
 
     canvas.restore();
 
-    // Apricot edge highlight.
     canvas.drawPath(
       Path()
         ..moveTo(260, 98)
@@ -264,7 +261,6 @@ class VectorSignUpHeaderPainter extends CustomPainter {
         ..strokeWidth = 0.85,
     );
 
-    // Small apricot accent.
     canvas.drawLine(
       const Offset(239, 145),
       const Offset(250, 132),

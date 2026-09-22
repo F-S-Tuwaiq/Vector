@@ -6,9 +6,6 @@ import '../models/team.dart';
 import '../theme/vector_colors.dart';
 import '../theme/vector_text.dart';
 
-/// Bottom sheet for inviting [member] to join one of the current user's
-/// teams. Same style as [showMemberSheet]: white surface, dialog barrier,
-/// 26-radius top corners, drag handle.
 Future<void> showSendInviteSheet(BuildContext context, Member member) {
   return showModalBottomSheet<void>(
     context: context,

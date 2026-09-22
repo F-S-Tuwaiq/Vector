@@ -4,9 +4,6 @@ import '../theme/vector_colors.dart';
 import '../theme/vector_text.dart';
 import 'vector_header.dart';
 
-/// Shared in-theme empty-state pattern: slim purple header + centered
-/// lavender icon tile, title, subtitle. Used for the Invites/Profile nav
-/// tabs and the member-profile placeholder.
 class EmptyStateScreen extends StatelessWidget {
   const EmptyStateScreen({
     super.key,
@@ -29,10 +26,7 @@ class EmptyStateScreen extends StatelessWidget {
       backgroundColor: VectorColors.background,
       body: Column(
         children: [
-          VectorHeader.slim(
-            title: headerTitle,
-            showBackButton: showBackButton,
-          ),
+          VectorHeader.slim(title: headerTitle, showBackButton: showBackButton),
           Expanded(
             child: Center(
               child: Padding(

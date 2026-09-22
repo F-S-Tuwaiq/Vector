@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../theme/vector_colors.dart';
 import 'vector_shapes.dart';
 
-/// Shares the login painter's geometry, layers and triangles without scaling text.
 class LoginStyleHeader extends StatelessWidget {
   const LoginStyleHeader({
     super.key,
@@ -16,6 +15,7 @@ class LoginStyleHeader extends StatelessWidget {
   final VoidCallback? onBack;
   @override
   Widget build(BuildContext context) => SafeArea(
+    top: false,
     bottom: false,
     child: LayoutBuilder(
       builder: (context, constraints) {
@@ -143,7 +143,7 @@ class _LoginHeaderPainter extends CustomPainter {
     canvas.scale(size.width / 390, size.height / 234);
     VectorBackground(animation: const AlwaysStoppedAnimation(0))
         .paint(canvas, const Size(390, 680));
-    // Login's fine apricot accent at the curve.
+
     canvas.drawLine(
       const Offset(228, 206),
       const Offset(256, 173),

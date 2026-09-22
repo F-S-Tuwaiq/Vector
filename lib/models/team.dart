@@ -1,6 +1,5 @@
 import 'member.dart';
 
-/// A team looking for members within a given hackathon.
 class Team {
   final String id;
   final String hackathonId;
@@ -22,10 +21,6 @@ class Team {
     this.membersInfo = const [],
   });
 
-  /// Parses a Supabase row (snake_case columns) into a [Team].
-  ///
-  /// Postgres `text[]` columns come back over JSON as `List<dynamic>`, so
-  /// each element is defensively coerced to `String`.
   factory Team.fromMap(Map<String, dynamic> map) {
     return Team(
       id: map['id'] as String? ?? '',
@@ -33,15 +28,16 @@ class Team {
       name: map['name'] as String? ?? '',
       members: map['members'] as int? ?? 0,
       maxMembers: map['max_members'] as int? ?? 0,
-      memberInitials: (map['member_initials'] as List?)
+      memberInitials:
+          (map['member_initials'] as List?)
               ?.map((e) => e.toString())
               .toList() ??
           const [],
-      missingRoles: (map['missing_roles'] as List?)
-              ?.map((e) => e.toString())
-              .toList() ??
+      missingRoles:
+          (map['missing_roles'] as List?)?.map((e) => e.toString()).toList() ??
           const [],
-      membersInfo: (map['members_info'] as List?)
+      membersInfo:
+          (map['members_info'] as List?)
               ?.map((e) => Member.fromMap(e as Map<String, dynamic>))
               .toList() ??
           const [],

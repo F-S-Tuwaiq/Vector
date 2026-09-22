@@ -4,17 +4,6 @@ import '../theme/vector_colors.dart';
 import '../theme/vector_text.dart';
 import 'vector_wordmark.dart';
 
-/// The one reusable purple header used by both Home and Teams.
-///
-/// Always: [VectorColors.purpleBrand] fill, edge-to-edge (full screen
-/// width, attached to the very top, painted BEHIND the status bar — no
-/// floating inset block), bottom corner radius 26, with one large
-/// low-opacity apricot triangle bleeding off the top-right corner behind
-/// all content.
-///
-/// Two variants:
-/// - [VectorHeader.home] — wordmark, "Hackathons" headline, subtitle.
-/// - [VectorHeader.slim] — a single row: back chevron + hackathon name.
 class VectorHeader extends StatelessWidget {
   const VectorHeader.home({super.key})
     : slim = false,
@@ -33,8 +22,6 @@ class VectorHeader extends StatelessWidget {
   final String? title;
   final VoidCallback? onBack;
 
-  /// Root tabs in the bottom-nav shell have nothing to go back to —
-  /// pass false to hide the chevron on those.
   final bool showBackButton;
 
   @override
@@ -47,8 +34,6 @@ class VectorHeader extends StatelessWidget {
           decoration: const BoxDecoration(color: VectorColors.purpleBrand),
           child: Stack(
             children: [
-              // Large low-opacity triangle bleeding off the top-right
-              // corner, always behind content.
               Positioned(
                 top: -20,
                 right: -40,
@@ -105,8 +90,7 @@ class VectorHeader extends StatelessWidget {
 
   Widget _buildSlim(BuildContext context) {
     const double sideWidth = 48;
-    // Row (not a fixed-height Stack) so a long hackathon name can wrap to a
-    // second line and still be shown in full instead of being clipped.
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(4, 10, 4, 18),
       child: Row(

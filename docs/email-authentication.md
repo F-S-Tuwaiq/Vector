@@ -1,5 +1,17 @@
 # Email confirmation
 
+## Authentication review — September 22
+
+Sign-in rejects responses without an authenticated session. Signup displays
+readable authentication and connection errors. The former password-reset screen
+only changed its UI and never sent an email; it now clearly reports that recovery
+is unavailable instead of claiming success. Enabling recovery still requires a
+working reset-email redirect and password-update flow.
+
+Guest sessions use only the bundled demo stores, including when a real session
+was previously restored. Starting a new guest session resets those local stores.
+Automated tests use a mocked backend; real inbox delivery was not exercised.
+
 ## Building the live web app
 
 Run `python3 tool/build_web.py` from the project root for GitHub Pages.

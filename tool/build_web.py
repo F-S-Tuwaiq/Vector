@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the live GitHub Pages app; reject demo or private configuration."""
+
 import base64
 import json
 from pathlib import Path
@@ -8,7 +8,6 @@ import sys
 from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
-
 
 def validate_config(path):
     values = {}
@@ -35,7 +34,6 @@ def validate_config(path):
         raise ValueError('Set a public Supabase anon or publishable key before building') from None
     if claims.get('role') != 'anon':
         raise ValueError('Only a public anon key may be included in a web build')
-
 
 if __name__ == '__main__':
     try:

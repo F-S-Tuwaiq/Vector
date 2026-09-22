@@ -1,4 +1,3 @@
-/// A hackathon/competition listing shown on the Home screen.
 class Hackathon {
   final String id;
   final String name;
@@ -11,7 +10,6 @@ class Hackathon {
   final String? detail;
   final String? website;
 
-  /// One of: `open` | `closing_soon` | `tba`.
   final String status;
   final bool isFeatured;
   final int? pinRank;
@@ -32,7 +30,6 @@ class Hackathon {
     this.website,
   });
 
-  /// Parses a Supabase row (snake_case columns) into a [Hackathon].
   factory Hackathon.fromMap(Map<String, dynamic> map) {
     return Hackathon(
       id: map['id'] as String? ?? '',

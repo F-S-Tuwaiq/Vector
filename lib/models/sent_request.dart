@@ -1,5 +1,3 @@
-/// A join request the current user has sent, joined with its team and
-/// hackathon display fields.
 class SentRequest {
   final String id;
   final String teamId;
@@ -21,8 +19,6 @@ class SentRequest {
 
   String get teamInitial => teamName.isEmpty ? '?' : teamName[0].toUpperCase();
 
-  /// Parses a Supabase row nested-joined as
-  /// `teams(..., hackathons(...))`.
   factory SentRequest.fromMap(Map<String, dynamic> map) {
     final team = map['teams'] as Map<String, dynamic>?;
     final hackathon = team?['hackathons'] as Map<String, dynamic>?;

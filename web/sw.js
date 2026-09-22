@@ -1,17 +1,3 @@
-// Minimal app-shell service worker. Flutter's own generated service worker
-// (flutter_service_worker.js) is no longer auto-registered by
-// flutter_bootstrap.js as of recent Flutter versions (it's deprecated
-// upstream), so this hand-rolled one takes its place: it's the
-// fetch-handling service worker Chrome requires before it will offer
-// "Install app" / add-to-home-screen, and it gives the shell an offline
-// fallback.
-//
-// Network-first, not cache-first: this app ships new builds to the same
-// URL often, and a cache-first shell would silently freeze returning
-// visitors on whatever version happened to be cached on their first
-// visit, even across many redeploys, since the browser only reinstalls
-// this worker when this file's bytes change. Always prefer the network
-// when it's available; only fall back to the cache when it's not.
 const CACHE_NAME = 'vector-shell-v3';
 const SHELL_ASSETS = [
   './',
@@ -49,7 +35,6 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
-  // Never cache Supabase responses, signed uploads, or other external data.
   if (!url.href.startsWith(self.registration.scope) ||
       url.search || event.request.headers.has('Authorization')) return;
   event.respondWith(

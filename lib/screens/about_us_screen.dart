@@ -216,7 +216,6 @@ class _SaudiMadeSignature extends StatelessWidget {
     child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Display the supplied square asset in a compact window, preserving its aspect ratio.
         SizedBox(
           width: 170,
           height: 68,

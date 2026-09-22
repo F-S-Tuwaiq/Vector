@@ -2,18 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../theme/vector_colors.dart';
 
-/// Wraps any number of [SkeletonBox]es with one shared shimmer sweep.
-///
-/// A single controller drives the whole subtree so a screen with several
-/// skeleton rows/cards only pays for one animation, not one per box.
-///
-/// IMPORTANT: only wrap the placeholder shapes themselves — never a solid
-/// card/page background around them. The shimmer blends with
-/// [BlendMode.srcATop], which replaces color per-pixel across its whole
-/// child; a background included in that subtree would be overwritten to
-/// the same shade as the shapes on top of it, erasing the contrast between
-/// them (and collapsing to a flat, shapeless blob when the shimmer is
-/// paused for reduced motion).
 class SkeletonShimmer extends StatefulWidget {
   const SkeletonShimmer({required this.child, super.key});
 
@@ -80,8 +68,6 @@ class _SkeletonShimmerState extends State<SkeletonShimmer>
   }
 }
 
-/// A single solid placeholder shape — a line, an avatar, a card face.
-/// Meant to sit inside a [SkeletonShimmer].
 class SkeletonBox extends StatelessWidget {
   const SkeletonBox({
     required this.width,

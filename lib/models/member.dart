@@ -1,5 +1,3 @@
-/// A team member's public profile info, parsed from a team's
-/// `members_info` jsonb column.
 class Member {
   final String initials;
   final String name;
@@ -24,7 +22,8 @@ class Member {
       initials: map['initials'] as String? ?? '',
       name: map['name'] as String? ?? '',
       role: map['role'] as String? ?? '',
-      skills: (map['skills'] as List?)?.map((e) => e.toString()).toList() ??
+      skills:
+          (map['skills'] as List?)?.map((e) => e.toString()).toList() ??
           const [],
       city: map['city'] as String? ?? '',
       hackathons: map['hackathons'] as int? ?? 0,
@@ -33,12 +32,12 @@ class Member {
   }
 
   Map<String, dynamic> toMap() => {
-        'initials': initials,
-        'name': name,
-        'role': role,
-        'skills': skills,
-        'city': city,
-        'hackathons': hackathons,
-        'lead': lead,
-      };
+    'initials': initials,
+    'name': name,
+    'role': role,
+    'skills': skills,
+    'city': city,
+    'hackathons': hackathons,
+    'lead': lead,
+  };
 }

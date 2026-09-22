@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../widgets/brand_loader/brand_full_screen_loader.dart';
-import '../config/env.dart';
+import '../services/supabase_service.dart';
 import '../data/hackathon_repository.dart';
 import '../models/hackathon.dart';
 import '../models/member.dart';
@@ -25,7 +25,6 @@ class TeamsScreen extends StatefulWidget {
     this.initialTeams,
   });
 
-  /// Fetch on the source page so navigation only starts when cards are ready.
   static Future<void> open(
     BuildContext context, {
     required Hackathon hackathon,
@@ -50,8 +49,6 @@ class TeamsScreen extends StatefulWidget {
   final Hackathon hackathon;
   final List<Team>? initialTeams;
 
-  /// When set, the carousel opens directly at this team's card instead of
-  /// the first one (e.g. the "Meet the team" deep link from Invites).
   final String? initialTeamId;
 
   @override
@@ -66,7 +63,6 @@ class _TeamsScreenState extends State<TeamsScreen> {
   int _currentIndex = 0;
   bool _initialTeamHandled = false;
 
-  /// Team ids with an in-flight join request.
   final Set<String> _sendingTeamIds = {};
 
   @override
@@ -196,17 +192,15 @@ class _TeamsScreenState extends State<TeamsScreen> {
     }
 
     final bool disableAnimations = MediaQuery.disableAnimationsOf(context);
-    // Mock mode only: one team per hackathon — the create-team page shows
-    // a message instead of the form when this is already true.
+
     final bool hasOwnTeam =
-        !Env.isConfigured && teams.any((t) => t.memberInitials.contains('ME'));
-    // +1 for the trailing create-team page (Section C).
+        SupabaseService.usesDemoData &&
+        teams.any((t) => t.memberInitials.contains('ME'));
+
     final int pageCount = teams.length + 1;
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Card height is EXACTLY 75% of the available space, computed
-        // responsively — never a hardcoded pixel value.
         final double cardHeight = constraints.maxHeight * 0.75;
 
         return Center(
@@ -225,8 +219,6 @@ class _TeamsScreenState extends State<TeamsScreen> {
                 itemBuilder: (context, index) {
                   final bool isCreatePage = index == teams.length;
 
-                  // Every page (team cards AND the create-team card) shares
-                  // identical horizontal padding, width, and height.
                   final Widget inner = SizedBox(
                     height: cardHeight,
                     child: _ScrollableCardBody(
@@ -257,7 +249,6 @@ class _TeamsScreenState extends State<TeamsScreen> {
 
                   if (disableAnimations) return card;
 
-                  // Exact 3D flip transform on the ENTIRE purple card
                   final double delta = (index - currentPage).clamp(-1.0, 1.0);
                   final Widget flippedCard = Opacity(
                     opacity: (1.0 - delta.abs() * 0.6).clamp(0.0, 1.0),
@@ -287,8 +278,6 @@ class _TeamsScreenState extends State<TeamsScreen> {
   }
 }
 
-/// Preserves the normal card height but lets long content scroll on short
-/// screens and at larger text sizes instead of overflowing the flex layout.
 class _ScrollableCardBody extends StatelessWidget {
   const _ScrollableCardBody({required this.child});
   final Widget child;
@@ -307,11 +296,6 @@ class _ScrollableCardBody extends StatelessWidget {
   );
 }
 
-/// The full purple team card: hugs its content (mainAxisSize.min)
-/// and centers vertically with zero dead space.
-/// Placeholder shaped like [_TeamCard], shown while teams are loading —
-/// same card geometry (75% height, 18px side padding) so nothing jumps
-/// when the real card swaps in.
 class _TeamCardSkeleton extends StatelessWidget {
   const _TeamCardSkeleton();
 
@@ -400,7 +384,6 @@ class _TeamCardState extends State<_TeamCard> {
       ),
       child: Stack(
         children: [
-          // Large low-opacity apricot triangle anchored bleeding off the bottom corner
           Positioned(
             bottom: -40,
             right: -40,
@@ -433,7 +416,7 @@ class _TeamCardState extends State<_TeamCard> {
                   ),
                 ),
                 const SizedBox(height: 14),
-                // Hero spots-open number (the one non-prize exception)
+
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
@@ -505,9 +488,7 @@ class _TeamCardState extends State<_TeamCard> {
                       .map((role) => _MissingRolePill(label: role))
                       .toList(),
                 ),
-                // Flexible spacer absorbs the leftover height (card is a
-                // fixed 75%-of-page height) so the button pins to the
-                // bottom without squeezing the content above it.
+
                 const Spacer(),
                 const SizedBox(height: 20),
                 _SendJoinRequestButton(
@@ -553,8 +534,6 @@ class _MemberTile extends StatelessWidget {
       ),
     );
 
-    // Pressed tile gets a 2px apricot outline with a 2px offset while
-    // its member sheet is open.
     final Widget outlined = Container(
       padding: EdgeInsets.all(selected ? 2 : 0),
       decoration: selected
@@ -756,17 +735,11 @@ class _DashedRRectPainter extends CustomPainter {
   }
 }
 
-/// The trailing carousel page: matches the team cards' medium sizing and
-/// flips like any other page, but is visually distinct (dashed border,
-/// white surface) since it isn't a real team.
 class _CreateTeamCard extends StatelessWidget {
   const _CreateTeamCard({required this.onStart, this.alreadyHasTeam = false});
 
   final VoidCallback onStart;
 
-  /// Mock mode only: true when the current user already leads a team in
-  /// this hackathon — shows a message here instead of the create form,
-  /// since only one team per hackathon is allowed.
   final bool alreadyHasTeam;
 
   @override

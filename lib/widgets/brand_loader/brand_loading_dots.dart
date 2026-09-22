@@ -4,9 +4,6 @@ import 'package:flutter/material.dart';
 
 import '../../theme/vector_colors.dart';
 
-/// Three dots blinking in sequence below the full-screen logo: a separate
-/// 1.2s loop (independent of the logo's 2s cycle), each dot delayed by
-/// 0 / 0.2 / 0.4s, opacity keyframed 0.2 -> 1 at 30% -> 0.2.
 class BrandLoadingDots extends StatefulWidget {
   const BrandLoadingDots({super.key});
 

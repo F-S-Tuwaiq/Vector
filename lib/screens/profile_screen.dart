@@ -35,7 +35,6 @@ class ProfileScreen extends StatefulWidget {
   });
   final String? name;
 
-  /// Only already-public member fields. A display name is never an auth ID.
   final Member? member;
   final VoidCallback? onBack, onDiscover;
   final ProfileRepository repository;
@@ -45,8 +44,6 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => ProfileScreenState();
 }
 
-/// Public so [RootShell] can hold a `GlobalKey<ProfileScreenState>` and
-/// call [refreshOnFocus] when this tab gains focus.
 class ProfileScreenState extends State<ProfileScreen> {
   Map<String, dynamic> _profile = {};
   List<Map<String, dynamic>> _skills = [], _certificates = [];
@@ -92,7 +89,8 @@ class ProfileScreenState extends State<ProfileScreen> {
                 (h) => h.id == team.hackathonId,
                 orElse: () => mockHackathons.first,
               ),
-              status: team.membersInfo
+              status:
+                  team.membersInfo
                       .firstWhere(
                         (m) =>
                             m.initials == member.initials &&
@@ -164,9 +162,6 @@ class ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  /// Refetches this tab's teams — called when it gains focus so a team
-  /// just created (or deleted) elsewhere shows up here without a manual
-  /// pull-to-refresh.
   void refreshOnFocus() {
     if (!_teamsLoading && _own) _loadTeams();
   }
@@ -731,9 +726,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                               ),
                             ),
                             ProfileSection(
-                              title: _own
-                                  ? 'Your teams'
-                                  : "$firstName's teams",
+                              title: _own ? 'Your teams' : "$firstName's teams",
                               subtitle: _own
                                   ? (current.any((p) => p.isPreview)
                                         ? 'The people you build with. · Sample teams'
@@ -770,24 +763,22 @@ class ProfileScreenState extends State<ProfileScreen> {
                                               : VectorColors.purpleBrand,
                                           child: ProfileTeamRow(
                                             record: record,
-                                            onTap: () => Navigator.of(context)
-                                                .push(
-                                                  MaterialPageRoute<void>(
-                                                    builder: (_) =>
-                                                        ProfileTeamDetails(
-                                                          record: record,
-                                                          onDeleted:
-                                                              _own &&
-                                                                  widget.repository
-                                                                      is DemoProfileRepository &&
-                                                                  record.status ==
-                                                                      MembershipStatus
-                                                                          .leader
-                                                              ? _loadTeams
-                                                              : null,
-                                                        ),
-                                                  ),
+                                            onTap: () => Navigator.of(context).push(
+                                              MaterialPageRoute<void>(
+                                                builder: (_) => ProfileTeamDetails(
+                                                  record: record,
+                                                  onDeleted:
+                                                      _own &&
+                                                          widget.repository
+                                                              is DemoProfileRepository &&
+                                                          record.status ==
+                                                              MembershipStatus
+                                                                  .leader
+                                                      ? _loadTeams
+                                                      : null,
                                                 ),
+                                              ),
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -863,9 +854,6 @@ class ProfileTeamDetails extends StatefulWidget {
   const ProfileTeamDetails({super.key, required this.record, this.onDeleted});
   final ProfileParticipation record;
 
-  /// Present only when the viewer owns this team (their own, mock-only
-  /// "leader" team) — shows the "Delete team" action and is called after
-  /// a successful delete so the caller can refresh its team list.
   final VoidCallback? onDeleted;
 
   @override
@@ -982,8 +970,7 @@ class _ProfileTeamDetailsState extends State<ProfileTeamDetails> {
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       member.name,

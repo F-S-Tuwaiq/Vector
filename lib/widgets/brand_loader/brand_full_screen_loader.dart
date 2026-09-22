@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'v_logo_animation.dart';
 export 'v_logo_animation.dart' show VLogoSequence;
 
-/// Blurs the current page while keeping the animated V sharp above it.
 class BrandFullScreenLoader extends StatelessWidget {
   const BrandFullScreenLoader({super.key, this.sequence, this.onComplete});
 
@@ -45,7 +44,6 @@ class BrandFullScreenLoader extends StatelessWidget {
   }
 }
 
-/// Keeps the page mounted and visible beneath its loading overlay.
 class BrandLoadingRegion extends StatelessWidget {
   const BrandLoadingRegion({
     super.key,
@@ -63,9 +61,6 @@ class BrandLoadingRegion extends StatelessWidget {
   );
 }
 
-/// Shows [BrandFullScreenLoader] full-screen above everything (including
-/// any app bar / scaffold chrome) while [task] runs, then removes it and
-/// returns the task's result. Also used when fetching data before navigation.
 Future<T> runWithBrandFullScreenLoader<T>(
   BuildContext context,
   Future<T> Function() task, {

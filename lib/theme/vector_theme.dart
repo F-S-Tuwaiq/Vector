@@ -3,27 +3,6 @@ import 'package:flutter/material.dart';
 import 'vector_colors.dart';
 import 'vector_text.dart';
 
-/// The app's single [ThemeData] source. Use `VectorTheme.light` in
-/// `MaterialApp(theme: VectorTheme.light)`.
-///
-/// Component defaults encoded here (see Section 2.3/2.4 of the design spec):
-/// - Cards: radius 21, hairline border, white fill, no elevation/shadow.
-/// - Buttons: radius 13, no elevation, ~52 target height via minimumSize.
-///   NOTE: the primary/accent button uses a `buttonStart` -> `buttonEnd`
-///   gradient fill, which a themed ElevatedButton/FilledButton cannot paint
-///   via ButtonStyle alone. That button is NOT themed here — screens should
-///   build it by hand with a `DecoratedBox`/`Ink` using
-///   `VectorColors.primaryButtonGradient`, radius 13, height 52, and a
-///   `VectorText.labelLarge.copyWith(color: VectorColors.textNeutral)`
-///   label. The `elevatedButtonTheme` below covers everything else
-///   (secondary-style buttons, incidental ElevatedButtons) with flat
-///   `purpleBrand` fill / `textOnPurple` label per the "secondary button"
-///   recipe.
-/// - Inputs: radius 13 border, `inputBorder` enabled, `inputFocus` focused,
-///   `error` for error state.
-/// - Chips: unselected `surfaceLavender` fill / `textSecondaryPurple` label;
-///   selected `apricot` fill / `textNeutral` label; stadium shape.
-/// - Dialogs: white fill, radius 21, hairline border, `dialogBarrier` scrim.
 class VectorTheme {
   VectorTheme._();
 

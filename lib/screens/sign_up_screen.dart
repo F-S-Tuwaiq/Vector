@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:file_selector/file_selector.dart';
-import 'package:flutter/services.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../data/skill_catalog.dart';
 import 'root_shell.dart';
@@ -55,8 +55,6 @@ class _SignUpScreenState extends State<SignUpScreen>
   bool _loading = false;
   bool _awaitingVerification = false;
 
-  bool _acceptedTerms = false;
-  bool _acceptedPrivacy = false;
   bool _agreedToLegal = false;
 
   final Set<String> _selectedCategories = {'Design'};
@@ -227,14 +225,6 @@ class _SignUpScreenState extends State<SignUpScreen>
     return _agreedToLegal;
   }
 
-  bool get _canContinue {
-    return _name.text.trim().isNotEmpty &&
-        _validEmail &&
-        _validPassword &&
-        _legalAccepted &&
-        _linkedin.text.trim().isNotEmpty;
-  }
-
   double get _accountProgress {
     int completed = 0;
 
@@ -379,21 +369,34 @@ class _SignUpScreenState extends State<SignUpScreen>
       final verified = await showDialog<bool>(
         context: context,
         barrierDismissible: false,
-        builder: (context) => SignupCodeDialog(email: _email.text.trim(), password: _password.text),
+        builder: (context) => SignupCodeDialog(
+          email: _email.text.trim(),
+          password: _password.text,
+        ),
       );
       if (verified == true && mounted) {
         setState(() => _loading = false);
         await _createAccount();
       }
-    } catch (e, stackTrace) {
-      debugPrint('CREATE ACCOUNT ERROR: $e');
-      debugPrint('$stackTrace');
-
-      if (!mounted) {
-        return;
-      }
-
-      _showMessage(e.toString());
+    } on AuthException catch (error) {
+      _showMessage(switch (error.code) {
+        'user_already_exists' ||
+        'email_exists' => 'This email already has an account. Please sign in.',
+        'weak_password' =>
+          'Choose a stronger password with at least 8 characters.',
+        'over_request_rate_limit' || 'over_email_send_rate_limit' =>
+          'Too many attempts. Please wait before trying again.',
+        _ => error.message,
+      });
+    } on BackendNotConfigured {
+      _showMessage(
+        'Account creation is unavailable right now. Please try again later.',
+      );
+    } catch (error) {
+      debugPrint('Create account failed (${error.runtimeType}).');
+      _showMessage(
+        'Could not finish creating your account. Check your connection and try again.',
+      );
     } finally {
       if (mounted) {
         setState(() {
@@ -414,37 +417,11 @@ class _SignUpScreenState extends State<SignUpScreen>
   }
 
   Future<void> _openTerms() async {
-    final accepted = await showVectorLegalDocument(
-      context,
-      VectorLegalDocument.terms,
-    );
-
-    if (!mounted) {
-      return;
-    }
-
-    if (accepted) {
-      setState(() {
-        _acceptedTerms = true;
-      });
-    }
+    await showVectorLegalDocument(context, VectorLegalDocument.terms);
   }
 
   Future<void> _openPrivacy() async {
-    final accepted = await showVectorLegalDocument(
-      context,
-      VectorLegalDocument.privacy,
-    );
-
-    if (!mounted) {
-      return;
-    }
-
-    if (accepted) {
-      setState(() {
-        _acceptedPrivacy = true;
-      });
-    }
+    await showVectorLegalDocument(context, VectorLegalDocument.privacy);
   }
 
   @override
@@ -691,13 +668,12 @@ class _SignUpScreenState extends State<SignUpScreen>
 
               const SizedBox(height: 23),
 
-              // CATEGORY TABS
               SizedBox(
                 height: 45,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: _skills.keys.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 10),
+                  separatorBuilder: (_, _) => const SizedBox(width: 10),
                   itemBuilder: (context, index) {
                     final category = _skills.keys.elementAt(index);
 
@@ -768,12 +744,10 @@ class _SignUpScreenState extends State<SignUpScreen>
                 );
               }),
 
-              // ADD CUSTOM SKILL
               _addSkillCard(currentSkills),
 
               const SizedBox(height: 23),
 
-              // SUGGESTIONS
               Text(
                 'Suggestions',
                 style: AppTypography.sans(
@@ -826,13 +800,10 @@ class _SignUpScreenState extends State<SignUpScreen>
 
               const SizedBox(height: 20),
 
-              // CREATE ACCOUNT
-              // No in-button spinner here: the full-screen brand loader
-              // (via runWithBrandFullScreenLoader above) takes over the
-              // instant this is tapped, so there's nothing left for the
-              // button itself to show mid-submission.
               _gradientButton(
-                text: _awaitingVerification ? 'Complete sign-up' : 'Create account',
+                text: _awaitingVerification
+                    ? 'Complete sign-up'
+                    : 'Create account',
                 onTap: _loading ? null : _createAccount,
               ),
 
@@ -1174,7 +1145,6 @@ class _SignUpScreenState extends State<SignUpScreen>
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Actual checkbox.
         InkWell(
           borderRadius: BorderRadius.circular(5),
           onTap: () {
@@ -1324,7 +1294,6 @@ class _SignUpScreenState extends State<SignUpScreen>
                 ),
               ),
 
-              // Certificate attachment icon
               IconButton(
                 tooltip: 'Attach certificate',
                 visualDensity: VisualDensity.compact,
@@ -1698,8 +1667,6 @@ class _SignUpScreenState extends State<SignUpScreen>
       },
     );
 
-    // The bottom sheet is now finished closing before
-    // we modify the signup page state.
     if (!mounted || selectedSkill == null) {
       return;
     }

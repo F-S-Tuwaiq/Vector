@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../theme/vector_colors.dart';
 
-/// Paints the two-stroke "V" mark on a 500x500 viewBox, scaled to fit
-/// [Size]. Orange is painted first (underneath), white second (on top),
-/// so the white round cap covers the orange arm's start at the vertex.
 class VLogoPainter extends CustomPainter {
   const VLogoPainter({
     required this.whiteReveal,
@@ -12,14 +9,10 @@ class VLogoPainter extends CustomPainter {
     required this.orangeOpacity,
   });
 
-  /// 0..1 fraction of the white arm drawn, from (130,142) to (251,346).
   final double whiteReveal;
 
-  /// 0..1 fraction of the orange arm drawn, from (256,337) to (371,134).
   final double orangeReveal;
 
-  /// 0 or 1 — the orange arm is fully hidden while the white arm draws,
-  /// then snaps to visible.
   final double orangeOpacity;
 
   static const double _viewBoxSize = 500;

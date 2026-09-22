@@ -3,11 +3,9 @@ import 'package:flutter/material.dart';
 import '../theme/vector_colors.dart';
 import '../theme/vector_text.dart';
 
-/// The same logo asset used on the login screen, followed by "ector".
 class VectorWordmark extends StatelessWidget {
   const VectorWordmark({super.key, this.style});
 
-  /// Text style for "ector"; also controls the logo's proportional size.
   final TextStyle? style;
 
   @override
@@ -15,10 +13,9 @@ class VectorWordmark extends StatelessWidget {
     final TextStyle effectiveStyle =
         style ??
         VectorText.titleLarge.copyWith(color: VectorColors.textOnPurple);
-    final double fontSize = MediaQuery.textScalerOf(context).scale(
-      effectiveStyle.fontSize ?? 19,
-    );
-    // Match the login wordmark's crop and proportions at its 31px text size.
+    final double fontSize = MediaQuery.textScalerOf(context)
+        .scale(effectiveStyle.fontSize ?? 19);
+
     final double scale = fontSize / 31;
     final double imageSize = 52 * scale;
 
