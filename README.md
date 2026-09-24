@@ -104,6 +104,33 @@ Vector pays attention to the details that are usually skipped.
 </tr>
 </table>
 
+<table>
+<tr>
+<td align="center" valign="top">
+<h3 align="center">📧 Email Confirmation</h3>
+<table>
+<tr>
+<th align="center">Email Confirmation</th>
+</tr>
+<tr>
+<td align="center"><img src="screenshots/email-confirmation.png" width="190" alt="Email Confirmation"/></td>
+</tr>
+</table>
+</td>
+<td align="center" valign="top">
+<h3 align="center">⏳ Brand Loader</h3>
+<table>
+<tr>
+<th align="center">Loading Icon</th>
+</tr>
+<tr>
+<td align="center"><img src="screenshots/loading-icon.png" width="190" alt="Loading Icon"/></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+
 ### 🔍 Discovery & Joining — Hackathons, Teams & Requests
 
 <table>
@@ -165,34 +192,16 @@ Vector pays attention to the details that are usually skipped.
 </tr>
 </table>
 
-<table>
-<tr>
-<td align="center" valign="top">
-<h3 align="center">⚙️ Settings & About</h3>
+### ⚙️ Settings & About
+
 <table>
 <tr>
 <th align="center">Settings</th>
 <th align="center">About Us</th>
 </tr>
 <tr>
-<td align="center"><img src="screenshots/settings.png" width="150" alt="Settings"/></td>
-<td align="center"><img src="screenshots/about.png" width="150" alt="About Us"/></td>
-</tr>
-</table>
-</td>
-<td align="center" valign="top">
-<h3 align="center">📧 Email Confirmation & Loader</h3>
-<table>
-<tr>
-<th align="center">Email Confirmation</th>
-<th align="center">Loading Icon</th>
-</tr>
-<tr>
-<td align="center"><img src="screenshots/email-confirmation.png" width="150" alt="Email Confirmation"/></td>
-<td align="center"><img src="screenshots/loading-icon.png" width="150" alt="Loading Icon"/></td>
-</tr>
-</table>
-</td>
+<td align="center"><img src="screenshots/settings.png" width="190" alt="Settings"/></td>
+<td align="center"><img src="screenshots/about.png" width="190" alt="About Us"/></td>
 </tr>
 </table>
 
