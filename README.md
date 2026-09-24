@@ -90,119 +90,110 @@ Vector pays attention to the details that are usually skipped.
 ### 🚀 Onboarding — Splash, Login & Sign Up
 
 <table>
-  <tr>
-    <th align="center">Splash</th>
-    <th align="center">Log In</th>
-    <th align="center">Sign Up — Account</th>
-    <th align="center">Sign Up — Skills</th>
-  </tr>
-  <tr>
-    <td align="center"><img src="screenshots/splash.png" width="190" alt="Splash"/></td>
-    <td align="center"><img src="screenshots/login.png" width="190" alt="Log In"/></td>
-    <td align="center"><img src="screenshots/signup-account.png" width="190" alt="Sign Up — Account"/></td>
-    <td align="center"><img src="screenshots/signup-skills.png" width="190" alt="Sign Up — Skills"/></td>
-  </tr>
-  <tr>
-    <td align="center"><sub>Animated brand splash</sub></td>
-    <td align="center"><sub>Sign in, sign up, or continue as guest</sub></td>
-    <td align="center"><sub>Step 1 of 2 — essentials & profiles</sub></td>
-    <td align="center"><sub>Step 2 of 2 — skills & evidence</sub></td>
-  </tr>
-</table>
-
-<table>
-  <tr>
-    <th align="center">Email Confirmation</th>
-    <th align="center">Customized Loading Icon</th>
-  </tr>
-  <tr>
-    <td align="center"><img src="screenshots/email-confirmation.png" width="190" alt="Email Confirmation"/></td>
-    <td align="center"><img src="screenshots/loading-icon.png" width="190" alt="Customized Loading Icon"/></td>
-  </tr>
-  <tr>
-    <td align="center"><sub>Branded page shown after verifying email</sub></td>
-    <td align="center"><sub>The "V" mark drawn stroke-by-stroke</sub></td>
-  </tr>
+<tr>
+<th align="center">Splash</th>
+<th align="center">Log In</th>
+<th align="center">Sign Up — Account</th>
+<th align="center">Sign Up — Skills</th>
+</tr>
+<tr>
+<td align="center"><img src="screenshots/splash.png" width="190" alt="Splash"/></td>
+<td align="center"><img src="screenshots/login.png" width="190" alt="Log In"/></td>
+<td align="center"><img src="screenshots/signup-account.png" width="190" alt="Sign Up — Account"/></td>
+<td align="center"><img src="screenshots/signup-skills.png" width="190" alt="Sign Up — Skills"/></td>
+</tr>
 </table>
 
 ### 🔍 Discovery & Joining — Hackathons, Teams & Requests
 
 <table>
-  <tr>
-    <th align="center">Home — Hackathons</th>
-    <th align="center">Team Details</th>
-    <th align="center">Request Sent</th>
-  </tr>
-  <tr>
-    <td align="center"><img src="screenshots/home.png" width="190" alt="Home — Hackathons"/></td>
-    <td align="center"><img src="screenshots/team-details.png" width="190" alt="Team Details"/></td>
-    <td align="center"><img src="screenshots/request-sent.png" width="190" alt="Request Sent"/></td>
-  </tr>
-  <tr>
-    <td align="center"><sub>Browse hackathons by field</sub></td>
-    <td align="center"><sub>Open spots & missing roles</sub></td>
-    <td align="center"><sub>Join request confirmation</sub></td>
-  </tr>
+<tr>
+<th align="center">Home — Hackathons</th>
+<th align="center">Team Details</th>
+<th align="center">Request Sent</th>
+</tr>
+<tr>
+<td align="center"><img src="screenshots/home.png" width="190" alt="Home — Hackathons"/></td>
+<td align="center"><img src="screenshots/team-details.png" width="190" alt="Team Details"/></td>
+<td align="center"><img src="screenshots/request-sent.png" width="190" alt="Request Sent"/></td>
+</tr>
 </table>
 
 ### 👥 Teams — Create & Manage Your Team
 
 <table>
-  <tr>
-    <th align="center">Create a New Team</th>
-    <th align="center">Create Your Team</th>
-    <th align="center">My Team — Leader View</th>
-  </tr>
-  <tr>
-    <td align="center"><img src="screenshots/create-team-card.png" width="190" alt="Create a New Team"/></td>
-    <td align="center"><img src="screenshots/create-team.png" width="190" alt="Create Your Team"/></td>
-    <td align="center"><img src="screenshots/my-team.png" width="190" alt="My Team — Leader View"/></td>
-  </tr>
-  <tr>
-    <td align="center"><sub>Last card in the team carousel</sub></td>
-    <td align="center"><sub>Name, size & roles you need</sub></td>
-    <td align="center"><sub>Members, event teams & delete</sub></td>
-  </tr>
+<tr>
+<th align="center">Create a New Team</th>
+<th align="center">Create Your Team</th>
+<th align="center">My Team — Leader View</th>
+</tr>
+<tr>
+<td align="center"><img src="screenshots/create-team-card.png" width="190" alt="Create a New Team"/></td>
+<td align="center"><img src="screenshots/create-team.png" width="190" alt="Create Your Team"/></td>
+<td align="center"><img src="screenshots/my-team.png" width="190" alt="My Team — Leader View"/></td>
+</tr>
 </table>
 
-### ✉️ Invites — Incoming & Sent
-
 <table>
-  <tr>
-    <th align="center">Invites — Incoming</th>
-    <th align="center">Invites — Sent</th>
-  </tr>
-  <tr>
-    <td align="center"><img src="screenshots/invites-incoming.png" width="190" alt="Invites — Incoming"/></td>
-    <td align="center"><img src="screenshots/invites-sent.png" width="190" alt="Invites — Sent"/></td>
-  </tr>
-  <tr>
-    <td align="center"><sub>Accept or decline in one tap</sub></td>
-    <td align="center"><sub>Track pending, declined & accepted</sub></td>
-  </tr>
+<tr>
+<td align="center" valign="top">
+<h3 align="center">✉️ Invites — Incoming & Sent</h3>
+<table>
+<tr>
+<th align="center">Incoming</th>
+<th align="center">Sent</th>
+</tr>
+<tr>
+<td align="center"><img src="screenshots/invites-incoming.png" width="150" alt="Incoming"/></td>
+<td align="center"><img src="screenshots/invites-sent.png" width="150" alt="Sent"/></td>
+</tr>
+</table>
+</td>
+<td align="center" valign="top">
+<h3 align="center">👤 Profile — Skills & Teams</h3>
+<table>
+<tr>
+<th align="center">Profile</th>
+<th align="center">Skills & Teams</th>
+</tr>
+<tr>
+<td align="center"><img src="screenshots/profile.png" width="150" alt="Profile"/></td>
+<td align="center"><img src="screenshots/profile-teams.png" width="150" alt="Skills & Teams"/></td>
+</tr>
+</table>
+</td>
+</tr>
 </table>
 
-### 👤 Profile — Skills, Settings & About
-
 <table>
-  <tr>
-    <th align="center">Profile</th>
-    <th align="center">Profile — Skills & Teams</th>
-    <th align="center">Settings</th>
-    <th align="center">About Us</th>
-  </tr>
-  <tr>
-    <td align="center"><img src="screenshots/profile.png" width="190" alt="Profile"/></td>
-    <td align="center"><img src="screenshots/profile-teams.png" width="190" alt="Profile — Skills & Teams"/></td>
-    <td align="center"><img src="screenshots/settings.png" width="190" alt="Settings"/></td>
-    <td align="center"><img src="screenshots/about.png" width="190" alt="About Us"/></td>
-  </tr>
-  <tr>
-    <td align="center"><sub>Identity, links & about</sub></td>
-    <td align="center"><sub>Skills, your teams & history</sub></td>
-    <td align="center"><sub>Account, preferences & privacy</sub></td>
-    <td align="center"><sub>The story behind the name</sub></td>
-  </tr>
+<tr>
+<td align="center" valign="top">
+<h3 align="center">⚙️ Settings & About</h3>
+<table>
+<tr>
+<th align="center">Settings</th>
+<th align="center">About Us</th>
+</tr>
+<tr>
+<td align="center"><img src="screenshots/settings.png" width="150" alt="Settings"/></td>
+<td align="center"><img src="screenshots/about.png" width="150" alt="About Us"/></td>
+</tr>
+</table>
+</td>
+<td align="center" valign="top">
+<h3 align="center">📧 Email Confirmation & Loader</h3>
+<table>
+<tr>
+<th align="center">Email Confirmation</th>
+<th align="center">Loading Icon</th>
+</tr>
+<tr>
+<td align="center"><img src="screenshots/email-confirmation.png" width="150" alt="Email Confirmation"/></td>
+<td align="center"><img src="screenshots/loading-icon.png" width="150" alt="Loading Icon"/></td>
+</tr>
+</table>
+</td>
+</tr>
 </table>
 
 </div>
