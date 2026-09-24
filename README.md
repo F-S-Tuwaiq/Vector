@@ -25,12 +25,34 @@ Browse hackathons — discover open teams — connect through requests and invit
 
 *The final project of **Tuwaiq Academy**'s Flutter & Dart Bootcamp.*
 
+**[🌐 Try the web app](https://f-s-tuwaiq.github.io/Vector/)**  ·  **[🎬 Watch the demo](#demo)**  ·  **[📧 Email confirmation page](https://vector-email-confirmation.shammalbinni.chatgpt.site)**
+
 </div>
 
 <br/>
 
 ---
 
+<details>
+<summary><b>📑 Table of contents</b> — click to expand</summary>
+
+<br/>
+
+- [🎬 Demo](#demo)
+- [📖 The Story](#story)
+- [✨ Features](#features)
+- [🎨 Design & Details](#design)
+- [📱 Screenshots](#screenshots)
+- [🛠️ Tech Stack](#tech-stack)
+- [📂 Project Structure](#project-structure)
+- [🚀 Running Vector](#running-vector) — including the Supabase setup
+- [👥 Team](#team)
+
+</details>
+
+---
+
+<a id="demo"></a>
 ## 🎬 Demo
 
 <div align="center">
@@ -41,6 +63,7 @@ https://github.com/user-attachments/assets/862592c9-7e34-4c48-a99c-9f183468c67a
 
 ---
 
+<a id="story"></a>
 ## 📖 The Story
 
 We lived this problem ourselves. Every hackathon began the same way: capable people searching for a team, strong teams missing one essential skill, and valuable hours lost before the real work could even begin.
@@ -54,13 +77,14 @@ The name carries the idea. In mathematics, a vector holds both magnitude and dir
 
 ---
 
+<a id="features"></a>
 ## ✨ Features
 
 | | |
 |---|---|
 | **Guest Mode** | Explore the whole app before creating an account — browse hackathons, teams, and profiles as a guest |
 | **Two-Step Signup** | Account essentials with LinkedIn (required) and GitHub (optional), then pick 1–6 skills across Design, Development, and Product |
-| **Email Verification** | A custom-branded confirmation page guides users back to the app, which securely verifies the confirmation before saving the account |
+| **Email Confirmation** | Signing up sends a confirmation link by email. It opens Vector's own branded website, which guides the user back to the app. One tap on **I've confirmed my email** and the app checks with Supabase that the email is really confirmed before saving the account and profile |
 | **Hackathon Discovery** | Browse hackathons filtered by field — Security, AI, GovTech, Energy — with prizes, dates, and location at a glance |
 | **Team Carousel** | Flip through every team in a hackathon, see open spots, current members, and the exact roles each team is missing |
 | **Join Requests** | Send a request in one tap, then track it as Pending, Accepted, or Declined — and withdraw it anytime while pending |
@@ -70,6 +94,7 @@ The name carries the idea. In mathematics, a vector holds both magnitude and dir
 | **Skills & Evidence** | A profile built around what you bring — skills backed by uploaded certificates, your current teams, and previous participation |
 | **Integrity by Design** | Uploaded certificates are hashed, eliminating duplicate files at the source |
 
+<a id="design"></a>
 ## 🎨 Design & Details
 
 Vector pays attention to the details that are usually skipped.
@@ -77,12 +102,13 @@ Vector pays attention to the details that are usually skipped.
 - **Custom brand loader** — the "V" mark is drawn stroke-by-stroke as a custom animation, used at launch, login, and signup, with a smaller overlay version for long-running operations
 - **No dead loading states** — lists load behind skeleton shimmer placeholders, and write actions show progress inside the button itself
 - **Custom motion** — animated splash, a flip-style team carousel, and a hand-built bottom navigation bar
-- **Consistent brand beyond the app** — the email confirmation page carries the same identity, colors, and typography as the app itself
+- **Consistent brand beyond the app** — email confirmation lives on its own standalone website that carries the same identity, colors, and typography as the app itself
 - **Centralized design system** — zero inline colors in the codebase; every color, text style, and theme value comes from design tokens (`VectorColors`, `VectorText`, `VectorTheme`)
-- **Security in the details** — OTP email verification, credentials kept out of the codebase via `.env`, and certificate uploads hashed to block duplicates at the source
+- **Security in the details** — accounts are saved only after the email is confirmed through a secure link, credentials stay out of the codebase via `.env`, and certificate uploads are hashed to block duplicates at the source
 
 ---
 
+<a id="screenshots"></a>
 ## 📱 Screenshots
 
 <div align="center">
@@ -209,38 +235,88 @@ Vector pays attention to the details that are usually skipped.
 
 ---
 
+<a id="tech-stack"></a>
 ## 🛠️ Tech Stack
 
 | Layer | Technology |
 |---|---|
 | Framework | Flutter / Dart (SDK ^3.13.1) — a single codebase for iOS, Android, and Web |
-| Backend | Supabase — Postgres, Auth with OTP email verification, and Storage, via `supabase_flutter` |
+| Backend | Supabase — Postgres, Auth with email-link confirmation, and Storage, via `supabase_flutter` |
 | Configuration | `flutter_dotenv` — credentials stay out of the codebase |
 | Files | `file_selector` — certificate selection and upload |
 | Typography | `google_fonts` |
 | Integrity | `crypto` — file hashing to prevent duplicate uploads |
 
+<a id="project-structure"></a>
 ## 📂 Project Structure
 
 ```
-lib/
-├── main.dart       # Entry point — initializes Supabase and launches the app
-├── screens/        # Splash, auth, home, teams, invites, profile, create team, navigation shell
-├── data/           # Supabase-backed repositories with a graceful mock fallback
-├── models/         # Hackathon · Team · Member · Invitation · SentRequest
-├── services/       # Authentication, account creation, certificate upload, sign out
-├── widgets/        # Brand loader, skeleton loaders, cards, dialogs, shared UI
-└── theme/          # Design tokens — VectorColors, VectorText, VectorTheme
+Vector/
+├── lib/
+│   ├── main.dart           # Entry point — initializes Supabase and launches the app
+│   ├── screens/            # Splash, auth, home, teams, invites, profile, settings, create team, navigation shell
+│   ├── data/               # Supabase-backed repositories with a graceful mock fallback
+│   ├── models/             # Hackathon · Team · Member · Invitation · SentRequest
+│   ├── services/           # Authentication, account creation, certificate upload, guest session
+│   ├── widgets/            # Brand loader, skeleton loaders, cards, dialogs, shared UI
+│   └── theme/              # Design tokens — VectorColors, VectorText, VectorTheme
+├── auth-confirmation/      # The branded email-confirmation website users land on
+├── vector-site/            # Project landing page
+├── docs/                   # Email authentication and profile integration notes
+├── test/                   # Widget and service tests (backend mocked)
+├── tool/                   # build_web.py — validated production build for the web app
+└── screenshots/            # Images used in this README
 ```
 
+<a id="running-vector"></a>
 ## 🚀 Running Vector
 
 Vector runs out of the box — no configuration needed. The app ships with a built-in mock data layer, so every screen and flow works immediately after `flutter pub get`.
 
 To connect a live backend, add a `.env` file with your Supabase credentials. Authentication, live data, and storage activate automatically — no code changes required.
 
+<details>
+<summary><b>🔌 Connecting your own Supabase project</b> — click to expand</summary>
+
+<br/>
+
+**1. Credentials.** Create a Supabase project, copy `.env.example` to `.env`, and fill in the two public values:
+
+```
+SUPABASE_URL=https://<your-project>.supabase.co
+SUPABASE_ANON_KEY=<your-anon-or-publishable-key>
+```
+
+Use only the public anon key — never the service-role key. On the web, this file is downloadable by anyone.
+
+**2. Email confirmation.** In *Authentication*:
+- Turn on **Confirm email**.
+- Set the **Site URL** and add the same address to the **Redirect URLs** allow-list. Vector uses its confirmation website (source in `auth-confirmation/`), currently `https://vector-email-confirmation.shammalbinni.chatgpt.site`.
+- Keep the default confirmation-link email. The user opens the link, returns to the app, and taps **I've confirmed my email**.
+
+**3. Tables.** The app reads and writes these:
+
+| Table | Holds |
+|---|---|
+| `hackathons` | Events shown on Home |
+| `teams` | Teams for each hackathon, their size and missing roles |
+| `join_requests` | Requests users send to teams |
+| `invitations` | Invites teams send to users |
+| `profiles` | Name, LinkedIn, and GitHub for each user |
+| `user_skills` | The 1–6 skills each user picked |
+| `skill_certificates` | Links a skill to its uploaded evidence file |
+
+**4. Storage.** Create a private bucket named `certificates`. Evidence files are PDF, PNG, or JPG up to 10 MB, saved under their SHA-256 hash, and opened through 60-second signed URLs.
+
+**5. Row Level Security.** Enable RLS and add policies so users can only change their own records (profile, skills, requests, evidence files). Storage policies decide who can open a file.
+
+> The repository doesn't include a SQL schema yet, so table columns and policies are set up by hand. Until Supabase is configured, the app falls back to its built-in mock data.
+
+</details>
+
 ---
 
+<a id="team"></a>
 ## 👥 Team
 
 <div align="center">
