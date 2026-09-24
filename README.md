@@ -111,10 +111,10 @@ Vector pays attention to the details that are usually skipped.
 <th align="center">Sign Up — Skills</th>
 </tr>
 <tr>
-<td align="center"><img src="screenshots/splash.png" width="190" alt="Splash"/></td>
-<td align="center"><img src="screenshots/login.png" width="190" alt="Log In"/></td>
-<td align="center"><img src="screenshots/signup-account.png" width="190" alt="Sign Up — Account"/></td>
-<td align="center"><img src="screenshots/signup-skills.png" width="190" alt="Sign Up — Skills"/></td>
+<td align="center"><img src="screenshots/splash.png" width="150" alt="Splash"/></td>
+<td align="center"><img src="screenshots/login.png" width="150" alt="Log In"/></td>
+<td align="center"><img src="screenshots/signup-account.png" width="150" alt="Sign Up — Account"/></td>
+<td align="center"><img src="screenshots/signup-skills.png" width="150" alt="Sign Up — Skills"/></td>
 </tr>
 </table>
 
@@ -127,7 +127,7 @@ Vector pays attention to the details that are usually skipped.
 <th align="center">Certificate Upload</th>
 </tr>
 <tr>
-<td align="center"><img src="screenshots/upload-certificate.png" width="180" alt="Certificate Upload"/></td>
+<td align="center"><img src="screenshots/upload-certificate.png" width="150" alt="Certificate Upload"/></td>
 </tr>
 </table>
 </td>
@@ -138,7 +138,7 @@ Vector pays attention to the details that are usually skipped.
 <th align="center">Email Confirmation</th>
 </tr>
 <tr>
-<td align="center"><img src="screenshots/email-confirmation.png" width="180" alt="Email Confirmation"/></td>
+<td align="center"><img src="screenshots/email-confirmation.png" width="150" alt="Email Confirmation"/></td>
 </tr>
 </table>
 </td>
@@ -149,7 +149,7 @@ Vector pays attention to the details that are usually skipped.
 <th align="center">Loading Icon</th>
 </tr>
 <tr>
-<td align="center"><img src="screenshots/loading-icon.png" width="180" alt="Loading Icon"/></td>
+<td align="center"><img src="screenshots/loading-icon.png" width="150" alt="Loading Icon"/></td>
 </tr>
 </table>
 </td>
@@ -165,9 +165,9 @@ Vector pays attention to the details that are usually skipped.
 <th align="center">Request Sent</th>
 </tr>
 <tr>
-<td align="center"><img src="screenshots/home.png" width="190" alt="Home — Hackathons"/></td>
-<td align="center"><img src="screenshots/team-details.png" width="190" alt="Team Details"/></td>
-<td align="center"><img src="screenshots/request-sent.png" width="190" alt="Request Sent"/></td>
+<td align="center"><img src="screenshots/home.png" width="150" alt="Home — Hackathons"/></td>
+<td align="center"><img src="screenshots/team-details.png" width="150" alt="Team Details"/></td>
+<td align="center"><img src="screenshots/request-sent.png" width="150" alt="Request Sent"/></td>
 </tr>
 </table>
 
@@ -180,9 +180,9 @@ Vector pays attention to the details that are usually skipped.
 <th align="center">My Team — Leader View</th>
 </tr>
 <tr>
-<td align="center"><img src="screenshots/create-team-card.png" width="190" alt="Create a New Team"/></td>
-<td align="center"><img src="screenshots/create-team.png" width="190" alt="Create Your Team"/></td>
-<td align="center"><img src="screenshots/my-team.png" width="190" alt="My Team — Leader View"/></td>
+<td align="center"><img src="screenshots/create-team-card.png" width="150" alt="Create a New Team"/></td>
+<td align="center"><img src="screenshots/create-team.png" width="150" alt="Create Your Team"/></td>
+<td align="center"><img src="screenshots/my-team.png" width="150" alt="My Team — Leader View"/></td>
 </tr>
 </table>
 
@@ -225,8 +225,8 @@ Vector pays attention to the details that are usually skipped.
 <th align="center">About Us</th>
 </tr>
 <tr>
-<td align="center"><img src="screenshots/settings.png" width="190" alt="Settings"/></td>
-<td align="center"><img src="screenshots/about.png" width="190" alt="About Us"/></td>
+<td align="center"><img src="screenshots/settings.png" width="150" alt="Settings"/></td>
+<td align="center"><img src="screenshots/about.png" width="150" alt="About Us"/></td>
 </tr>
 </table>
 
