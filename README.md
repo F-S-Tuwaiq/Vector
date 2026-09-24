@@ -25,7 +25,7 @@ Browse hackathons — discover open teams — connect through requests and invit
 
 *The final project of **Tuwaiq Academy**'s Flutter & Dart Bootcamp.*
 
-**[🌐 Try the web app](https://f-s-tuwaiq.github.io/Vector/)**  ·  **[🎬 Watch the demo](https://github.com/user-attachments/assets/862592c9-7e34-4c48-a99c-9f183468c67a)**  ·  **[🖼️ View the poster](https://github.com/F-S-Tuwaiq/Vector/blob/main/docs/poster.jpg)**  ·  **[📧 Email confirmation page](https://vector-email-confirmation.shammalbinni.chatgpt.site)**
+**[🌐 Try the web app](https://f-s-tuwaiq.github.io/Vector/)**  ·  **[🎬 Watch the demo](https://github.com/user-attachments/assets/862592c9-7e34-4c48-a99c-9f183468c67a)**  ·  **[📧 Email confirmation page](https://vector-email-confirmation.shammalbinni.chatgpt.site)**
 
 </div>
 
