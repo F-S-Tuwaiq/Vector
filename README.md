@@ -102,66 +102,16 @@ Vector pays attention to the details that are usually skipped.
 <div align="center">
 
 <table width="100%">
-<tr>
-<th width="25%" align="center" valign="middle">Splash</th>
-<th width="25%" align="center" valign="middle">Log In</th>
-<th width="25%" align="center" valign="middle">Sign Up — Account</th>
-<th width="25%" align="center" valign="middle">Sign Up — Skills</th>
-</tr>
-<tr>
-<td width="25%" align="center" valign="middle"><img src="screenshots/splash.png" width="150" alt="Splash"/></td>
-<td width="25%" align="center" valign="middle"><img src="screenshots/login.png" width="150" alt="Log In"/></td>
-<td width="25%" align="center" valign="middle"><img src="screenshots/signup-account.png" width="150" alt="Sign Up — Account"/></td>
-<td width="25%" align="center" valign="middle"><img src="screenshots/signup-skills.png" width="150" alt="Sign Up — Skills"/></td>
-</tr>
-<tr>
-<th width="25%" align="center" valign="middle">Skill Evidence</th>
-<th width="25%" align="center" valign="middle">Email Confirmation</th>
-<th width="25%" align="center" valign="middle">Brand Loader</th>
-<th width="25%" align="center" valign="middle">Home — Hackathons</th>
-</tr>
-<tr>
-<td width="25%" align="center" valign="middle"><img src="screenshots/upload-certificate.png" width="150" alt="Skill Evidence"/></td>
-<td width="25%" align="center" valign="middle"><img src="screenshots/email-confirmation.png" width="150" alt="Email Confirmation"/></td>
-<td width="25%" align="center" valign="middle"><img src="screenshots/loading-icon.png" width="150" alt="Brand Loader"/></td>
-<td width="25%" align="center" valign="middle"><img src="screenshots/home.png" width="150" alt="Home — Hackathons"/></td>
-</tr>
-<tr>
-<th width="25%" align="center" valign="middle">Team Details</th>
-<th width="25%" align="center" valign="middle">Request Sent</th>
-<th width="25%" align="center" valign="middle">Create a New Team</th>
-<th width="25%" align="center" valign="middle">Create Your Team</th>
-</tr>
-<tr>
-<td width="25%" align="center" valign="middle"><img src="screenshots/team-details.png" width="150" alt="Team Details"/></td>
-<td width="25%" align="center" valign="middle"><img src="screenshots/request-sent.png" width="150" alt="Request Sent"/></td>
-<td width="25%" align="center" valign="middle"><img src="screenshots/create-team-card.png" width="150" alt="Create a New Team"/></td>
-<td width="25%" align="center" valign="middle"><img src="screenshots/create-team.png" width="150" alt="Create Your Team"/></td>
-</tr>
-<tr>
-<th width="25%" align="center" valign="middle">My Team — Leader View</th>
-<th width="25%" align="center" valign="middle">Invites — Incoming</th>
-<th width="25%" align="center" valign="middle">Invites — Sent</th>
-<th width="25%" align="center" valign="middle">Profile</th>
-</tr>
-<tr>
-<td width="25%" align="center" valign="middle"><img src="screenshots/my-team.png" width="150" alt="My Team — Leader View"/></td>
-<td width="25%" align="center" valign="middle"><img src="screenshots/invites-incoming.png" width="150" alt="Invites — Incoming"/></td>
-<td width="25%" align="center" valign="middle"><img src="screenshots/invites-sent.png" width="150" alt="Invites — Sent"/></td>
-<td width="25%" align="center" valign="middle"><img src="screenshots/profile.png" width="150" alt="Profile"/></td>
-</tr>
-<tr>
-<th width="25%" align="center" valign="middle">Profile — Skills & Teams</th>
-<th width="25%" align="center" valign="middle">Settings</th>
-<th width="25%" align="center" valign="middle">About Us</th>
-<th width="25%"></th>
-</tr>
-<tr>
-<td width="25%" align="center" valign="middle"><img src="screenshots/profile-teams.png" width="150" alt="Profile — Skills & Teams"/></td>
-<td width="25%" align="center" valign="middle"><img src="screenshots/settings.png" width="150" alt="Settings"/></td>
-<td width="25%" align="center" valign="middle"><img src="screenshots/about.png" width="150" alt="About Us"/></td>
-<td width="25%"></td>
-</tr>
+<tr><th width="25%" align="center" valign="middle">Splash</th><th width="25%" align="center" valign="middle">Log In</th><th width="25%" align="center" valign="middle">Sign Up — Account</th><th width="25%" align="center" valign="middle">Sign Up — Skills</th></tr>
+<tr><td width="25%" align="center" valign="middle"><img src="screenshots/splash.png" width="150" alt="Splash"/></td><td width="25%" align="center" valign="middle"><img src="screenshots/login.png" width="150" alt="Log In"/></td><td width="25%" align="center" valign="middle"><img src="screenshots/signup-account.png" width="150" alt="Sign Up — Account"/></td><td width="25%" align="center" valign="middle"><img src="screenshots/signup-skills.png" width="150" alt="Sign Up — Skills"/></td></tr>
+<tr><th width="25%" align="center" valign="middle">Skill Evidence</th><th width="25%" align="center" valign="middle">Email Confirmation</th><th width="25%" align="center" valign="middle">Brand Loader</th><th width="25%" align="center" valign="middle">Home — Hackathons</th></tr>
+<tr><td width="25%" align="center" valign="middle"><img src="screenshots/upload-certificate.png" width="150" alt="Skill Evidence"/></td><td width="25%" align="center" valign="middle"><img src="screenshots/email-confirmation.png" width="150" alt="Email Confirmation"/></td><td width="25%" align="center" valign="middle"><img src="screenshots/loading-icon.png" width="150" alt="Brand Loader"/></td><td width="25%" align="center" valign="middle"><img src="screenshots/home.png" width="150" alt="Home — Hackathons"/></td></tr>
+<tr><th width="25%" align="center" valign="middle">Team Details</th><th width="25%" align="center" valign="middle">Request Sent</th><th width="25%" align="center" valign="middle">Create a New Team</th><th width="25%" align="center" valign="middle">Create Your Team</th></tr>
+<tr><td width="25%" align="center" valign="middle"><img src="screenshots/team-details.png" width="150" alt="Team Details"/></td><td width="25%" align="center" valign="middle"><img src="screenshots/request-sent.png" width="150" alt="Request Sent"/></td><td width="25%" align="center" valign="middle"><img src="screenshots/create-team-card.png" width="150" alt="Create a New Team"/></td><td width="25%" align="center" valign="middle"><img src="screenshots/create-team.png" width="150" alt="Create Your Team"/></td></tr>
+<tr><th width="25%" align="center" valign="middle">My Team — Leader View</th><th width="25%" align="center" valign="middle">Invites — Incoming</th><th width="25%" align="center" valign="middle">Invites — Sent</th><th width="25%" align="center" valign="middle">Profile</th></tr>
+<tr><td width="25%" align="center" valign="middle"><img src="screenshots/my-team.png" width="150" alt="My Team — Leader View"/></td><td width="25%" align="center" valign="middle"><img src="screenshots/invites-incoming.png" width="150" alt="Invites — Incoming"/></td><td width="25%" align="center" valign="middle"><img src="screenshots/invites-sent.png" width="150" alt="Invites — Sent"/></td><td width="25%" align="center" valign="middle"><img src="screenshots/profile.png" width="150" alt="Profile"/></td></tr>
+<tr><th width="25%" align="center" valign="middle">Profile — Skills & Teams</th><th width="25%" align="center" valign="middle">Teammate Profile</th><th width="25%" align="center" valign="middle">Settings</th><th width="25%" align="center" valign="middle">About Us</th></tr>
+<tr><td width="25%" align="center" valign="middle"><img src="screenshots/profile-teams.png" width="150" alt="Profile — Skills & Teams"/></td><td width="25%" align="center" valign="middle"><img src="screenshots/teammate-profile.png" width="150" alt="Teammate Profile"/></td><td width="25%" align="center" valign="middle"><img src="screenshots/settings.png" width="150" alt="Settings"/></td><td width="25%" align="center" valign="middle"><img src="screenshots/about.png" width="150" alt="About Us"/></td></tr>
 </table>
 
 </div>
