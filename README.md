@@ -1,4 +1,3 @@
-
 <div align="center">
 
 <br/>
@@ -34,17 +33,9 @@ Browse hackathons — discover open teams — connect through requests and invit
 
 ## 🎬 Demo
 
-
 <div align="center">
 
-
-
 https://github.com/user-attachments/assets/862592c9-7e34-4c48-a99c-9f183468c67a
-
-
-
-
-
 
 </div>
 
@@ -67,11 +58,16 @@ The name carries the idea. In mathematics, a vector holds both magnitude and dir
 
 | | |
 |---|---|
-| **Hackathon Discovery** | Browse hackathons by field and explore every team competing in each one |
-| **Join Requests** | Request to join teams that need your skills, and track the status of every request |
-| **Invitations** | Receive, accept, decline, or withdraw team invitations in a single tap |
-| **Team Builder** | Create your own team — set its size, define the roles you need, and let people come to you |
-| **Verified Profiles** | Email-verified signup via a custom-designed confirmation link and verification page, a curated skills showcase, and certificate uploads stored securely |
+| **Guest Mode** | Explore the whole app before creating an account — browse hackathons, teams, and profiles as a guest |
+| **Two-Step Signup** | Account essentials with LinkedIn (required) and GitHub (optional), then pick 1–6 skills across Design, Development, and Product |
+| **Email Verification** | A custom-branded confirmation page guides users back to the app, which securely verifies the confirmation before saving the account |
+| **Hackathon Discovery** | Browse hackathons filtered by field — Security, AI, GovTech, Energy — with prizes, dates, and location at a glance |
+| **Team Carousel** | Flip through every team in a hackathon, see open spots, current members, and the exact roles each team is missing |
+| **Join Requests** | Send a request in one tap, then track it as Pending, Accepted, or Declined — and withdraw it anytime while pending |
+| **Invitations** | Receive invites with the lead's personal message, a live expiry countdown, and one-tap accept or decline |
+| **Team Builder** | Create your own team — name it, set its size (3–5), pick the roles you need or add your own, and become the team lead |
+| **Team Management** | A leader view of your team with its members, a shortcut to the event's other teams, and the option to delete the team |
+| **Skills & Evidence** | A profile built around what you bring — skills backed by uploaded certificates, your current teams, and previous participation |
 | **Integrity by Design** | Uploaded certificates are hashed, eliminating duplicate files at the source |
 
 ## 🎨 Design & Details
@@ -81,6 +77,7 @@ Vector pays attention to the details that are usually skipped.
 - **Custom brand loader** — the "V" mark is drawn stroke-by-stroke as a custom animation, used at launch, login, and signup, with a smaller overlay version for long-running operations
 - **No dead loading states** — lists load behind skeleton shimmer placeholders, and write actions show progress inside the button itself
 - **Custom motion** — animated splash, a flip-style team carousel, and a hand-built bottom navigation bar
+- **Consistent brand beyond the app** — the email confirmation page carries the same identity, colors, and typography as the app itself
 - **Centralized design system** — zero inline colors in the codebase; every color, text style, and theme value comes from design tokens (`VectorColors`, `VectorText`, `VectorTheme`)
 - **Security in the details** — OTP email verification, credentials kept out of the codebase via `.env`, and certificate uploads hashed to block duplicates at the source
 
@@ -90,37 +87,121 @@ Vector pays attention to the details that are usually skipped.
 
 <div align="center">
 
+### 🚀 Onboarding — Splash, Login & Sign Up
+
 <table>
   <tr>
     <th align="center">Splash</th>
     <th align="center">Log In</th>
-    <th align="center">Sign Up</th>
+    <th align="center">Sign Up — Account</th>
+    <th align="center">Sign Up — Skills</th>
   </tr>
   <tr>
-    <td align="center"><img src="screenshots/splash.png" width="250" alt="Splash"/></td>
-
-<td align="center"><img src="https://github.com/user-attachments/assets/1d7c18c6-a69b-452d-bf48-b62326e84a0c" width="250" alt="Log In"/></td>
-    <td align="center"><img src="screenshots/signup.png" width="250" alt="Sign Up"/></td>
+    <td align="center"><img src="screenshots/splash.png" width="190" alt="Splash"/></td>
+    <td align="center"><img src="screenshots/login.png" width="190" alt="Log In"/></td>
+    <td align="center"><img src="screenshots/signup-account.png" width="190" alt="Sign Up — Account"/></td>
+    <td align="center"><img src="screenshots/signup-skills.png" width="190" alt="Sign Up — Skills"/></td>
   </tr>
+  <tr>
+    <td align="center"><sub>Animated brand splash</sub></td>
+    <td align="center"><sub>Sign in, sign up, or continue as guest</sub></td>
+    <td align="center"><sub>Step 1 of 2 — essentials & profiles</sub></td>
+    <td align="center"><sub>Step 2 of 2 — skills & evidence</sub></td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th align="center">Email Confirmation</th>
+    <th align="center">Customized Loading Icon</th>
+  </tr>
+  <tr>
+    <td align="center"><img src="screenshots/email-confirmation.png" width="190" alt="Email Confirmation"/></td>
+    <td align="center"><img src="screenshots/loading-icon.png" width="190" alt="Customized Loading Icon"/></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Branded page shown after verifying email</sub></td>
+    <td align="center"><sub>The "V" mark drawn stroke-by-stroke</sub></td>
+  </tr>
+</table>
+
+### 🔍 Discovery & Joining — Hackathons, Teams & Requests
+
+<table>
   <tr>
     <th align="center">Home — Hackathons</th>
     <th align="center">Team Details</th>
-    <th align="center">Invites</th>
+    <th align="center">Request Sent</th>
   </tr>
   <tr>
-    <td align="center"><img src="screenshots/home.png" width="250" alt="Home — Hackathons"/></td>
-    <td align="center"><img src="screenshots/team.png" width="250" alt="Team Details"/></td>
-    <td align="center"><img src="screenshots/invites.png" width="250" alt="Invites"/></td>
+    <td align="center"><img src="screenshots/home.png" width="190" alt="Home — Hackathons"/></td>
+    <td align="center"><img src="screenshots/team-details.png" width="190" alt="Team Details"/></td>
+    <td align="center"><img src="screenshots/request-sent.png" width="190" alt="Request Sent"/></td>
   </tr>
+  <tr>
+    <td align="center"><sub>Browse hackathons by field</sub></td>
+    <td align="center"><sub>Open spots & missing roles</sub></td>
+    <td align="center"><sub>Join request confirmation</sub></td>
+  </tr>
+</table>
+
+### 👥 Teams — Create & Manage Your Team
+
+<table>
+  <tr>
+    <th align="center">Create a New Team</th>
+    <th align="center">Create Your Team</th>
+    <th align="center">My Team — Leader View</th>
+  </tr>
+  <tr>
+    <td align="center"><img src="screenshots/create-team-card.png" width="190" alt="Create a New Team"/></td>
+    <td align="center"><img src="screenshots/create-team.png" width="190" alt="Create Your Team"/></td>
+    <td align="center"><img src="screenshots/my-team.png" width="190" alt="My Team — Leader View"/></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Last card in the team carousel</sub></td>
+    <td align="center"><sub>Name, size & roles you need</sub></td>
+    <td align="center"><sub>Members, event teams & delete</sub></td>
+  </tr>
+</table>
+
+### ✉️ Invites — Incoming & Sent
+
+<table>
+  <tr>
+    <th align="center">Invites — Incoming</th>
+    <th align="center">Invites — Sent</th>
+  </tr>
+  <tr>
+    <td align="center"><img src="screenshots/invites-incoming.png" width="190" alt="Invites — Incoming"/></td>
+    <td align="center"><img src="screenshots/invites-sent.png" width="190" alt="Invites — Sent"/></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Accept or decline in one tap</sub></td>
+    <td align="center"><sub>Track pending, declined & accepted</sub></td>
+  </tr>
+</table>
+
+### 👤 Profile — Skills, Settings & About
+
+<table>
   <tr>
     <th align="center">Profile</th>
+    <th align="center">Profile — Skills & Teams</th>
     <th align="center">Settings</th>
     <th align="center">About Us</th>
   </tr>
   <tr>
-    <td align="center"><img src="screenshots/profile.png" width="250" alt="Profile"/></td>
-    <td align="center"><img src="screenshots/settings.png" width="250" alt="Settings"/></td>
-    <td align="center"><img src="https://github.com/user-attachments/assets/9d123897-c35c-4537-8c6a-0ea2b140afae" width="250" alt="About Us"/></td>
+    <td align="center"><img src="screenshots/profile.png" width="190" alt="Profile"/></td>
+    <td align="center"><img src="screenshots/profile-teams.png" width="190" alt="Profile — Skills & Teams"/></td>
+    <td align="center"><img src="screenshots/settings.png" width="190" alt="Settings"/></td>
+    <td align="center"><img src="screenshots/about.png" width="190" alt="About Us"/></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Identity, links & about</sub></td>
+    <td align="center"><sub>Skills, your teams & history</sub></td>
+    <td align="center"><sub>Account, preferences & privacy</sub></td>
+    <td align="center"><sub>The story behind the name</sub></td>
   </tr>
 </table>
 
@@ -182,4 +263,3 @@ To connect a live backend, add a `.env` file with your Supabase credentials. Aut
 *Crafted with passion 🤍*
 
 </div>
-
