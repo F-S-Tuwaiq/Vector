@@ -25,7 +25,7 @@ Browse hackathons — discover open teams — connect through requests and invit
 
 *The final project of **Tuwaiq Academy**'s Flutter & Dart Bootcamp.*
 
-**[🌐 Try the web app](https://f-s-tuwaiq.github.io/Vector/)**  ·  **[🎬 Watch the demo](https://github.com/user-attachments/assets/862592c9-7e34-4c48-a99c-9f183468c67a)**  ·  **[📧 Email confirmation page](https://vector-email-confirmation.shammalbinni.chatgpt.site)**
+**[🌐 Try the web app](https://f-s-tuwaiq.github.io/Vector/)**  ·  **[📧 Email confirmation page](https://vector-email-confirmation.shammalbinni.chatgpt.site)**
 
 </div>
 
@@ -133,6 +133,17 @@ Vector pays attention to the details that are usually skipped.
 <table>
 <tr>
 <td align="center" valign="top">
+<h3 align="center">📎 Skill Evidence</h3>
+<table>
+<tr>
+<th align="center">Certificate Upload</th>
+</tr>
+<tr>
+<td align="center"><img src="screenshots/upload-certificate.png" width="180" alt="Certificate Upload"/></td>
+</tr>
+</table>
+</td>
+<td align="center" valign="top">
 <h3 align="center">📧 Email Confirmation</h3>
 <table>
 <tr>
@@ -151,17 +162,6 @@ Vector pays attention to the details that are usually skipped.
 </tr>
 <tr>
 <td align="center"><img src="screenshots/loading-icon.png" width="180" alt="Loading Icon"/></td>
-</tr>
-</table>
-</td>
-<td align="center" valign="top">
-<h3 align="center">📎 Skill Evidence</h3>
-<table>
-<tr>
-<th align="center">Certificate Upload</th>
-</tr>
-<tr>
-<td align="center"><img src="screenshots/upload-certificate.png" width="180" alt="Certificate Upload"/></td>
 </tr>
 </table>
 </td>
