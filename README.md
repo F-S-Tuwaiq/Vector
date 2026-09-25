@@ -242,6 +242,11 @@ Vector pays attention to the details that are usually skipped.
 <a id="project-structure"></a>
 ## 📂 Project Structure
 
+The app code lives in `lib/`, alongside the confirmation website, docs, tests, and build tooling.
+
+<details>
+<summary><b>📁 Click to expand the folder structure</b></summary>
+
 ```
 Vector/
 ├── lib/
@@ -259,6 +264,8 @@ Vector/
 ├── tool/                   # build_web.py — validated production build for the web app
 └── screenshots/            # Images used in this README
 ```
+
+</details>
 
 <a id="running-vector"></a>
 ## 🚀 Running Vector
